@@ -77,7 +77,7 @@ class GcdGenerator:
         if factor_cnt < 0:
             raise ValueError("factor_cnt не может быть меньше или равен 0")
         if factor_cnt > self.max_factor_cnt:
-            raise ValueError("factor_cnt не может быть больше %d" % self.max_factor_cnt)
+            raise ValueError(f"factor_cnt не может быть больше {self.max_factor_cnt}")
         self.__values = [1, 1, 1]
         # Выбираем случайные простые числа из доступных
         # Распределяем их в произвольную группу с произвольной степенью
