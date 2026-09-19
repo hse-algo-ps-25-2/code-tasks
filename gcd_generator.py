@@ -82,9 +82,9 @@ class GcdGenerator:
         # Выбираем случайные простые числа из доступных
         # Распределяем их в произвольную группу с произвольной степенью
         selected_primes = random.sample(self.__primes, factor_cnt)
-        for prime in selected_primes:
-            group = random.randint(0, 2)
-            pow = random.randint(0, max_pow)
+        for index, prime in enumerate(selected_primes):
+            group = index % 3
+            pow = random.randint(1, max_pow)
             self.__values[group] *= prime**pow
 
 
