@@ -43,23 +43,23 @@ class TestGcd(unittest.TestCase):
                 with self.subTest(func=gcd.__name__, a=case.a, b=case.b):
                     self.assertEqual(case.result, gcd(case.a, case.b))
 
-    # def test_random(self):
-    #     """Проверка вычисления НОД на случайно сгенерированных примерах"""
-    #     gcd_gen = GcdGenerator()
-    #     if gcd_gen.gcd_value is None:
-    #         self.skipTest("GcdGenerator is not implemented")
-    #     for gcd in self.gcd_functions:
-    #         for i in range(10):
-    #             if gcd == gcd_iterative_fast:
-    #                 gcd_gen.generate_values(9, 5)
-    #             else:
-    #                 gcd_gen.generate_values(3, 2)
-    #             with self.subTest(
-    #                 func=gcd.__name__, i=i, a=gcd_gen.a_value, b=gcd_gen.b_value
-    #             ):
-    #                 self.assertEqual(
-    #                     gcd(gcd_gen.a_value, gcd_gen.b_value), gcd_gen.gcd_value
-    #                 )
+    def test_random(self):
+        """Проверка вычисления НОД на случайно сгенерированных примерах"""
+        gcd_gen = GcdGenerator()
+        if gcd_gen.gcd_value is None:
+            self.skipTest("GcdGenerator is not implemented")
+        for gcd in self.gcd_functions:
+            for i in range(10):
+                if gcd == gcd_iterative_fast:
+                    gcd_gen.generate_values(9, 5)
+                else:
+                    gcd_gen.generate_values(3, 2)
+                with self.subTest(
+                    func=gcd.__name__, i=i, a=gcd_gen.a_value, b=gcd_gen.b_value
+                ):
+                    self.assertEqual(
+                        gcd(gcd_gen.a_value, gcd_gen.b_value), gcd_gen.gcd_value
+                    )
 
 
 class TestLcm(unittest.TestCase):
