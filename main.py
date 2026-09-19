@@ -9,12 +9,12 @@ def gcd_recursive(a: int, b: int) -> int:
     :param b: целое число b
     :return: значение наибольшего общего делителя
     """
-    if a * b == 0:
-        return a + b
     if a < 0:
         a = abs(a)
     if b < 0:
         b = abs(b)
+    if a * b == 0:
+        return a + b
     if a < b:
         a, b = b, a
     return gcd_recursive(b, a - b)
