@@ -69,7 +69,7 @@ def lcm(a: int, b: int) -> int:
         a = abs(a)
     if b < 0:
         b = abs(b)
-    return a * b / gcd_iterative_fast(a, b)
+    return a * b // gcd_iterative_fast(a, b)
 
 
 def main():
