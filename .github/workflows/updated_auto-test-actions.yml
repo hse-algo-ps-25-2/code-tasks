@@ -13,7 +13,7 @@
 # → «Read and write permissions» (не «Read repository contents and packages permissions»).
 # Сохраните. Без этого шаг с комментарием тихо не оставит сообщение, Check всё равно будет красным.
 
-name: Python auto testing
+name: Python auto testing_updating
 
 on:
   pull_request:
