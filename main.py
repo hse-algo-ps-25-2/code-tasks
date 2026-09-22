@@ -27,6 +27,11 @@ def fibonacci_iter(n: int) -> int:
     :param n: порядковый номер числа Фибоначчи
     :return: число Фибоначчи
     """
+    if n <= 0:
+        return 0
+    if n == 1:
+        return 1
+
     numbers = [1, 1]
     for _ in range(n - 2):
         numbers.append(numbers[-2] + numbers[-1])
@@ -40,6 +45,11 @@ def fibonacci(n: int) -> int:
     :param n: порядковый номер числа Фибоначчи
     :return: число Фибоначчи
     """
+    if n <= 0:
+        return 0
+    if n == 1:
+        return 1
+
     cache = {"a": 1, "b": 1}
 
     k = len(cache)
