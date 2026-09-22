@@ -39,8 +39,14 @@ def gcd_iterative_fast(a: int, b: int) -> int:
     :param b: целое число b
     :return: значение наибольшего общего делителя
     """
-    pass
+    a, b = abs(a), abs(b)
+    while a != 0:
+        if a <= b:
+            a, b = b % a, a
+        else:
+            a, b = a % b, b
 
+    return b
 
 def lcm(a: int, b: int) -> int:
     """Вычисляет наименьшее общее кратное двух натуральных чисел
