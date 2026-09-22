@@ -15,6 +15,7 @@ class GcdGenerator:
     """
 
     def __init__(self):
+        """Набор простых чисел для генерации значений"""
         self.__primes: tuple[int, ...] = (
             2,
             3,
@@ -26,8 +27,6 @@ class GcdGenerator:
             19,
             23,
         )
-        """Набор простых чисел для генерации значений"""
-        self.__values: list[int] = [1, 1, 1]
         """Сгенерированные значения, общие множители (индекс COMMON_FACTORS),
         множители исключительно для a_value (индекс A_ONLY_FACTORS),
         множители исключительно для b_value (индекс B_ONLY_FACTORS)"""
@@ -36,26 +35,30 @@ class GcdGenerator:
     @property
     def gcd_value(self) -> int:
         """Возвращает значение НОД для a_value и b_value"""
-        pass
+        return self.__values[COMMON_FACTORS]
 
     @property
     def a_value(self) -> int:
         """Возвращает число, полученное в результате перемножения простых чисел,
         возведенных в случайную степень. Число имеет как общие, так и различные
         множители с числом b_value"""
-        pass
+        return self.__values[COMMON_FACTORS] * self.__values[A_ONLY_FACTORS]
 
     @property
     def b_value(self) -> int:
         """Возвращает число, полученное в результате перемножения простых чисел,
         возведенных в случайную степень. Число имеет как общие, так и различные
         множители с числом a_value"""
-        pass
+        return self.__values[COMMON_FACTORS] * self.__values[B_ONLY_FACTORS]
 
     @property
     def lcm_value(self) -> int:
         """Возвращает значение НОК для a_value и b_value"""
-        pass
+        return (
+            self.__values[COMMON_FACTORS]
+            * self.__values[A_ONLY_FACTORS]
+            * self.__values[B_ONLY_FACTORS]
+        )
 
     @property
     def max_factor_cnt(self) -> int:
@@ -71,13 +74,24 @@ class GcdGenerator:
         умолчанию 5.
         :return: None
         """
-        pass
+        if factor_cnt < 0:
+            raise ValueError("factor_cnt не может быть меньше или равен 0")
+        if factor_cnt > self.max_factor_cnt:
+            raise ValueError(f"factor_cnt не может быть больше {self.max_factor_cnt}")
+        self.__values = [1, 1, 1]
+        # Выбираем случайные простые числа из доступных
+        # Распределяем их в произвольную группу с произвольной степенью
+        selected_primes = random.sample(self.__primes, factor_cnt)
+        for index, prime in enumerate(selected_primes):
+            group = index % 3
+            pow = random.randint(1, max_pow)
+            self.__values[group] *= prime**pow
 
 
 if __name__ == "__main__":
     print("Генерация чисел для проверки НОД/НОК")
     generator = GcdGenerator()
-    values = generator.generate_values(8, 5)
+    generator.generate_values(8, 5)
     print("Число a = %d" % generator.a_value)
     print("Число b = %d" % generator.b_value)
     print("НОД(a, b) = %d" % generator.gcd_value)
