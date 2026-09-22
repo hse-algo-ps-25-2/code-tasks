@@ -23,17 +23,12 @@ def gcd_iterative_slow(a: int, b: int) -> int:
     :param b: целое число b
     :return: значение наибольшего общего делителя
     """
-    a, b = abs(a), abs(b)
-    if a == 0:
-        return b
-    else:
-        return gcd_iterative_slow(abs(a - b), a if a <= b else b)
 
-   # незначительно быстрее тк abs() лишний раз не используется:
-   # elif a <= b:
-   #     return gcd_iterative_slow(b - a, a)
-   # else:
-   #     return gcd_iterative_slow(a - b, b)
+    a, b = abs(a), abs(b)
+    while a != 0:
+        a, b = abs(a - b), a if a <= b else b
+
+    return b
 
 
 def gcd_iterative_fast(a: int, b: int) -> int:
