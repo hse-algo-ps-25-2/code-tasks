@@ -50,16 +50,12 @@ def fibonacci(n: int) -> int:
     if n == 1:
         return 1
 
-    cache = {"a": 1, "b": 1}
+    a = 1
+    b = 1
 
-    k = len(cache)
-
-    for _ in range(n - k):
-        a = cache["a"]
-        b = cache["b"]
-        cache["a"] = b
-        cache["b"] = a + b
-    return cache["b"]
+    for _ in range(n - 2):
+        a, b = b, a + b
+    return b
 
 
 def main():
