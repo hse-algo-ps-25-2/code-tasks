@@ -17,8 +17,10 @@ def fibonacci_rec(n: int) -> int:
     """
     if n <= 0:
         return 0
+
     if n == 1:
         return 1
+
     return fibonacci_rec(n - 1) + fibonacci_rec(n - 2)
 
 
@@ -35,6 +37,7 @@ def fibonacci_iter(n: int) -> int:
     """
     if n <= 0:
         return 0
+
     if n == 1:
         return 1
 
@@ -57,6 +60,7 @@ def fibonacci(n: int) -> int:
     """
     if n <= 0:
         return 0
+
     if n == 1:
         return 1
 
