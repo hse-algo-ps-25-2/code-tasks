@@ -14,7 +14,7 @@ def fibonacci_rec(n: int) -> int:
     """
     if n <= 0:
         return 0
-    elif n == 1:
+    if n == 1:
         return 1
     return fibonacci_rec(n - 1) + fibonacci_rec(n - 2)
 
@@ -28,7 +28,7 @@ def fibonacci_iter(n: int) -> int:
     :return: число Фибоначчи
     """
     numbers = [1, 1]
-    for i in range(n - 2):
+    for _ in range(n - 2):
         numbers.append(numbers[-2] + numbers[-1])
     return numbers[-1]
 
@@ -44,7 +44,7 @@ def fibonacci(n: int) -> int:
 
     k = len(cache)
 
-    for i in range(n - k):
+    for _ in range(n - k):
         a = cache["a"]
         b = cache["b"]
         cache["a"] = b
