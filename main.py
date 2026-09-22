@@ -10,7 +10,7 @@ def gcd_recursive(a: int, b: int) -> int:
     :return: значение наибольшего общего делителя
     """
     if b == 0:
-        return a
+        return abs(a)
     else:
         return gcd_recursive(b, a % b)
 
@@ -59,8 +59,8 @@ def lcm(a: int, b: int) -> int:
 
 
 def main():
-    a = -1005002
-    b = -1354
+    a = 1005002
+    b = 1354
     print(f"Вычисление НОД чисел {a} и {b} рекурсивно:")
     start_time = time.time()
     print(gcd_recursive(a, b))
