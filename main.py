@@ -9,7 +9,7 @@ def gcd_recursive(a: int, b: int) -> int:
     :param b: целое число b
     :return: значение наибольшего общего делителя
     """
-    pass
+    return a if b == 0 else gcd_recursive(abs(b), abs(a % b))
 
 
 def gcd_iterative_slow(a: int, b: int) -> int:
@@ -20,7 +20,21 @@ def gcd_iterative_slow(a: int, b: int) -> int:
     :param b: целое число b
     :return: значение наибольшего общего делителя
     """
-    pass
+    a = abs(a)
+    b = abs(b)
+
+    if a == 0:
+        return b
+    elif b == 0:
+        return a
+
+    while a != b:
+        if a > b:
+            a -= b
+        else:
+            b -= a
+
+    return a
 
 
 def gcd_iterative_fast(a: int, b: int) -> int:
@@ -31,7 +45,13 @@ def gcd_iterative_fast(a: int, b: int) -> int:
     :param b: целое число b
     :return: значение наибольшего общего делителя
     """
-    pass
+    a = abs(a)
+    b = abs(b)
+
+    while b != 0:
+        a, b = b, a % b
+
+    return a
 
 
 def lcm(a: int, b: int) -> int:
@@ -41,7 +61,13 @@ def lcm(a: int, b: int) -> int:
     :param b: натуральное число b
     :return: значение наименьшего общего кратного
     """
-    pass
+    a = abs(a)
+    b = abs(b)
+       
+    if a == 0 or b == 0:
+        return 0
+
+    return (a * b) // gcd_iterative_fast(a, b)
 
 
 def main():
