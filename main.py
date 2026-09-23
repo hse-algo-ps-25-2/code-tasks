@@ -61,6 +61,11 @@ def fibonacci(n: int) -> int:
     :param n: порядковый номер числа Фибоначчи
     :return: число Фибоначчи
     """
+    if n <= 0:
+        return 0
+
+    if n == 1:
+        return 1
 
     a = 1
     b = 1
