@@ -1,6 +1,3 @@
-
-
-
 def fibonacci_rec(n: int) -> int:
     """Возвращает N-е число Фибоначчи. Реализована рекурсивно согласно
     формуле вычисления последовательности.
@@ -10,8 +7,7 @@ def fibonacci_rec(n: int) -> int:
     """
     if n == 1 or n == 2:
         return 1
-    return fibonacci_rec(n-1) + fibonacci_rec(n-2)
-
+    return fibonacci_rec(n - 1) + fibonacci_rec(n - 2)
 
 
 def fibonacci_iter(n: int) -> int:
@@ -22,9 +18,9 @@ def fibonacci_iter(n: int) -> int:
     :return: число Фибоначчи
     """
     numbers = [1, 1]
-    for i in range(2, n+1):
-        numbers.append(numbers[i-1] + numbers[i-2])
-    return numbers[n-1]
+    for i in range(2, n + 1):
+        numbers.append(numbers[i - 1] + numbers[i - 2])
+    return numbers[n - 1]
 
 
 def fibonacci(n: int) -> int:
@@ -34,7 +30,7 @@ def fibonacci(n: int) -> int:
     :return: число Фибоначчи
     """
     prev, curr = 1, 1
-    for i in range(2, n+1):
+    for i in range(2, n + 1):
         prev, curr = curr, prev + curr
     return prev
 
