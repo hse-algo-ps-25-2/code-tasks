@@ -1,4 +1,8 @@
-from profilehooks import profile
+try:
+    from profilehooks import profile 
+except ModuleNotFoundError: 
+    def profile(func):
+        return func
 
 
 def fibonacci_rec(n: int) -> int:
@@ -50,7 +54,7 @@ def fibonacci(n: int) -> int:
     return previous
 
 
-@profile
+@profile # шобы заработало надо запустить python main.py
 def main():
     n = 35
     print(f"Вычисление {n} числа Фибоначчи рекурсивно:")
