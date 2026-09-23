@@ -1,0 +1,128 @@
+# Срабатывает на pull request в main и в main-task-* (не в студенческую ветку как base).
+# Тип edited нужен, чтобы при смене base (main → main-task-0) Checks запустились снова.
+# Правка только заголовка PR не гоняет тесты (фильтр на job).
+# Шаги:
+# - если base не main-task-*: комментарий в PR и красный Check;
+# - ruff: сборка падает только на критических ошибках (синтаксис и неопределённые имена);
+#   замечания по стилю не валят Checks (--exit-zero), их смотрят на ревью;
+# - unittest: если есть test_runner.py — он, иначе поиск test*.py по дереву репозитория;
+# - лимит 5 минут.
+#
+# Чтобы бот мог писать в pull request, на GitHub нужно разрешить запись токену Actions:
+# репозиторий (или организация) → Settings → Actions → General → Workflow permissions
+# → «Read and write permissions» (не «Read repository contents and packages permissions»).
+# Сохраните. Без этого шаг с комментарием тихо не оставит сообщение, Check всё равно будет красным.
+
+name: Python auto testing_updating
+
+on:
+  pull_request:
+    branches:
+      - main
+      - "main-task-*"
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - edited
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  test:
+    if: github.event.action != 'edited' || github.event.changes.base != null
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - name: Проверить ветку назначения
+      id: base
+      env:
+        BASE: ${{ github.base_ref }}
+      run: |
+        if [[ "$BASE" == main-task-* ]]; then
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "ok=false" >> "$GITHUB_OUTPUT"
+          echo "::error::Pull request открыт в ветку «${BASE}». Нужна ветка задания main-task-N (например main-task-0), не main. На странице PR: Edit рядом с base → выбрать main-task-… Новый PR создавать не нужно."
+        fi
+
+    - name: Комментарий — неверная ветка base
+      if: steps.base.outputs.ok != 'true'
+      continue-on-error: true
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const marker = '<!-- algo-wrong-base -->';
+          const base = context.payload.pull_request.base.ref;
+          const body = [
+            marker,
+            '⚠️ Этот pull request открыт в ветку `' + base + '`.',
+            '',
+            'Для программных заданий поле **base** должно быть веткой задания: `main-task-0`, `main-task-1-v1` и т.д., **не** `main`.',
+            '',
+            'Как исправить: на странице PR нажмите **Edit** рядом с base, выберите нужный `main-task-…` и сохраните. Новый pull request создавать не нужно.',
+            '',
+            'Инструкция: https://github.com/hse-algo-ps-25-2/doc/blob/main/%D0%92%D1%8B%D0%BF%D0%BE%D0%BB%D0%BD%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BF%D0%BE%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8E.md',
+          ].join('\n');
+
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            per_page: 100,
+          });
+          if (comments.some((c) => c.body && c.body.includes(marker))) {
+            return;
+          }
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body,
+          });
+
+    - name: Остановить сборку — неверная ветка base
+      if: steps.base.outputs.ok != 'true'
+      run: exit 1
+
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.14
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.14"
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+
+    - name: Install dependencies
+      run: uv sync --frozen
+
+    # === Критические ошибки (синтаксис + undefined names) — валят сборку ===
+    - name: Ruff lint (critical)
+      uses: astral-sh/ruff-action@v1
+      with:
+        args: "check --select E9,F63,F7,F82 --output-format=github"
+
+    # === Стиль + isort + остальное — не валит Checks ===
+    - name: Ruff lint (style)
+      uses: astral-sh/ruff-action@v1
+      with:
+        args: "check --exit-zero --output-format=github"
+
+    # === Проверка форматирования (не валит) ===
+    - name: Ruff format check
+      uses: astral-sh/ruff-action@v1
+      with:
+        args: "format --check"
+      continue-on-error: true
+
+    - name: Test with unittest module
+      run: |
+        if [ -f test_runner.py ]; then
+          uv run python -m unittest test_runner.py -v
+        else
+          uv run python -m unittest discover -s . -p "test*.py" -v
+        fi

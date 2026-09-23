@@ -1,4 +1,5 @@
 import unittest
+from typing import ClassVar
 
 from main import fibonacci, fibonacci_iter, fibonacci_rec
 
@@ -6,7 +7,7 @@ from main import fibonacci, fibonacci_iter, fibonacci_rec
 class TestFibonacci(unittest.TestCase):
     """Тесты для проверки функций вычисления числа Фибоначчи"""
 
-    fibonacci_numbers = [
+    fibonacci_numbers: ClassVar[list[int]] = [
         1,
         1,
         2,
@@ -36,14 +37,14 @@ class TestFibonacci(unittest.TestCase):
 
         for n, expected in enumerate(self.fibonacci_numbers, start=1):
             with self.subTest(n=n):
-                self.assertEqual(fibonacci_rec(n), expected)
+                assert fibonacci_rec(n) == expected
 
     def test_fibonacci_iter(self):
         """Проверка работы итеративной функции вычисления числа Фибоначчи"""
 
         for n, expected in enumerate(self.fibonacci_numbers, start=1):
             with self.subTest(n=n):
-                self.assertEqual(fibonacci_iter(n), expected)
+                assert fibonacci_iter(n) == expected
 
     def test_fibonacci(self):
         """Проверка работы итеративной функции вычисления числа Фибоначчи
@@ -51,7 +52,7 @@ class TestFibonacci(unittest.TestCase):
 
         for n, expected in enumerate(self.fibonacci_numbers, start=1):
             with self.subTest(n=n):
-                self.assertEqual(fibonacci(n), expected)
+                assert fibonacci(n) == expected
 
 
 if __name__ == "__main__":
