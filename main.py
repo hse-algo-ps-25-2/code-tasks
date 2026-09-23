@@ -8,7 +8,12 @@ def fibonacci_rec(n: int) -> int:
     :param n: порядковый номер числа Фибоначчи
     :return: число Фибоначчи
     """
-    pass
+    if n <= 0:
+        return 0
+    if n == 1 or n == 2:
+        return 1
+
+    return fibonacci_rec(n - 1) + fibonacci_rec(n - 2)
 
 
 def fibonacci_iter(n: int) -> int:
@@ -18,7 +23,18 @@ def fibonacci_iter(n: int) -> int:
     :param n: порядковый номер числа Фибоначчи
     :return: число Фибоначчи
     """
-    pass
+    if n <= 0:
+        return 0
+    if n == 1 or n == 2:
+        return 1
+
+    arr = [0] * (n + 1)
+    arr[1] = 1
+    arr[2] = 1
+    for i in range(3, n + 1):
+        arr[i] = arr[i - 1] + arr[i - 2]
+
+    return arr[n]
 
 
 def fibonacci(n: int) -> int:
@@ -27,7 +43,19 @@ def fibonacci(n: int) -> int:
     :param n: порядковый номер числа Фибоначчи
     :return: число Фибоначчи
     """
-    pass
+    if n <= 0:
+        return 0
+    if n == 1 or n == 2:
+        return 1
+
+    a = 1
+    b = 1
+    for i in range(3, n + 1):
+        temp = a
+        a = b
+        b = temp + b
+
+    return b
 
 
 def main():
