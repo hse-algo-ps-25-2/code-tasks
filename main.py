@@ -25,10 +25,10 @@ def gcd_iterative_slow(a: int, b: int) -> int:
     """
 
     a, b = abs(a), abs(b)
-    while a != 0:
+    while a != 0 and b != 0:
         a, b = abs(a - b), a if a <= b else b
 
-    return b
+    return a + b
 
 
 def gcd_iterative_fast(a: int, b: int) -> int:
@@ -40,13 +40,9 @@ def gcd_iterative_fast(a: int, b: int) -> int:
     :return: значение наибольшего общего делителя
     """
     a, b = abs(a), abs(b)
-    while a != 0:
-        if a <= b:
-            a, b = b % a, a
-        else:
-            a, b = a % b, b
-
-    return b
+    while b != 0:
+            a, b = b, a % b
+    return a
 
 def lcm(a: int, b: int) -> int:
     """Вычисляет наименьшее общее кратное двух натуральных чисел
