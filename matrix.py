@@ -1,7 +1,7 @@
 class Matrix:
     """Класс для операций с матрицами."""
 
-    def __init__(self, matrix: list) -> None:
+    def __init__(self, matrix: list[list[int]]) -> None:
         self.matrix = matrix
 
     def is_valid(self) -> bool:
