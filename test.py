@@ -31,6 +31,34 @@ class TestDeterminant(unittest.TestCase):
         matrix = [[3, -3, -5, 8], [-3, 2, 4, -6], [-4, 3, 5, -6]]
         self.assertRaises(Exception, calculate_determinant, matrix)
 
+    def test_not_even_square(self):
+        """Проверяет, что функция выбрасывает исключение при передаче в
+        параметр матрицы, у которой количество в строке не хватает значений
+        """
+        matrix = [[1, 2], [3]]
+        self.assertRaises(Exception, calculate_determinant, matrix)
+
+    def test_invalid_float_cell_value(self):
+        """Проверяет, что функция выбрасывает исключение при передаче в
+        параметр матрицы, у которой в ячейке дробное значение
+        """
+        matrix = [[1, 2], [3, 4.5]]
+        self.assertRaises(Exception, calculate_determinant, matrix)
+
+    def test_invalid_bool_cell_value(self):
+        """Проверяет, что функция выбрасывает исключение при передаче в
+        параметр матрицы, у которой в ячейке булево значение
+        """
+        matrix = [[1, 2], [3, True]]
+        self.assertRaises(Exception, calculate_determinant, matrix)
+
+    def test_none_cell_value(self):
+        """Проверяет, что функция выбрасывает исключение при передаче в
+        параметр матрицы, у которой в ячейке пустое значение
+        """
+        matrix = [[1, 2], [3, None]]
+        self.assertRaises(Exception, calculate_determinant, matrix)
+
     def test_first_order(self):
         """Проверяет расчет определителя для матрицы порядка 1"""
         matrix = [[1]]
@@ -43,13 +71,40 @@ class TestDeterminant(unittest.TestCase):
 
     def test_third_order(self):
         """Проверяет расчет определителя для матрицы порядка 3"""
-        matrix = [[1, -2, 3], [-4, 5, -6], [7, -8, 9]]
-        self.assertEqual(calculate_determinant(matrix), 0)
+        matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 10]]
+        self.assertEqual(calculate_determinant(matrix), -3)
 
     def test_fourth_order(self):
         """Проверяет расчет определителя для матрицы порядка 4"""
         matrix = [[3, -3, -5, 8], [-3, 2, 4, -6], [2, -5, -7, 5], [-4, 3, 5, -6]]
         self.assertEqual(calculate_determinant(matrix), 18)
+
+    def test_zero_row_matrix(self):
+        """Проверяет, что функция возвращает 0 для матрицы c нулевой строкой"""
+        matrix = [[0, 0, 0], [1, 2, 3], [4, 5, 6]]
+        self.assertEqual(calculate_determinant(matrix), 0)
+
+    def test_zero_column_matrix(self):
+        """Проверяет, что функция возвращает 0 для матрицы c нулевым столбцом"""
+        matrix = [[0, 1, 2], [0, 3, 4], [0, 5, 6]]
+        self.assertEqual(calculate_determinant(matrix), 0)
+
+    def test_linearly_dependent_matrix(self):
+        """Проверяет, что функция возвращает 0 для матрицы
+        с линейно зависимыми строками"""
+        matrix = [[1, 2, 3], [2, 4, 6], [3, 6, 9]]
+        self.assertEqual(calculate_determinant(matrix), 0)
+
+    def test_large_numbers(self):
+        """Проверяет, что функция возвращает большие числа"""
+        matrix = [[10**10, 0], [0, 10**10]]
+        self.assertEqual(calculate_determinant(matrix), 10**20)
+
+    def test_large_numbers_with_reduction(self):
+        """Проверяет, что функция корректно обрабатывает большие числа
+        при условии когда результат сокращается до малого значения"""
+        matrix = [[10**10, 10**10 - 1], [10**10 + 1, 10**10]]
+        self.assertEqual(calculate_determinant(matrix), 1)
 
     def test_generator(self):
         """Проверяет генератор матриц с известным определителем"""
@@ -60,9 +115,7 @@ class TestDeterminant(unittest.TestCase):
                 self.assertEqual(len(test_case.matrix), order)
                 for row in test_case.matrix:
                     self.assertEqual(len(row), order)
-                self.assertEqual(
-                    calculate_determinant(test_case.matrix), test_case.det
-                )
+                self.assertEqual(calculate_determinant(test_case.matrix), test_case.det)
 
 
 if __name__ == "__main__":
