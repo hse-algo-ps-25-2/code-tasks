@@ -1,5 +1,7 @@
 import typing
 
+type Matrix = list[list[int]]
+
 
 def validate_matrix(matrix: typing.Any) -> None:
     """Проверяет, что значение является квадратной целочисленной матрицей
@@ -21,7 +23,7 @@ def validate_matrix(matrix: typing.Any) -> None:
         raise Exception("Матрица должна быть целочисленной")
 
 
-def truncate_matrix(matrix: list[list[int]], deleted_col_idx: int) -> list[list[int]]:
+def truncate_matrix(matrix: Matrix, deleted_col_idx: int) -> Matrix:
     """Строит новую матрицу, удаляя из исходной строку с индексом 0
     и столбец с индексом deleted_col_idx.
 
@@ -42,7 +44,7 @@ def truncate_matrix(matrix: list[list[int]], deleted_col_idx: int) -> list[list[
     return truncated_matrix
 
 
-def calculate_determinant(matrix: list[list[int]]) -> int:
+def calculate_determinant(matrix: Matrix) -> int:
     """Вычисляет определитель разложением по строке.
 
     :param matrix: квадратная целочисленная матрица порядка не меньше 1
@@ -51,7 +53,7 @@ def calculate_determinant(matrix: list[list[int]]) -> int:
     """
     validate_matrix(matrix)
 
-    def calc_det(matrix: list[list[int]]) -> int:
+    def calc_det(matrix: Matrix) -> int:
         # база рекурсии: определитель матрицы 1x1 равен единственному элементу
         if len(matrix) == 1:
             return matrix[0][0]
