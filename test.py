@@ -60,9 +60,7 @@ class TestDeterminant(unittest.TestCase):
                 self.assertEqual(len(test_case.matrix), order)
                 for row in test_case.matrix:
                     self.assertEqual(len(row), order)
-                self.assertEqual(
-                    calculate_determinant(test_case.matrix), test_case.det
-                )
+                self.assertEqual(calculate_determinant(test_case.matrix), test_case.det)
 
 
 if __name__ == "__main__":
