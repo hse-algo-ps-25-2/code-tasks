@@ -1,7 +1,8 @@
-from collections import namedtuple
 import random
+from collections import namedtuple
 
 Case = namedtuple("Case", ["matrix", "det"])
+
 
 def swap_rows(order, matrix, det):
     """Переставляет случайные пары строк. По свойству матриц,
@@ -17,6 +18,7 @@ def swap_rows(order, matrix, det):
         det = det * (-1)
     return det
 
+
 def sum_rows(order, matrix):
     """Прибавляет к каждой строке следующую строку, умноженную
     на константу. Прибавление строки, умноженной на константу,
@@ -30,6 +32,7 @@ def sum_rows(order, matrix):
         for j in range(order):
             matrix[i][j] += matrix[i + 1][j] * k
     return matrix
+
 
 def generate_matrix_and_det(order: int) -> Case:
     """Строит квадратную целочисленную матрицу заданного порядка
@@ -58,6 +61,7 @@ def generate_matrix_and_det(order: int) -> Case:
     sum_rows(order, matrix)
 
     return Case(matrix=matrix, det=det)
+
 
 def main():
     n = 10
