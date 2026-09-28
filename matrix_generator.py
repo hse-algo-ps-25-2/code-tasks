@@ -1,7 +1,35 @@
 from collections import namedtuple
+import random
 
 Case = namedtuple("Case", ["matrix", "det"])
 
+def swap_rows(order, matrix, det):
+    """Переставляет случайные пары строк. По свойству матриц,
+    каждая перестановка меняет знак определителя.
+    :param order: порядок матрицы, целое число не меньше 1
+    :param matrix: матрица
+    :param det: определитель матрицы
+    :return: det
+    """
+    for i in range(order - 1):
+        j = random.randint(i + 1, order - 1)
+        matrix[i], matrix[j] = matrix[j], matrix[i]
+        det = det * (-1)
+    return det
+
+def sum_rows(order, matrix):
+    """Прибавляет к каждой строке следующую строку, умноженную
+    на константу. Прибавление строки, умноженной на константу,
+    не меняет определитель.
+    :param order: порядок матрицы, целое число не меньше 1
+    :param matrix: матрица
+    :return: matrix
+    """
+    for i in range(order - 1):
+        k = random.randint(1, 10)
+        for j in range(order):
+            matrix[i][j] += matrix[i + 1][j] * k
+    return matrix
 
 def generate_matrix_and_det(order: int) -> Case:
     """Строит квадратную целочисленную матрицу заданного порядка
@@ -14,8 +42,22 @@ def generate_matrix_and_det(order: int) -> Case:
     :raises Exception: если order не является таким числом
     :return: Case с полями matrix и det
     """
-    pass
+    if not isinstance(order, int) or order < 1:
+        raise Exception("order должен быть целым числом >= 1")
 
+    det = 1
+    matrix = []
+
+    for i in range(order):
+        row = [0] * order
+        matrix.append(row)
+        matrix[i][i] = random.randint(1, 99)
+        det = det * matrix[i][i]
+
+    det = swap_rows(order, matrix, det)
+    sum_rows(order, matrix)
+
+    return Case(matrix=matrix, det=det)
 
 def main():
     n = 10
