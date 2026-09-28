@@ -33,10 +33,8 @@ def truncate_matrix(matrix: Matrix, deleted_col_idx: int) -> Matrix:
     """
     truncated_matrix = []
 
-    for _ in range(len(matrix) - 1):
-        truncated_matrix.append([])
-
     for row_idx in range(1, len(matrix)):
+        truncated_matrix.append([])
         for col_idx in range(len(matrix)):
             if col_idx != deleted_col_idx:
                 truncated_matrix[row_idx - 1].append(matrix[row_idx][col_idx])

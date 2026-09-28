@@ -7,6 +7,7 @@ Case = namedtuple("Case", ["matrix", "det"])
 def swap_rows(order, matrix, det):
     """Переставляет случайные пары строк. По свойству матриц,
     каждая перестановка меняет знак определителя.
+
     :param order: порядок матрицы, целое число не меньше 1
     :param matrix: матрица
     :param det: определитель матрицы
@@ -20,18 +21,22 @@ def swap_rows(order, matrix, det):
 
 
 def sum_rows(order, matrix):
-    """Прибавляет к каждой строке следующую строку, умноженную
-    на константу. Прибавление строки, умноженной на константу,
-    не меняет определитель.
+    """Прибавляет к первой строке остальные строки, умноженные на константу.
+    Затем прибавляет первую строку, умноженную на константу, к остальным строкам.
+    Прибавление строки, умноженной на константу, не меняет определитель.
+
     :param order: порядок матрицы, целое число не меньше 1
     :param matrix: матрица
-    :return: matrix
     """
-    for i in range(order - 1):
-        k = random.randint(1, 10)
+    for i in range(1, order):
+        k = random.randint(1, 10) * random.choice((-1, 1))
         for j in range(order):
-            matrix[i][j] += matrix[i + 1][j] * k
-    return matrix
+            matrix[0][j] += matrix[i][j] * k
+
+    for i in range(1, order):
+        k = random.randint(1, 10) * random.choice((-1, 1))
+        for j in range(order):
+            matrix[i][j] += matrix[0][j] * k
 
 
 def generate_matrix_and_det(order: int) -> Case:
@@ -54,7 +59,7 @@ def generate_matrix_and_det(order: int) -> Case:
     for i in range(order):
         row = [0] * order
         matrix.append(row)
-        matrix[i][i] = random.randint(1, 99)
+        matrix[i][i] = random.randint(1, 10)
         det = det * matrix[i][i]
 
     det = swap_rows(order, matrix, det)
