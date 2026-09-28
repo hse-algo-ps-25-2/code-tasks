@@ -29,3 +29,28 @@ class Matrix:
         :return: порядок матрицы
         """
         return len(self.matrix)
+
+    def get_element(self, row: int, column: int) -> int:
+        """Возвращает элемент матрицы по его строке и столбцу."""
+        return self.matrix[row][column]
+
+    def get_minor(self, row: int, column: int) -> list[list[int]]:
+        """Возвращает исходную матрицу без i-ой строки и j-ого столбца."""
+        matrix = self.matrix
+
+        if not (0 <= row < len(matrix)):
+            raise IndexError(f"Строк в матрице {len(matrix)}, а запрашивается {row}")
+
+        elif not (0 <= column < len(matrix[0])):
+            raise IndexError(
+                f"Столбцов в матрице {len(matrix[0])}, а запрашивается {column}"
+            )
+
+        matrix_without_row = matrix[:row] + matrix[row + 1 :]
+
+        new_matrix = []
+
+        for matrix_row in matrix_without_row:
+            new_matrix.append(matrix_row[:column] + matrix_row[column + 1 :])
+
+        return new_matrix
