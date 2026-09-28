@@ -1,3 +1,6 @@
+from matrix import Matrix
+
+
 def calculate_determinant(matrix: list[list[int]]) -> int:
     """Вычисляет определитель разложением по строке.
 
@@ -5,7 +8,25 @@ def calculate_determinant(matrix: list[list[int]]) -> int:
     :raises Exception: если matrix не является такой матрицей
     :return: значение определителя
     """
-    pass
+    m = Matrix(matrix)
+
+    if not m.is_valid():
+        raise Exception("Введённая матрица не является квадратной")
+
+    n = m.get_size()
+
+    if n == 1:
+        return m.get_element(0, 0)
+
+    det = 0
+
+    for j in range(n):
+        element = m.get_element(0, j)
+        sign = (-1) ** j
+        minor = m.get_minor(0, j)
+        det += element * sign * calculate_determinant(minor)
+
+    return det
 
 
 def main():
