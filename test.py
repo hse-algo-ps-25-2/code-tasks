@@ -49,6 +49,40 @@ class TestTridiagonalDeterminant(unittest.TestCase):
         matrix = [[2, -3, 0, 0], [5, 2, -3, 0], [0, 5, 2, -3], [0, 0, 5, 2]]
         self.assertEqual(get_tridiagonal_determinant(matrix), 421)
 
+    # добавленные тесты
+    def test_main_diagonal_not_constant(self):
+        """Проверяет, что функция выбрасывает исключение при передаче
+        матрицы с непостоянными значениями на главной диагонали"""
+        matrix = [[1, 2, 0], [3, 2, 2], [0, 3, 1]]
+        self.assertRaises(Exception, get_tridiagonal_determinant, matrix)
+
+    def test_superdiagonal_not_constant(self):
+        """Проверяет, что функция выбрасывает исключение при передаче
+        матрицы с непостоянными значениями на наддиагонали"""
+        matrix = [[1, 2, 0], [3, 1, 5], [0, 3, 1]]
+        self.assertRaises(Exception, get_tridiagonal_determinant, matrix)
+
+    def test_subdiagonal_not_constant(self):
+        """Проверяет, что функция выбрасывает исключение при передаче
+        матрицы с непостоянными значениями на поддиагонали"""
+        matrix = [[1, 2, 0], [3, 1, 2], [0, 5, 1]]
+        self.assertRaises(Exception, get_tridiagonal_determinant, matrix)
+
+    def test_empty_rows(self):
+        """Проверяет, что функция выбрасывает исключение при передаче
+        матрицы с пустыми строками"""
+        matrix = [[]]
+        self.assertRaises(Exception, get_tridiagonal_determinant, matrix)
+
+    def test_zero_matrix(self):
+        """Проверяет расчет определителя для нулевой матрицы"""
+        matrix = [[0, 0], [0, 0]]
+        self.assertEqual(get_tridiagonal_determinant(matrix), 0)
+
+    def test_identity_matrix(self):
+        """Проверяет расчет определителя для единичной матрицы"""
+        matrix = [[1, 0], [0, 1]]
+        self.assertEqual(get_tridiagonal_determinant(matrix), 1)
 
 if __name__ == "__main__":
     unittest.main()
