@@ -1,14 +1,50 @@
 def get_tridiagonal_determinant(matrix: list[list[int]]) -> int:
-    """Итеративное вычисление определителя трёхдиагональной матрицы.
-
-    :param matrix: квадратная целочисленная трёхдиагональная матрица
-        порядка не меньше 1 с постоянными значениями на каждой
-        из трёх диагоналей
-    :raises Exception: если matrix не является такой матрицей
-    :return: значение определителя
-    """
-    pass
-
+    if not matrix: 
+        raise ValueError("Incorrect matrix")
+    
+    if not type(matrix) is list: 
+        raise ValueError("Incorrect matrix")
+    
+    for i in matrix:
+        if not type(i) is list: 
+            raise ValueError("Incorrect matrix")
+        if len(i) != len(matrix):
+            raise ValueError("Non square matrix")
+        
+    for line in matrix: 
+        for j in line:
+            if not type(j) is int: 
+                raise ValueError("Non int matrix") 
+     
+    n = len(matrix)
+    a = matrix[0][0] 
+    b = matrix[0][1] if n > 1 else 1 
+    c = matrix[1][0] if n > 1 else 1 
+    
+    for i in range(n):
+        for j in range(n): 
+            if i == j: 
+                expected = a 
+            elif i + 1 == j: 
+                expected = b
+            elif i == j + 1:
+                expected = c  
+            else:
+                expected = 0 
+            
+            if matrix[i][j] != expected: 
+                raise ValueError("Not a linear matrix")
+    
+    previous_previous = 1 
+    previous = a
+    
+    for i in range(2, n + 1):
+        current = a * previous - b * c * previous_previous
+        previous_previous = previous
+        previous = current 
+        
+    return previous
+    
 
 def main():
     matrix = [[2, -3, 0, 0], [5, 2, -3, 0], [0, 5, 2, -3], [0, 0, 5, 2]]
