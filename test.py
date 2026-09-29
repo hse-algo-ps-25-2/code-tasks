@@ -1,4 +1,5 @@
 import unittest
+from random import randint
 
 from main import get_tridiagonal_determinant
 
@@ -23,11 +24,21 @@ class TestTridiagonalDeterminant(unittest.TestCase):
         matrix = [[1, 2, 0, 0], [3, 1, 2, 0], [0, 3, 1, 2]]
         self.assertRaises(Exception, get_tridiagonal_determinant, matrix)
 
+    def test_wrong_table(self):
+        """Проверяет, что функция обрабатывает неправильные формы"""
+        matrix = [[2, -3, 0, 0], [5, 2, -3], [0, 5, 2, -3], [0, 0, 5, 2]]
+        self.assertRaises(Exception, get_tridiagonal_determinant, matrix)
+
     def test_not_tridiag_replace_zero(self):
         """Проверяет, что функция выбрасывает исключение при передаче
         матрицы с ненулевым элементом вне трёх диагоналей"""
         matrix = [[1, 2, 0, 7], [3, 1, 2, 0], [0, 3, 1, 2], [0, 0, 3, 1]]
         self.assertRaises(Exception, get_tridiagonal_determinant, matrix)
+
+    def test_zero_order(self):
+        """Проверяет расчёт опреелителя нулевого порядка"""
+        matrix = [[]]
+        self.assertEqual(get_tridiagonal_determinant(matrix), 1)
 
     def test_first_order(self):
         """Проверяет расчет определителя для матрицы порядка 1"""
@@ -48,6 +59,18 @@ class TestTridiagonalDeterminant(unittest.TestCase):
         """Проверяет расчет определителя для матрицы порядка 4"""
         matrix = [[2, -3, 0, 0], [5, 2, -3, 0], [0, 5, 2, -3], [0, 0, 5, 2]]
         self.assertEqual(get_tridiagonal_determinant(matrix), 421)
+
+    def test_random_fourth_order(self):
+        """Проверяет работу на случайном определителе 4-го порядка,
+        ориентируясь по формуле"""
+        a, b, c = (randint(-100, 100) for i in range(3))
+        matrix = [[a, b, 0, 0],
+                  [c, a, b, 0],
+                  [0, c, a, b],
+                  [0, 0, c, a]]
+        
+        det = (a ** 4) - 3 * (a ** 2) * b * c + (b ** 2) * (c ** 2)
+        self.assertEqual(get_tridiagonal_determinant(matrix), det)
 
 
 if __name__ == "__main__":
