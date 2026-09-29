@@ -49,6 +49,42 @@ class TestTridiagonalDeterminant(unittest.TestCase):
         matrix = [[2, -3, 0, 0], [5, 2, -3, 0], [0, 5, 2, -3], [0, 0, 5, 2]]
         self.assertEqual(get_tridiagonal_determinant(matrix), 421)
 
+    def test_repeated_call_same_result(self):
+        """Проверяет, что повторный вызов функции на той же матрице
+        возвращает тот же результат"""
+        matrix = [[2, -3, 0, 0], [5, 2, -3, 0], [0, 5, 2, -3], [0, 0, 5, 2]]
+        self.assertEqual(get_tridiagonal_determinant(matrix), 421)
+        self.assertEqual(get_tridiagonal_determinant(matrix), 421)
+
+    def test_not_int_element(self):
+        """Проверяет, что функция выбрасывает исключение при передаче
+        матрицы с нецелым элементом"""
+        matrix = [[1, 2.0], [3, 1]]
+        self.assertRaises(Exception, get_tridiagonal_determinant, matrix)
+
+    def test_invalid_input(self):
+        """Проверяет, что функция выбрасывает исключение при передаче
+        некорректного входа"""
+        self.assertRaises(Exception, get_tridiagonal_determinant, None)
+        self.assertRaises(Exception, get_tridiagonal_determinant, [])
+
+    def test_not_tridiagonal(self):
+        """Проверяет, что функция выбрасывает исключение при передаче
+        матрицы, не являющейся трёхдиагональной с постоянными диагоналями"""
+        not_square = [[1, 2, 0, 0], [3, 1, 2, 0], [0, 3, 1, 2]]
+        self.assertRaises(Exception, get_tridiagonal_determinant, not_square)
+
+        nonzero_outside = [[1, 2, 0, 7], [3, 1, 2, 0], [0, 3, 1, 2], [0, 0, 3, 1]]
+        self.assertRaises(Exception, get_tridiagonal_determinant, nonzero_outside)
+
+        not_constant = [[1, 2, 0], [3, 5, 2], [0, 3, 1]]
+        self.assertRaises(Exception, get_tridiagonal_determinant, not_constant)
+
+    def test_general_case(self):
+        """Проверяет расчет определителя для матрицы порядка 4"""
+        matrix = [[2, -3, 0, 0], [5, 2, -3, 0], [0, 5, 2, -3], [0, 0, 5, 2]]
+        self.assertEqual(get_tridiagonal_determinant(matrix), 421)
+
 
 if __name__ == "__main__":
     unittest.main()
