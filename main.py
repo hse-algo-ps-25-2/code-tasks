@@ -41,9 +41,8 @@ def get_tridiagonal_determinant(matrix: list[list[int]]) -> int:
     minor_1 = [row[1:] for row in matrix[1:]]
     minor_2 = [row[2:] for row in matrix[2:]]
     # По алгебраическим дополнениям раскладываем определитель
-    return a * get_tridiagonal_determinant(
-        minor_1 if minor_1 else [[]]
-    ) - b * c * get_tridiagonal_determinant(minor_2 if minor_2 else [[]])
+    return a * get_tridiagonal_determinant(minor_1 if minor_1 else [[]]) - \
+           b * c * get_tridiagonal_determinant(minor_2 if minor_2 else [[]])
 
 
 def main():
