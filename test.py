@@ -84,5 +84,6 @@ class TestTridiagonalDeterminant(unittest.TestCase):
         matrix = [[1, 0], [0, 1]]
         self.assertEqual(get_tridiagonal_determinant(matrix), 1)
 
+
 if __name__ == "__main__":
     unittest.main()
