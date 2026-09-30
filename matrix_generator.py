@@ -1,3 +1,4 @@
+import random
 from collections import namedtuple
 
 Case = namedtuple("Case", ["matrix", "det"])
@@ -14,8 +15,33 @@ def generate_matrix_and_det(order: int) -> Case:
     :raises Exception: если order не является таким числом
     :return: Case с полями matrix и det
     """
-    pass
+    if not isinstance(order, int) or isinstance(order, bool):
+        raise TypeError('Порядок матрицы должен быть целым числом')
 
+    if order < 1:
+        raise ValueError('Порядок матрицы должен быть не менее 1')
+
+    matrix = []
+    det = 1
+
+    for row in range(order):
+        current_row = []
+
+        for column in range(order):
+            if column < row:
+                value = 0
+
+            else:
+                value = random.randint(-10, 10)
+
+            current_row.append(value)
+
+        matrix.append(current_row)
+
+        # Определитель треугольной матрицы = произведение элементов главной диагонали
+        det *= current_row[row]
+
+    return Case(matrix, det)
 
 def main():
     n = 10
