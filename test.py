@@ -1,3 +1,4 @@
+import copy
 import unittest
 
 from main import calculate_determinant
@@ -60,11 +61,34 @@ class TestDeterminant(unittest.TestCase):
         параметр матрицы с пустой строкой"""
         self.assertRaises(Exception, calculate_determinant, [[]])
 
+    def test_tuple_rows(self):
+        """Проверяет, что функция выбрасывает исключение, если строки
+        матрицы не являются листами"""
+        matrix = [(1, 2), [3, 4]]
+        self.assertRaises(Exception, calculate_determinant, matrix)
+
+    def test_plain_int_row(self):
+        """Проверяет, что функция выбрасывает исключение, если строка
+        матрицы является числом"""
+        matrix = [[1, 2], 3]
+        self.assertRaises(Exception, calculate_determinant, matrix)
+
     def test_not_square_rectangle(self):
         """Проверяет, что функция выбрасывает исключение при передаче в
         параметр прямоугольной матрицы"""
         matrix = [[3, -3, -5, 8], [-3, 2, 4, -6], [-4, 3, 5, -6]]
         self.assertRaises(Exception, calculate_determinant, matrix)
+
+    def test_not_square_more_rows(self):
+        """Проверяет, что функция выбрасывает исключение при передаче в
+        параметр не квадратной матрицы, больше строк"""
+        matrix = [[1, 2], [3, 4], [5, 6]]
+        self.assertRaises(Exception, calculate_determinant, matrix)
+
+    def test_not_square_more_columns(self):
+        """Проверяет, что функция выбрасывает исключение при передаче в
+        параметр не квадратной матрицы, больше столбцов"""
+        self.assertRaises(Exception, calculate_determinant, [[1], [2]])
 
     def test_invalid_square_rectangle(self):
         """Проверяет, что функция выбрасывает исключение при передаче в
@@ -84,6 +108,13 @@ class TestDeterminant(unittest.TestCase):
         matrix = [[1, 2], [1, False]]
         self.assertRaises(Exception, calculate_determinant, matrix)
 
+    def test_boolean_matrix(self):
+        """Проверяет, что функция выбрасывает исключение при передаче в
+        параметр матрицы порядка 1 с элементом типа boolean"""
+        self.assertRaises(
+            Exception, calculate_determinant, [[True, True], [False, True]]
+        )
+
     def test_string_element_matrix(self):
         """Проверяет, что функция выбрасывает исключение при передаче в
         параметр матрицы со строковым элементом"""
@@ -96,10 +127,21 @@ class TestDeterminant(unittest.TestCase):
         matrix = [[1, 2], [1, 3.14]]
         self.assertRaises(Exception, calculate_determinant, matrix)
 
+    def test_float_flat_matrix(self):
+        """Проверяет, что функция выбрасывает исключение при передаче в
+        параметр матрицы с целым значением типа float"""
+        matrix = [[1, 2], [3, 4.0]]
+        self.assertRaises(Exception, calculate_determinant, matrix)
+
     def test_first_order(self):
         """Проверяет расчет определителя для матрицы порядка 1"""
         matrix = [[1]]
         self.assertEqual(calculate_determinant(matrix), 1)
+
+    def test_first_order_negative(self):
+        """Проверяет расчет определителя для матрицы порядка 1
+        с отрицательным элементом"""
+        self.assertEqual(calculate_determinant([[-5]]), -5)
 
     def test_zero_matrix_third_order(self):
         """Проверяет расчет определителя для нулевой матрицы 3-го порядка."""
@@ -146,10 +188,34 @@ class TestDeterminant(unittest.TestCase):
         matrix = [[1, -2, 3], [-4, 5, -6], [7, -8, 9]]
         self.assertEqual(calculate_determinant(matrix), 0)
 
+    def test_swap_sign(self):
+        """Проверяет, что перестановка двух строк меняет знак определителя"""
+        matrix = [[1, 2], [3, 4]]
+        swapped = [[3, 4], [1, 2]]
+        self.assertEqual(calculate_determinant(swapped), -calculate_determinant(matrix))
+
     def test_fourth_order(self):
         """Проверяет расчет определителя для матрицы порядка 4"""
         matrix = [[3, -3, -5, 8], [-3, 2, 4, -6], [2, -5, -7, 5], [-4, 3, 5, -6]]
         self.assertEqual(calculate_determinant(matrix), 18)
+
+    def test_fifth_order(self):
+        """Проверяет расчет определителя для матрицы порядка 5"""
+        matrix = [
+            [2, -1, 0, 3, 1],
+            [1, 4, -2, 0, 5],
+            [-3, 0, 1, 2, -1],
+            [0, 2, 5, -1, 3],
+            [4, 1, -3, 2, 0],
+        ]
+        self.assertEqual(calculate_determinant(matrix), 1186)
+
+    def test_input_not_modified(self):
+        """Проверяет, что не изменяет объект матрицы"""
+        matrix = [[1, -2, 3], [-4, 5, -6], [7, -8, 9]]
+        expected = copy.deepcopy(matrix)
+        calculate_determinant(matrix)
+        self.assertEqual(matrix, expected)
 
     def test_generator(self):
         """Проверяет генератор матриц с известным определителем"""

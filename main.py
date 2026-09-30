@@ -29,7 +29,7 @@ def calculate_determinant_rec(matrix: list[list[int]]) -> int:
     det = 0
 
     for idx, value in enumerate(row):
-        minor_matrix = [cur_row[:idx] + cur_row[idx + 1 :] for cur_row in matrix[1:]]
+        minor_matrix = [cur_row[:idx] + cur_row[idx + 1:] for cur_row in matrix[1:]]
         minor = calculate_determinant_rec(minor_matrix)
         det += value * (-1) ** (idx) * minor
 
