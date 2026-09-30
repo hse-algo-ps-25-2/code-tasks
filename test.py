@@ -50,5 +50,47 @@ class TestTridiagonalDeterminant(unittest.TestCase):
         self.assertEqual(get_tridiagonal_determinant(matrix), 421)
 
 
+    def test_is_list_number(self):
+        self.assertRaises(Exception, get_tridiagonal_determinant, 11)
+
+    def test_is_list_str(self):
+        self.assertRaises(Exception, get_tridiagonal_determinant, "hello")
+
+    def test_is_list_tuple(self):
+        self.assertRaises(Exception, get_tridiagonal_determinant, ((1, 2), (2, 1)))
+
+    def test_is_row_list_tuple(self):
+        self.assertRaises(Exception, get_tridiagonal_determinant, [(1, 2), (2, 1)])
+
+    def test_is_row_list_str(self):
+        self.assertRaises(Exception, get_tridiagonal_determinant, [["hi", "hey"], ["hey", "hi"]])
+
+    def test_float(self):
+        self.assertRaises(Exception, get_tridiagonal_determinant, [[1.0, 2.0], [2.0, 1.0]])
+
+    def test_bool(self):
+        self.assertRaises(Exception, get_tridiagonal_determinant, [[True, False], [False, True]])
+
+    def test_main_diagonal_inconsistent(self):
+        matrix = [[1, -2, 0], [-4, 9, -2], [0, -4, 1]]
+        self.assertRaises(Exception, get_tridiagonal_determinant, matrix)
+
+    def test_top_diagonal_inconsistent(self):
+        matrix = [[1, -2, 0], [-4, 1, 9], [0, -4, 1]]
+        self.assertRaises(Exception, get_tridiagonal_determinant, matrix)
+
+    def test_bottom_diagonal_inconsistent(self):
+        matrix = [[1, -2, 0], [9, 1, -2], [0, -4, 1]]
+        self.assertRaises(Exception, get_tridiagonal_determinant, matrix)
+        
+    def test_zero(self):
+        matrix = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+        self.assertEqual(get_tridiagonal_determinant(matrix), 0)
+
+    def test_one(self):
+            matrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            self.assertEqual(get_tridiagonal_determinant(matrix), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
