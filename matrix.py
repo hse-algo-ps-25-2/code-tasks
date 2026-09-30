@@ -18,6 +18,7 @@ class Matrix:
         for i in self.matrix:
             if len(i) != height:
                 return False
+
         return True
 
     def get_size(self) -> int:
