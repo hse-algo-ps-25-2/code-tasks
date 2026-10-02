@@ -1,3 +1,4 @@
+from linked_list_iterator import LinkedListIterator
 from list_node import ListNode
 
 
@@ -31,7 +32,18 @@ class LinkedList:
         Аргументы:
             value: значение нового элемента.
         """
-        pass
+        node = ListNode(value)
+        if self.head is None:
+            self.head = node
+            self.size = 1
+            return
+
+        cur = self.head
+        while cur.next is not None:
+            cur = cur.next
+
+        cur.next = node
+        self.size += 1
 
     def insert(self, index, value):
         """
@@ -83,7 +95,7 @@ class LinkedList:
             for x in my_list:
                 ...
         """
-        pass
+        return LinkedListIterator(self.head)
 
     def __str__(self):
         """
