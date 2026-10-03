@@ -34,7 +34,15 @@ class DoublyLinkedList:
         Аргументы:
             value: значение нового элемента.
         """
-        pass
+        node = DoublyListNode(value)
+        if len(self) == 0:
+            self.tail = node
+            self.head = node
+        elif isinstance(self.tail, DoublyListNode):
+            self.tail.next = node
+            node.prev = self.tail
+            self.tail = node
+        self.size += 1
 
     def insert(self, index, value):
         """
@@ -47,7 +55,39 @@ class DoublyLinkedList:
         Исключения:
             IndexError — если индекс вне диапазона.
         """
-        pass
+        if index > len(self):
+            raise IndexError("индекс вне диапазона")
+
+        new_node = DoublyListNode(value)
+
+        if index == len(self):
+            node = self.tail
+            if isinstance(node, DoublyListNode):
+                node.next = new_node
+                new_node.prev = node
+                self.tail = new_node
+
+        node = None
+        for i in range(0, index + 1):
+            if i == 0:
+                node = self.head
+            else:
+                if (isinstance(node, DoublyListNode)):
+                    node = node.next
+                else:
+                    raise TypeError("элемент листа не является DoublyListNode")
+        prev = None
+
+        if (isinstance(node, DoublyListNode)):
+            prev = node.prev
+            node.prev = new_node
+        if (isinstance(prev, DoublyListNode)):
+            prev.next = new_node
+        new_node.prev = prev
+        new_node.next = node
+        if index == 0:
+            self.head = new_node
+        self.size += 1
 
     def remove(self, value):
         """
@@ -59,7 +99,27 @@ class DoublyLinkedList:
         Исключения:
             ValueError — если элемента с таким значением нет.
         """
-        pass
+        node = None
+        for index in range(len(self)):
+            if index == 0:
+                node = self.head
+            else:
+                if (isinstance(node, DoublyListNode)):
+                    node = node.next
+                else: 
+                    raise TypeError("элемент листа не является DoublyListNode")
+            if isinstance(node, DoublyListNode):
+                if node.value == value:
+                    if index == 0 and self.size > 0 and isinstance(self.head, DoublyListNode):
+                        self.head = self.head.next
+                    elif index == len(self) - 1 and isinstance(self.tail, DoublyListNode):
+                        self.tail = self.tail.prev
+                    elif isinstance(node.prev, DoublyListNode) and isinstance(node.next, DoublyListNode):
+                        next = node.next
+                        prev = node.prev
+                        prev.next = next
+                        next.prev = prev
+                    self.size -= 1
 
     def index(self, value):
         """
@@ -72,7 +132,10 @@ class DoublyLinkedList:
             int: индекс элемента, если найден.
             None: если элемент отсутствует.
         """
-        pass
+        for i, val in enumerate(self):
+            if val == value:
+                return i
+        return None
 
     def __len__(self):
         """Возвращает количество элементов в списке."""
@@ -87,7 +150,19 @@ class DoublyLinkedList:
             for x in my_list:
                 ...
         """
-        pass
+        node = None
+        for index in range(len(self)):
+            if index == 0:
+                node = self.head
+                if (isinstance(node, DoublyListNode)):
+                    yield node.value
+            else:
+                if (isinstance(node, DoublyListNode)):
+                    node = node.next
+                    if (isinstance(node, DoublyListNode)):
+                        yield node.value
+                else: 
+                    raise TypeError("элемент листа не является DoublyListNode")
 
     def __reversed__(self):
         """
@@ -98,7 +173,19 @@ class DoublyLinkedList:
             for x in reversed(my_list):
                 ...
         """
-        pass
+        node = None
+        for index in range(len(self), 0, -1):
+            if index == len(self):
+                node = self.tail
+                if (isinstance(node, DoublyListNode)):
+                    yield node.value
+            else:
+                if (isinstance(node, DoublyListNode)):
+                    node = node.prev
+                    if (isinstance(node, DoublyListNode)):
+                        yield node.value
+                else: 
+                    raise TypeError("элемент листа не является DoublyListNode")
 
     def __str__(self):
         """
