@@ -66,21 +66,48 @@ class TestDoublyLinkedList(unittest.TestCase):
         lst.remove(2)
         self.assertEqual(list(lst), [1, 3])
 
+    def test_insert_append(self):
+        """insert -> append"""
+        lst = DoublyLinkedList()
+        lst.insert(0, 1)
+        lst.append(2)
+        self.assertEqual(list(lst), [1, 2])
+
+    def test_insert_negative_index(self):
+        """бросает исключение при insert с негативным индексом"""
+        lst = DoublyLinkedList()
+        self.assertRaises(IndexError, lst.insert, -1, 1)
+
     def test_remove_last(self):
-            """проверяем удаление элемента из списка"""
-            lst = DoublyLinkedList()
-            for val in [1, 2, 3]:
-                lst.append(val)
-            lst.remove(3)
-            self.assertEqual(list(lst), [1, 2])
+        """проверяем удаление элемента из списка (последний)"""
+        lst = DoublyLinkedList()
+        for val in [1, 2, 3]:
+            lst.append(val)
+        lst.remove(3)
+        self.assertEqual(list(lst), [1, 2])
 
     def test_remove_first(self):
-            """проверяем удаление элемента из списка"""
-            lst = DoublyLinkedList()
-            for val in [1, 2, 3]:
-                lst.append(val)
-            lst.remove(1)
-            self.assertEqual(list(lst), [2, 3])
+        """проверяем удаление элемента из списка (первый)"""
+        lst = DoublyLinkedList()
+        for val in [1, 2, 3]:
+            lst.append(val)
+        lst.remove(1)
+        self.assertEqual(list(lst), [2, 3])
+
+    def test_remove_wrong_value(self):
+        """удаление несуществующего элемента бросает исключение"""
+        lst = DoublyLinkedList()
+        for val in [1, 2, 3]:
+            lst.append(val)
+        self.assertRaises(ValueError, lst.remove, 5)
+
+    def test_remove_only_first_value(self):
+        """удаляет только первое вхождение"""
+        lst = DoublyLinkedList()
+        for val in [1, 1, 1]:
+            lst.append(val)
+        lst.remove(1)
+        self.assertEqual(list(lst), [1, 1])
 
     def test_clear_list(self):
         """проверяем очистку списка"""
@@ -89,8 +116,10 @@ class TestDoublyLinkedList(unittest.TestCase):
             lst.append(val)
         lst.remove(1)
         lst.remove(2)
+        self.assertEqual(len(lst), 0)
         self.assertEqual(list(lst), [])
-
+        self.assertIsNone(lst.head)
+        self.assertIsNone(lst.tail)
 
     def test_index_found(self):
         """index возвращает индекс первого найденного элемента."""
@@ -119,6 +148,13 @@ class TestDoublyLinkedList(unittest.TestCase):
         for val in ["a", "b", "c"]:
             lst.append(val)
         self.assertEqual(lst.index("hello world"), None)
+
+    def test_insert_out_of_range(self):
+        """index вне диапазона."""
+        lst = DoublyLinkedList()
+        for val in ["a", "b", "c"]:
+            lst.append(val)
+        self.assertRaises(IndexError, lst.insert, 10, "d")
 
     def test_iteration(self):
         """Итерация по списку возвращает значения от головы к хвосту."""
