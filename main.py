@@ -15,7 +15,20 @@ def generate_strings_naive(length: int) -> list[str]:
     :raise ValueError: если length меньше единицы
     :return: список строк
     """
-    pass
+    if type(length) != type(2):
+        raise TypeError
+    if length <= 0:
+        raise ValueError
+
+    return [s for s in recursive_gen(length) if '00' not in s]
+
+def recursive_gen(length: int) -> list[str]:
+    """
+    """
+    if length == 0:
+        return [""]
+
+    return [bit + el for bit in ("0", "1") for el in recursive_gen(length-1)]
 
 
 def check_zero_one_strings(length: int, strings: list[str]) -> bool:
@@ -30,8 +43,38 @@ def check_zero_one_strings(length: int, strings: list[str]) -> bool:
     :raise ValueError: если length меньше единицы
     :return: True, если набор полон и корректен, иначе False
     """
-    pass
+    if type(length) != type(2):
+        raise TypeError
+    if length <= 0:
+        raise ValueError
 
+    if not all(isinstance(s, str) for s in strings):
+        return False
+    if not all(len(s) == length for s in strings):
+        return False
+    if not all(set(s) <= {"0", "1"} for s in strings):
+        return False
+    if any('00' in s for s in strings):
+        return False
+    if len(strings) != len(set(strings)):
+        return False
+
+    if len(strings) != calc_fib(length + 2):
+        return False
+
+    return True
+
+def calc_fib(length: int) -> int:
+    """
+    """
+    if length <= 2:
+        return 1
+    
+    a, b = 1, 1
+    for i in range(length - 2):
+        a, b = b, a + b
+
+    return b
 
 def main():
     length = 3
