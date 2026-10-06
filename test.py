@@ -1,4 +1,5 @@
 import unittest
+from  math import comb
 
 from main import stars_and_bars
 
@@ -38,6 +39,41 @@ class TestStarsAndBars(unittest.TestCase):
     def test_three_boxes_one_item(self):
         """Проверяет все строки для трёх ящиков и одного предмета"""
         self.assertCountEqual(stars_and_bars(3, 1), ["*||", "|*|", "||*"])
+
+    def test_any_result(self):
+        """Проверяет, что количество строк соответсвует ожидаемому, отсутсвие
+        дубликатов, строки состоят только из n-1 перегородок и k звездочек,
+        что в совокупности гарантирует правильность результата"""
+        cases = [(1, 0), (1, 5), (2, 2), (3, 1), (4, 3), (5, 5), (2, 7)]
+
+        for n, k in cases:
+            with self.subTest(n=n, k=k):
+                result = stars_and_bars(n, k)
+
+                expected_count = comb(n + k - 1, k)
+                self.assertEqual(
+                    len(result), expected_count,
+                    f"n={n}, k={k}: ожидалось {expected_count} строк"
+                )
+
+                self.assertEqual(
+                    len(set(result)), len(result),
+                    f"n={n}, k={k}: в результате есть дубликаты"
+                )
+
+                for s in result:
+                    self.assertEqual(
+                        s.count("*"), k,
+                        f"n={n}, k={k}: в {s!r} не {k} звёзд"
+                    )
+                    self.assertEqual(
+                        s.count("|"), n - 1,
+                        f"n={n}, k={k}: в {s!r} не {n-1} перегородок"
+                    )
+                    self.assertEqual(
+                        len(s), n - 1 + k,
+                        f"n={n}, k={k}: длина {s!r} не равна {n-1+k}"
+                    )
 
 
 if __name__ == "__main__":
