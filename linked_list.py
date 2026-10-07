@@ -1,3 +1,4 @@
+from linked_list_iterator import LinkedListIterator
 from list_node import ListNode
 
 
@@ -31,7 +32,18 @@ class LinkedList:
         Аргументы:
             value: значение нового элемента.
         """
-        pass
+        node = ListNode(value)
+        if self.head is None:
+            self.head = node
+            self.size = 1
+            return
+
+        cur = self.head
+        while cur.next is not None:
+            cur = cur.next
+
+        cur.next = node
+        self.size += 1
 
     def insert(self, index, value):
         """
@@ -44,7 +56,32 @@ class LinkedList:
         Исключения:
             IndexError — если индекс вне диапазона.
         """
-        pass
+        if not isinstance(index, int):
+            raise IndexError("Индекс должен быть целым числом")
+
+        if index > self.size or index < 0:
+            raise IndexError("Индекс вне диапазона")
+
+        node = ListNode(value)
+
+        if index == 0:
+            node.next = self.head
+            self.head = node
+            self.size += 1
+            return
+
+        prev = None
+        cur = self.head
+        i = 0
+
+        while i < index:
+            prev = cur
+            cur = cur.next
+            i += 1
+
+        node.next = cur
+        prev.next = node
+        self.size += 1
 
     def remove(self, value):
         """
@@ -56,7 +93,23 @@ class LinkedList:
         Исключения:
             ValueError — если элемента с таким значением нет.
         """
-        pass
+        if self.head is not None and self.head.value == value:
+            self.head = self.head.next
+            self.size -= 1
+            return
+
+        prev = None
+        cur = self.head
+
+        while cur is not None and cur.value != value:
+            prev = cur
+            cur = cur.next
+
+        if cur is None:
+            raise ValueError(f"Элемент со значением {value} не найден")
+
+        prev.next = cur.next
+        self.size -= 1
 
     def index(self, value):
         """
@@ -69,7 +122,15 @@ class LinkedList:
             int: индекс элемента, если найден.
             None: если элемент отсутствует.
         """
-        pass
+        cur = self.head
+        index = 0
+
+        while cur is not None:
+            if cur.value == value:
+                return index
+            index += 1
+            cur = cur.next
+        return None
 
     def __len__(self):
         """Возвращает количество элементов в списке."""
@@ -83,7 +144,7 @@ class LinkedList:
             for x in my_list:
                 ...
         """
-        pass
+        return LinkedListIterator(self.head)
 
     def __str__(self):
         """
