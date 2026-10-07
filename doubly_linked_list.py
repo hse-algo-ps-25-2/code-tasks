@@ -68,16 +68,16 @@ class DoublyLinkedList:
             if i == 0:
                 node = self.head
             else:
-                if (isinstance(node, DoublyListNode)):
+                if isinstance(node, DoublyListNode):
                     node = node.next
                 else:
                     raise TypeError("элемент листа не является DoublyListNode")
         prev = None
 
-        if (isinstance(node, DoublyListNode)):
+        if isinstance(node, DoublyListNode):
             prev = node.prev
             node.prev = new_node
-        if (isinstance(prev, DoublyListNode)):
+        if isinstance(prev, DoublyListNode):
             prev.next = new_node
         new_node.prev = prev
         new_node.next = node
@@ -100,9 +100,9 @@ class DoublyLinkedList:
             if index == 0:
                 node = self.head
             else:
-                if (isinstance(node, DoublyListNode)):
+                if isinstance(node, DoublyListNode):
                     node = node.next
-                else: 
+                else:
                     raise TypeError("элемент листа не является DoublyListNode")
             if isinstance(node, DoublyListNode):
                 if node.value == value:
