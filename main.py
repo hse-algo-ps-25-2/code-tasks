@@ -23,7 +23,7 @@ def check_constr(n: int, k: int) -> None:
 
     Поочередно проверяется каждый случай
     """
-    if type(n) != type(2) or type(k) != type(2):
+    if type(n) is not int or type(k) is not int:
         raise Exception("оба значения должны быть целочисленными")
 
     if n < 1 or k < 0:
