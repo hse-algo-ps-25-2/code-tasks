@@ -58,7 +58,7 @@ class LinkedList:
         """
         if index > self.size or index < 0:
             raise IndexError("Индекс вне диапазона")
-        
+
         node = ListNode(value)
 
         if index == 0:
@@ -66,7 +66,7 @@ class LinkedList:
             self.head = node
             self.size += 1
             return
-        
+
         prev = None
         cur = self.head
         i = 0
