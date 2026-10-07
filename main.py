@@ -15,24 +15,22 @@ def generate_strings_naive(length: int) -> list[str]:
     :raise ValueError: если length меньше единицы
     :return: список строк
     """
-    if type(length) != type(2):
-        raise TypeError
-    if length <= 0:
-        raise ValueError
+    if type(length) is not int:
+        raise TypeError(LENGTH_NOT_INT)
+    if length < 1:
+        raise ValueError(LENGTH_NOT_POS)
 
     return [s for s in recursive_gen(length) if '00' not in s]
 
 def recursive_gen(length: int) -> list[str]:
-    """
-    """
+    """Все строки длины length из '0' и '1'. Рекурсия по длине."""
     if length == 0:
         return [""]
 
-    return [bit + el for bit in ("0", "1") for el in recursive_gen(length-1)]
-
+    return [bit + el for bit in ("0", "1") for el in recursive_gen(length - 1)]
 
 def check_zero_one_strings(length: int, strings: list[str]) -> bool:
-    """Проверяет, что strings — полный набор строк длины length из 0 и 1,
+    """Проверяет, что strings - полный набор строк длины length из 0 и 1,
     в которых никакие два нуля не стоят рядом.
 
     Порядок строк не фиксируется. Повторы не допускаются.
@@ -43,10 +41,12 @@ def check_zero_one_strings(length: int, strings: list[str]) -> bool:
     :raise ValueError: если length меньше единицы
     :return: True, если набор полон и корректен, иначе False
     """
-    if type(length) != type(2):
-        raise TypeError
-    if length <= 0:
-        raise ValueError
+    if type(length) is not int:
+        raise TypeError(LENGTH_NOT_INT)
+    if length < 1:
+        raise ValueError(LENGTH_NOT_POS)
+    if not isinstance(strings, list):
+        raise TypeError(NOT_LIST)
 
     if not all(isinstance(s, str) for s in strings):
         return False
@@ -64,17 +64,17 @@ def check_zero_one_strings(length: int, strings: list[str]) -> bool:
 
     return True
 
-def calc_fib(length: int) -> int:
-    """
-    """
-    if length <= 2:
+def calc_fib(n: int) -> int:
+    """n-е число фибоначчи при f(1) = f(2) = 1."""
+    if n <= 2:
         return 1
-    
+
     a, b = 1, 1
-    for i in range(length - 2):
+    for i in range(n - 2):
         a, b = b, a + b
 
     return b
+
 
 def main():
     length = 3
