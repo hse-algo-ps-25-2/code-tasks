@@ -30,8 +30,8 @@ def recursive_gen(length: int) -> list[str]:
     return [bit + el for bit in ("0", "1") for el in recursive_gen(length - 1)]
 
 def check_zero_one_strings(length: int, strings: list[str]) -> bool:
-    """Проверяет, что strings - полный набор строк длины length из 0 и 1,
-    в которых никакие два нуля не стоят рядом.
+    """Проверяет, что strings - полный набор всевозможных строк длины length
+    из 0 и 1, в которых никакие два нуля не стоят рядом.
 
     Порядок строк не фиксируется. Повторы не допускаются.
 
