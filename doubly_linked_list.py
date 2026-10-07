@@ -63,26 +63,20 @@ class DoublyLinkedList:
 
         new_node = DoublyListNode(value)
 
-        node = None
-        for i in range(0, index + 1):
-            if i == 0:
-                node = self.head
-            else:
-                if isinstance(node, DoublyListNode):
-                    node = node.next
-                else:
-                    raise TypeError("элемент листа не является DoublyListNode")
-        prev = None
+        node = self.head
+        for _ in range(index):
+            assert node is not None
+            node = node.next
 
-        if isinstance(node, DoublyListNode):
-            prev = node.prev
-            node.prev = new_node
-        if isinstance(prev, DoublyListNode):
-            prev.next = new_node
-        new_node.prev = prev
+        assert node is not None
+
+        new_node.prev = node.prev
         new_node.next = node
-        if index == 0:
+        if node.prev is None:
             self.head = new_node
+        else:
+            node.prev.next = new_node
+        node.prev = new_node
         self.size += 1
 
     def remove(self, value):
@@ -95,34 +89,21 @@ class DoublyLinkedList:
         Исключения:
             ValueError — если элемента с таким значением нет.
         """
-        node = None
-        for index in range(len(self)):
-            if index == 0:
-                node = self.head
-            else:
-                if isinstance(node, DoublyListNode):
-                    node = node.next
+        node = self.head
+        while node is not None:
+            if node.value == value:
+                if node.prev is None:
+                    self.head = node.next
                 else:
-                    raise TypeError("элемент листа не является DoublyListNode")
-            if isinstance(node, DoublyListNode):
-                if node.value == value:
-                    if index == 0:
-                        self.head = node.next
-                        if self.head is None:
-                            self.tail = None
-                        else:
-                            self.head.prev = None
-                    elif index == len(self) - 1:
-                        assert node.prev is not None
-                        self.tail = node.prev
-                        self.tail.next = None
-                    else:
-                        assert node.prev is not None
-                        assert node.next is not None
-                        node.prev.next = node.next
-                        node.next.prev = node.prev
-                    self.size -= 1
-                    return
+                    node.prev.next = node.next
+                if node.next is None:
+                    self.tail = node.prev
+                else:
+                    node.next.prev = node.prev
+                node.prev = node.next = None
+                self.size -= 1
+                return
+            node = node.next
         raise ValueError(f"{value} нет в списке")
 
     def index(self, value):
@@ -154,17 +135,10 @@ class DoublyLinkedList:
             for x in my_list:
                 ...
         """
-        node = None
-        for index in range(len(self)):
-            if index == 0:
-                node = self.head
-                assert node is not None
-                yield node.value
-            else:
-                assert node is not None
-                assert node.next is not None
-                node = node.next
-                yield node.value
+        node = self.head
+        while node is not None:
+            yield node.value
+            node = node.next
 
     def __reversed__(self):
         """
@@ -175,17 +149,10 @@ class DoublyLinkedList:
             for x in reversed(my_list):
                 ...
         """
-        node = None
-        for index in range(len(self), 0, -1):
-            if index == len(self):
-                node = self.tail
-                assert node is not None
-                yield node.value
-            else:
-                assert node is not None
-                assert node.prev is not None
-                node = node.prev
-                yield node.value
+        node = self.tail
+        while node is not None:
+            yield node.value
+            node = node.prev
 
     def __str__(self):
         """
