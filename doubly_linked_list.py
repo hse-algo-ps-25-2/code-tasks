@@ -57,7 +57,7 @@ class DoublyLinkedList:
         if not 0 <= index <= self.size:
             raise IndexError("индекс вне диапазона")
 
-        if index == len(self):
+        if index == self.size:
             self.append(value)
             return
 
