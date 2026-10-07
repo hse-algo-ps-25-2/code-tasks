@@ -56,6 +56,9 @@ class LinkedList:
         Исключения:
             IndexError — если индекс вне диапазона.
         """
+        if not isinstance(index, int):
+            raise IndexError("Индекс должен быть целым числом")
+
         if index > self.size or index < 0:
             raise IndexError("Индекс вне диапазона")
 

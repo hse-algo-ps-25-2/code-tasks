@@ -83,6 +83,15 @@ class TestLinkedList(unittest.TestCase):
 
         self.assertRaises(IndexError, lst.insert, -1, 0)
 
+    def test_insert_invalid_index(self):
+        """insert выбрасывает IndexError при попытке вставить элемент
+        по индексу некорректного типа."""
+        lst = LinkedList()
+        for val in [1, 2, 3]:
+            lst.append(val)
+
+        self.assertRaises(IndexError, lst.insert, 1.5, 0)
+
     def test_remove_empty(self):
         """remove выбрасывает ValueError при попытке удалить элемент
         из пустого списка."""

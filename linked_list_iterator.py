@@ -13,7 +13,7 @@ class LinkedListIterator:
         - переход к следующему элементу (__next__).
     """
 
-    def __init__(self, head: ListNode):
+    def __init__(self, head: ListNode | None):
         """
         Создаёт итератор с указанного начального узла.
 
@@ -24,7 +24,7 @@ class LinkedListIterator:
 
     def __iter__(self):
         """
-        Возвращает итератор. Текущий класс уже является итератором.
+        Возвращает текущий итератор.
         """
         return self
 
