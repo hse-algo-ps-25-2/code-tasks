@@ -1,5 +1,6 @@
 import unittest
 from fractions import Fraction
+
 from band_determinant import BandDeterminant
 from bd_generator import BDGenerator
 
