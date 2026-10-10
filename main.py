@@ -54,9 +54,9 @@ def binomial_coefficient_iter(n: int, k: int) -> int:
     if type(k) is not int:
         raise TypeError(NOT_INT_VALUE_TEMPL.format("k"))
 
-    if k < 1:
+    if k < 0:
         raise ValueError(NEGATIVE_VALUE_TEMPL.format("k"))
-    if n < 1:
+    if n < 0:
         raise ValueError(NEGATIVE_VALUE_TEMPL.format("n"))
     if n < k:
         raise ValueError(N_LESS_THAN_K_ERROR_MSG)
@@ -82,16 +82,15 @@ def binomial_coefficient_rec(n: int, k: int) -> int:
     if type(k) is not int:
         raise TypeError(NOT_INT_VALUE_TEMPL.format("k"))
 
-    if k < 1:
+    if k < 0:
         raise ValueError(NEGATIVE_VALUE_TEMPL.format("k"))
-    if n < 1:
+    if n < 0:
         raise ValueError(NEGATIVE_VALUE_TEMPL.format("n"))
     if n < k:
         raise ValueError(N_LESS_THAN_K_ERROR_MSG)
 
-    if k == 1:
-        return n
-
+    if k == 0:
+        return 1
     return binomial_coefficient_rec(n - 1, k - 1) * n // k
 
 
