@@ -4,6 +4,20 @@ NOT_INT_VALUE_TEMPL = "Параметр {0} не является целым ч�
 NEGATIVE_VALUE_TEMPL = "Параметр {0} отрицательный"
 N_LESS_THAN_K_ERROR_MSG = "Параметр n меньше чем k"
 
+def get_triangle_path_count_B( length: int ) -> int:
+    if length == 0:
+        return 0
+    return get_triangle_path_count_A(length - 1) + get_triangle_path_count_C(length - 1)
+
+def get_triangle_path_count_C( length: int ) -> int:
+    if length == 0:
+        return 0
+    return get_triangle_path_count_A(length - 1) + get_triangle_path_count_B(length - 1)
+
+def get_triangle_path_count_A( length: int ) -> int:
+    if length == 0:
+        return 1
+    return get_triangle_path_count_B(length - 1) + get_triangle_path_count_C(length - 1)
 
 def get_triangle_path_count(length: int) -> int:
     """Возвращает число замкнутых маршрутов заданной длины
@@ -14,7 +28,12 @@ def get_triangle_path_count(length: int) -> int:
     :raise ValueError: если length меньше единицы
     :return: число маршрутов
     """
-    pass
+    if type(length) != int:
+        raise TypeError(PATH_LENGTH_NOT_INT)
+    if length < 1:
+        raise ValueError(PATH_LENGTH_NOT_POS)
+
+    return get_triangle_path_count_A(length)
 
 
 def binomial_coefficient_iter(n: int, k: int) -> int:
