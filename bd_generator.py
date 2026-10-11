@@ -1,7 +1,9 @@
-from band_determinant import BandDeterminant
-import random
 import math
+import random
 from fractions import Fraction
+
+from band_determinant import BandDeterminant
+
 
 class BDGenerator:
     """Генерирует условия для задачи о ленточном определителе
@@ -30,19 +32,16 @@ class BDGenerator:
         """
         if low_bound > high_bound:
             raise ValueError("Нижняя граница не может быть больше верхней.")
-        
-        roots = self._generate_roots(low_bound, high_bound)
-        lambda1, lambda2 = roots
+
+        lambda1, lambda2 = self._generate_roots(low_bound, high_bound)
         matrix = self._calculate_matrix(lambda1, lambda2, low_bound, high_bound)
         if matrix is None:
             return None
         a, b, c = matrix
         coefficients = self._calculate_coefficients(lambda1, lambda2, a, b * c)
-        return BandDeterminant(a, b, c, roots, coefficients)
-
+        return BandDeterminant(a, b, c, [lambda1, lambda2], coefficients)
 
     def _generate_roots(self, low_bound, high_bound):
-        roots = []
         lambda1 = 0
         lambda2 = 0
 
@@ -50,10 +49,7 @@ class BDGenerator:
             lambda1 = random.randint(low_bound, high_bound)
             lambda2 = random.randint(low_bound, high_bound)
 
-        roots.append(lambda1)
-        roots.append(lambda2)
-        return roots
-
+        return [lambda1, lambda2]
 
     def _calculate_matrix(self, lambda1, lambda2, low_bound, high_bound):
         bc = lambda1 * lambda2
@@ -79,7 +75,6 @@ class BDGenerator:
                 return results
         return None
 
-        
     def _calculate_coefficients(self, lambda1, lambda2, a, bc):
         """
         Характеристическое уравнение:
@@ -92,7 +87,7 @@ class BDGenerator:
         Случай 1: корень кратности 2
             Решение:
             detAn = (lambda ** n) * (A * n + B)
-        
+
             Система уравнений:
             (A * 1 + B) * lambda = a
             (A * 2 + B) * lambda ** 2 = a ** 2 - bc
@@ -103,22 +98,22 @@ class BDGenerator:
         Случай 2: разные корни
             Решение:
             detAn = A1 * (lambda1 ** n) + A2 * (lambda2 ** n)
-                        
+
             По теореме Виета:
             a = lambda1 + lambda2
             bc = lambda1 * lambda2
-    
+
             Система уравнений:
             A1 * lambda1 + A2 * lambda2 = a
             A1 * (lambda1 ** 2) + A2 * (lambda2 ** 2) = a ** 2 - bc
-    
+
             Нахождение коэффициентов:
             A1 = lambda1 / (lambda1 - lambda2)
             A2 = -lambda2 / (lambda1 - lambda2)
         """
         coefficients = []
         if lambda1 == lambda2:
-            A = Fraction(a ** 2 - bc - a * lambda1, lambda1 ** 2)
+            A = Fraction(a**2 - bc - a * lambda1, lambda1**2)
             B = Fraction(a, lambda1) - A
             coefficients.append(A)
             coefficients.append(B)
@@ -129,26 +124,3 @@ class BDGenerator:
             coefficients.append(A1)
             coefficients.append(A2)
             return coefficients
-
-
-def main():
-    generator = BDGenerator()
-    result = generator.generate_band_determinant(-15, 10)
-
-    a = result.a
-    b = result.b
-    c = result.c
-    roots = result.roots
-    coefficients = result.coefficients
-
-    if roots[0] != roots[1]:
-        print(f"Значения элементов на диагонали матрицы: a = {a}, b = {b}, c = {c}.")
-        print(f"Значения корней характеристического уравнения: lambda1 = {roots[0]}, lambda2 = {roots[1]}")
-        print(f"Коэффициенты для общей формулы: A1 = {coefficients[0]}, A2 = {coefficients[1]}")
-    else:
-        print(f"Значения элементов на диагонали матрицы: a = {a}, b = {b}, c = {c}.")
-        print(f"Значение корня характеристического уравнения: lambda = {roots[0]} (кратности 2)")
-        print(f"Коэффициенты для общей формулы: A = {coefficients[0]}, B = {coefficients[1]}")
-
-if __name__ == "__main__":
-    main()
