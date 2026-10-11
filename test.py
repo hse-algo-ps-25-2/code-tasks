@@ -33,7 +33,7 @@ class TestTrianglePath(unittest.TestCase):
         """
         Проверка соответствие вычисленного значения формуле
         """
-        for i in range(3, 11):
+        for i in range(3, 101):
             with self.subTest(length=i):
                 self.assertEqual(get_triangle_path_count(i), _closed_path_count(i))
 

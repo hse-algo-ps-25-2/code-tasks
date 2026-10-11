@@ -4,6 +4,10 @@ NOT_INT_VALUE_TEMPL = "Параметр {0} не является целым ч�
 NEGATIVE_VALUE_TEMPL = "Параметр {0} отрицательный"
 N_LESS_THAN_K_ERROR_MSG = "Параметр n меньше чем k"
 
+triangle_path_cache_a = {}
+triangle_path_cache_b = {}
+triangle_path_cache_c = {}
+
 
 def get_triangle_path_count_a(length: int) -> int:
     """
@@ -14,7 +18,13 @@ def get_triangle_path_count_a(length: int) -> int:
     """
     if length == 1:
         return 0
-    return get_triangle_path_count_b(length - 1) + get_triangle_path_count_c(length - 1)
+    if triangle_path_cache_a.get(length) is not None:
+        return triangle_path_cache_a[length]
+    result = get_triangle_path_count_b(length - 1) + get_triangle_path_count_c(
+        length - 1
+    )
+    triangle_path_cache_a[length] = result
+    return result
 
 
 def get_triangle_path_count_b(length: int) -> int:
@@ -26,7 +36,13 @@ def get_triangle_path_count_b(length: int) -> int:
     """
     if length == 1:
         return 1
-    return get_triangle_path_count_a(length - 1) + get_triangle_path_count_c(length - 1)
+    if triangle_path_cache_b.get(length) is not None:
+        return triangle_path_cache_b[length]
+    result = get_triangle_path_count_a(length - 1) + get_triangle_path_count_c(
+        length - 1
+    )
+    triangle_path_cache_b[length] = result
+    return result
 
 
 def get_triangle_path_count_c(length: int) -> int:
@@ -38,7 +54,13 @@ def get_triangle_path_count_c(length: int) -> int:
     """
     if length == 1:
         return 1
-    return get_triangle_path_count_a(length - 1) + get_triangle_path_count_b(length - 1)
+    if triangle_path_cache_c.get(length) is not None:
+        return triangle_path_cache_c[length]
+    result = get_triangle_path_count_a(length - 1) + get_triangle_path_count_b(
+        length - 1
+    )
+    triangle_path_cache_c[length] = result
+    return result
 
 
 def get_triangle_path_count(length: int) -> int:
