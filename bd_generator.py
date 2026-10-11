@@ -1,6 +1,6 @@
-import math
 import random
 from fractions import Fraction
+from math import gcd
 
 from band_determinant import BandDeterminant
 
@@ -24,8 +24,10 @@ class BDGenerator:
         Args:
             small_value_limit (int): ограничение "небольшого" значения
             для генерируемых значений
+            max_denominator (int): ограничение знаменателя дробей
         """
         self.small_value_limit = small_value_limit
+        self.max_denominator = max_denominator
 
     def generate_band_determinant(
         self, low_bound: int, high_bound: int
@@ -43,23 +45,85 @@ class BDGenerator:
         if low_bound > high_bound:
             raise ValueError("Нижняя граница не может быть больше верхней.")
 
-        lambda1, lambda2 = self._generate_roots(low_bound, high_bound)
-        matrix = self._calculate_matrix(lambda1, lambda2, low_bound, high_bound)
-        if matrix is None:
-            return None
-        a, b, c = matrix
+        lambda1, lambda2, a, b, c = self._generate_roots(low_bound, high_bound)
         coefficients = self._calculate_coefficients(lambda1, lambda2, a, b * c)
         return BandDeterminant(a, b, c, [lambda1, lambda2], coefficients)
 
     def _generate_roots(self, low_bound, high_bound):
-        lambda1 = 0
-        lambda2 = 0
+        """
+        Подбирает корни и коэффициенты матрицы.
 
-        while lambda1 == 0 or lambda2 == 0:
-            lambda1 = random.randint(low_bound, high_bound)
-            lambda2 = random.randint(low_bound, high_bound)
+        Перебирает пары целых корней из заданного диапазона,
+        проверяет их удобство и подбирает диагонали матрицы.
 
-        return [lambda1, lambda2]
+        Args:
+            low_bound (int): нижняя граница диапазона для выбора корней
+            high_bound (int): верхняя граница диапазона для выбора корней
+
+        Returns:
+            tuple[int, int, int, int, int] | None:
+                (lambda1, lambda2, a, b, c) или None
+        """
+        candidates = []
+
+        for lambda1 in range(low_bound, high_bound + 1):
+            for lambda2 in range(lambda1, high_bound + 1):
+
+                if not self._check_roots(
+                    lambda1,
+                    lambda2,
+                    low_bound,
+                    high_bound,
+                ):
+                    continue
+
+                diagonals = self._calculate_matrix(lambda1, lambda2)
+
+                if diagonals is None:
+                    continue
+
+                a, b, c = diagonals
+                candidates.append((lambda1, lambda2, a, b, c))
+
+        if not candidates:
+            return None
+
+        return random.choice(candidates)
+
+    def _check_roots(self, lambda1, lambda2, low_bound, high_bound):
+        """
+        Проверяет соответствие корней условиям:
+        - Ячейки матрицы должны быть меньше лимита значений
+        - Числители коэффициентов должны быть меньше лимита значений
+        - Знаменатель коэффициентов должен быть небольшим числом
+        """
+        if lambda1 == 0 or lambda2 == 0:
+            return False
+        if (
+            lambda1 < low_bound
+            or lambda1 > high_bound
+            or lambda2 < low_bound
+            or lambda2 > high_bound
+        ):
+            return False
+
+        if abs(lambda1 + lambda2) > self.small_value_limit:
+            return False
+
+        if lambda1 == lambda2:
+            return True
+
+        g = gcd(abs(lambda1), abs(lambda2))
+
+        denominator = abs(lambda1 - lambda2) // g
+        numerator1 = abs(lambda1) // g
+        numerator2 = abs(lambda2) // g
+
+        return (
+            denominator <= self.max_denominator
+            and numerator1 <= self.small_value_limit
+            and numerator2 <= self.small_value_limit
+        )
 
     def _calculate_matrix(self, lambda1, lambda2):
         """
