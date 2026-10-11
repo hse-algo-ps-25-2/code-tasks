@@ -29,13 +29,12 @@ class TestBDGenerator(unittest.TestCase):
     def test_generate_forced_same_roots(self):
         """Тестирует корректную генерацию кратных корней для диапазона длины 1"""
         generator = BDGenerator()
-
         result = generator.generate_band_determinant(1, 1)
         self.assertEqual(result.roots[0], result.roots[1])
         self.assertEqual(result.roots[0], 1)
         self.assertEqual(result.a, 2)
-        self.assertEqual(result.b, 1)
-        self.assertEqual(result.c, 1)
+        self.assertEqual(abs(result.b), 1)
+        self.assertEqual(abs(result.c), 1)
         self.assertEqual(result.coefficients[0], 1)
         self.assertEqual(result.coefficients[1], 1)
 
@@ -62,7 +61,8 @@ class TestBDGenerator(unittest.TestCase):
         Так как генерация произвольная, тест выполняется в цикле
         с разными значениями границ диапазона
         """
-        generator = BDGenerator()
+        value_limit = 15
+        generator = BDGenerator(value_limit)
         for offset in range(100):
             low_bound = -10 - offset
             high_bound = 10 + offset
@@ -78,12 +78,12 @@ class TestBDGenerator(unittest.TestCase):
                 self.assertNotEqual(result.b, 0)
                 self.assertNotEqual(result.c, 0)
 
-                self.assertLessEqual(abs(result.a), 2 * high_bound)
-                self.assertLessEqual(abs(result.b), high_bound)
-                self.assertLessEqual(abs(result.c), high_bound)
+                self.assertLessEqual(abs(result.a), value_limit)
+                self.assertLessEqual(abs(result.b), value_limit)
+                self.assertLessEqual(abs(result.c), value_limit)
 
                 for coefficients in result.coefficients:
-                    self.assertLessEqual(abs(coefficients), high_bound)
+                    self.assertLessEqual(abs(coefficients), value_limit)
 
                 self.assertEqual(result.a, result.roots[0] + result.roots[1])
                 self.assertEqual(result.b * result.c, result.roots[0] * result.roots[1])
@@ -120,6 +120,7 @@ class TestBDGenerator(unittest.TestCase):
         self.assertRaises(
             ValueError, generator.generate_band_determinant, low_bound, high_bound
         )
+
 
 if __name__ == "__main__":
     unittest.main()
