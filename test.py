@@ -21,15 +21,42 @@ def _closed_path_count(length: int) -> int:
 class TestTrianglePath(unittest.TestCase):
     """Набор тестов подсчёта маршрутов"""
 
+    def test_length_one(self):
+        """Длина 1"""
+        self.assertEqual(get_triangle_path_count(1), 0)
+
     def test_length_two(self):
         """Длина 2"""
         self.assertEqual(get_triangle_path_count(2), 2)
+
+    def test_length_paths(self):
+        """
+        Проверка соответствие вычисленного значения формуле
+        """
+        for i in range(3, 11):
+            with self.subTest(length=i):
+                self.assertEqual(get_triangle_path_count(i), _closed_path_count(i))
 
     def test_length_not_int(self):
         """Длина не целое"""
         with self.assertRaises(TypeError) as error:
             get_triangle_path_count(2.0)
         self.assertEqual(str(error.exception), PATH_LENGTH_NOT_INT)
+        with self.assertRaises(TypeError) as error:
+            get_triangle_path_count(True)
+        self.assertEqual(str(error.exception), PATH_LENGTH_NOT_INT)
+        with self.assertRaises(TypeError) as error:
+            get_triangle_path_count(False)
+        self.assertEqual(str(error.exception), PATH_LENGTH_NOT_INT)
+
+    def test_length_less_than_one(self):
+        """Длина меньше 1"""
+        with self.assertRaises(ValueError) as error:
+            get_triangle_path_count(0)
+        self.assertEqual(str(error.exception), PATH_LENGTH_NOT_POS)
+        with self.assertRaises(ValueError) as error:
+            get_triangle_path_count(-1)
+        self.assertEqual(str(error.exception), PATH_LENGTH_NOT_POS)
 
 
 class TestBinomialCoefficient(unittest.TestCase):

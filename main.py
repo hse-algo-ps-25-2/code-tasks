@@ -5,6 +5,42 @@ NEGATIVE_VALUE_TEMPL = "Параметр {0} отрицательный"
 N_LESS_THAN_K_ERROR_MSG = "Параметр n меньше чем k"
 
 
+def get_triangle_path_count_a(length: int) -> int:
+    """
+    Возвращает число маршрутов заданной длины
+    из вершины A в вершину A треугольника ABC
+
+    :param length: длина маршрута, целое число не меньше 1
+    """
+    if length == 1:
+        return 0
+    return get_triangle_path_count_b(length - 1) + get_triangle_path_count_c(length - 1)
+
+
+def get_triangle_path_count_b(length: int) -> int:
+    """
+    Возвращает число маршрутов заданной длины
+    из вершины A в вершину B треугольника ABC
+
+    :param length: длина маршрута, целое число не меньше 1
+    """
+    if length == 1:
+        return 1
+    return get_triangle_path_count_a(length - 1) + get_triangle_path_count_c(length - 1)
+
+
+def get_triangle_path_count_c(length: int) -> int:
+    """
+    Возвращает число маршрутов заданной длины
+    из вершины A в вершину C треугольника ABC
+
+    :param length: длина маршрута, целое число не меньше 1
+    """
+    if length == 1:
+        return 1
+    return get_triangle_path_count_a(length - 1) + get_triangle_path_count_b(length - 1)
+
+
 def get_triangle_path_count(length: int) -> int:
     """Возвращает число замкнутых маршрутов заданной длины
     из вершины A в вершину A треугольника ABC.
@@ -14,7 +50,13 @@ def get_triangle_path_count(length: int) -> int:
     :raise ValueError: если length меньше единицы
     :return: число маршрутов
     """
-    pass
+    if not isinstance(length, int):
+        raise TypeError(PATH_LENGTH_NOT_INT)
+    if isinstance(length, bool):
+        raise TypeError(PATH_LENGTH_NOT_INT)
+    if length < 1:
+        raise ValueError(PATH_LENGTH_NOT_POS)
+    return get_triangle_path_count_a(length)
 
 
 def binomial_coefficient_iter(n: int, k: int) -> int:
