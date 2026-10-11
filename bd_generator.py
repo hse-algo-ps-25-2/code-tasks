@@ -4,6 +4,11 @@ from math import gcd
 
 from band_determinant import BandDeterminant
 
+INVALID_BOUNDS = (
+    "Для диапазона [{0}; {1}] и параметров генератора "
+    + "невозможно создать задачу, удовлетворяющую условиям"
+)
+
 
 class BDGenerator:
     """Генерирует условия для задачи о ленточном определителе
@@ -26,6 +31,14 @@ class BDGenerator:
             для генерируемых значений
             max_denominator (int): ограничение знаменателя дробей
         """
+        if not isinstance(small_value_limit, int):
+            raise ValueError("small_value_limit должен быть целым числом")
+        if small_value_limit <= 0:
+            raise ValueError("small_value_limit должен быть больше нуля")
+        if not isinstance(max_denominator, int):
+            raise ValueError("max_denominator должен быть целым числом")
+        if max_denominator <= 0:
+            raise ValueError("max_denominator должен быть больше нуля")
         self.small_value_limit = small_value_limit
         self.max_denominator = max_denominator
 
@@ -42,10 +55,17 @@ class BDGenerator:
             high_bound (int): верхняя граница диапазона для выбора корней
                 характеристического уравнения
         """
+        if not isinstance(low_bound, int):
+            raise ValueError("low_bound должен быть целым числом")
+        if not isinstance(high_bound, int):
+            raise ValueError("high_bound должен быть целым числом")
         if low_bound > high_bound:
             raise ValueError("Нижняя граница не может быть больше верхней.")
 
-        lambda1, lambda2, a, b, c = self._generate_roots(low_bound, high_bound)
+        generation_result = self._generate_roots(low_bound, high_bound)
+        if not generation_result:
+            raise ValueError(str.format(INVALID_BOUNDS, low_bound, high_bound))
+        lambda1, lambda2, a, b, c = generation_result
         coefficients = self._calculate_coefficients(lambda1, lambda2)
         return BandDeterminant(a, b, c, [lambda1, lambda2], coefficients)
 
@@ -99,6 +119,7 @@ class BDGenerator:
         """
         if lambda1 == 0 or lambda2 == 0:
             return False
+
         if (
             lambda1 < low_bound
             or lambda1 > high_bound
