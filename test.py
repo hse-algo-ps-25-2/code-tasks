@@ -13,7 +13,7 @@ class TestBDGenerator(unittest.TestCase):
         generator = BDGenerator()
         low_bound = -10
         high_bound = 10
-        result = generator.generate_brand_determinant(low_bound, high_bound)
+        result = generator.generate_band_determinant(low_bound, high_bound)
         self.assertIsInstance(result, BandDeterminant)
 
         for root in result.roots:
@@ -30,7 +30,7 @@ class TestBDGenerator(unittest.TestCase):
         """Тестирует корректную генерацию кратных корней для диапазона длины 1"""
         generator = BDGenerator()
 
-        result = generator.generate_brand_determinant(1, 1)
+        result = generator.generate_band_determinant(1, 1)
         self.assertEqual(result.roots[0], result.roots[1])
         self.assertEqual(result.roots[0], 1)
         self.assertEqual(result.a, 2)
@@ -68,7 +68,7 @@ class TestBDGenerator(unittest.TestCase):
             high_bound = 10 + offset
 
             with self.subTest(low_bound=low_bound, high_bound=high_bound):
-                result = generator.generate_brand_determinant(low_bound, high_bound)
+                result = generator.generate_band_determinant(low_bound, high_bound)
 
                 for root in result.roots:
                     self.assertGreaterEqual(root, low_bound)
@@ -118,5 +118,8 @@ class TestBDGenerator(unittest.TestCase):
         high_bound = 1
 
         self.assertRaises(
-            ValueError, generator.generate_brand_determinant, low_bound, high_bound
+            ValueError, generator.generate_band_determinant, low_bound, high_bound
         )
+
+if __name__ == "__main__":
+    unittest.main()
