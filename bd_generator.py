@@ -17,6 +17,16 @@ class BDGenerator:
     или простыми дробями.
     """
 
+    def __init__(self, small_value_limit=15, max_denominator=5):
+        """
+        Инициализирует генератор
+
+        Args:
+            small_value_limit (int): ограничение "небольшого" значения
+            для генерируемых значений
+        """
+        self.small_value_limit = small_value_limit
+
     def generate_band_determinant(
         self, low_bound: int, high_bound: int
     ) -> BandDeterminant:
@@ -51,29 +61,35 @@ class BDGenerator:
 
         return [lambda1, lambda2]
 
-    def _calculate_matrix(self, lambda1, lambda2, low_bound, high_bound):
+    def _calculate_matrix(self, lambda1, lambda2):
+        """
+        Подбирает ненулевые целые a, b, c по корням.
+
+        Returns:
+            tuple[int, int, int] | None: (a, b, c) или None
+        """
         bc = lambda1 * lambda2
         if bc == 0:
             return None
         a = lambda1 + lambda2
-        results = [a]
-        limit = math.isqrt(abs(bc))
+        results = []
+        limit = self.small_value_limit
         for b in range(-limit, limit + 1):
-            if b < low_bound or b > high_bound:
-                continue
             if b == 0:
                 continue
             if bc % b == 0:
                 c = bc // b
                 if c == 0:
                     continue
-                if c < low_bound or c > high_bound:
+                if abs(c) > limit:
                     continue
-                pair = random.choice([(b, c), (c, b)])
-                results.append(pair[0])
-                results.append(pair[1])
-                return results
-        return None
+                results.append((a, b, c))
+                if b != c:
+                    results.append((a, c, b))
+
+        if not results:
+            return None
+        return random.choice(results)
 
     def _calculate_coefficients(self, lambda1, lambda2, a, bc):
         """
