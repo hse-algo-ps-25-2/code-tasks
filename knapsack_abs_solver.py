@@ -69,7 +69,12 @@ class KnapsackAbstractSolver(ABC):
 
         :param selected_items: для каждого предмета True, если он в наборе
         """
-        pass
+        sum_weight = 0
+        for i, item in enumerate(selected_items):
+            if item is True:
+                sum_weight += self.weights[i]
+
+        return sum_weight
 
     def get_cost(self, selected_items: list[bool]) -> int:
         """Возвращает суммарную стоимость выбранных предметов.
@@ -78,14 +83,35 @@ class KnapsackAbstractSolver(ABC):
 
         :param selected_items: для каждого предмета True, если он в наборе
         """
-        pass
+        sum_cost = 0
+        for i, item in enumerate(selected_items):
+            if item is True:
+                sum_cost += self.costs[i]
+
+        return sum_cost
 
     def _validate_params(
         self, weights: list[int], costs: list[int], weight_limit: int
     ) -> None:
         """Проверяет входные данные задачи о рюкзаке."""
-        pass
+        self._validate_list(weights, WEIGHTS)
+        self._validate_list(costs, COSTS)
+        if len(weights) != len(costs):
+            raise ValueError(LENGTHS_NOT_EQUAL)
+        if not isinstance(weight_limit, int):
+            raise TypeError(NOT_INT_WEIGHT_LIMIT)
+        if weight_limit < 1:
+            raise ValueError(NOT_POS_WEIGHT_LIMIT)
+        if weight_limit < min(weights):
+            raise ValueError(LESS_WEIGHT_LIMIT)
 
     def _validate_list(self, items: list[int], list_name: str) -> None:
         """Проверяет список весов или стоимостей."""
-        pass
+        if not isinstance(items, list):
+            raise TypeError(NOT_LIST.format(list_name))
+        if len(items) == 0:
+            raise ValueError(EMPTY_LIST.format(list_name))
+        if not isinstance(all(items), int):
+            raise TypeError(NOT_INT.format(list_name))
+        if any(items) <= 0:
+            raise ValueError(NOT_POS.format(list_name))
