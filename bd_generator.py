@@ -1,6 +1,6 @@
 import random
 from fractions import Fraction
-from math import gcd
+from math import gcd, isqrt
 
 from band_determinant import BandDeterminant
 
@@ -148,19 +148,23 @@ class BDGenerator:
         bc = lambda1 * lambda2
         if bc == 0:
             return None
+        bc_module = abs(bc)
         a = lambda1 + lambda2
         results = []
-        limit = self.small_value_limit
-        for b in range(-limit, limit + 1):
-            if b == 0:
+        limit = min(isqrt(bc_module), self.small_value_limit)
+
+        for divisor in range(1, limit + 1):
+            if bc_module % divisor != 0:
                 continue
-            if bc % b == 0:
-                c = bc // b
-                if c == 0:
-                    continue
-                if abs(c) > limit:
-                    continue
+            quotient = bc_module // divisor
+            if abs(quotient) > self.small_value_limit:
+                continue
+            for sign in (-1, 1):
+                b = sign * divisor
+                c = sign * quotient if bc > 0 else -sign * quotient
                 results.append((a, b, c))
+                if b != c:
+                    results.append((a, c, b))
 
         if not results:
             return None
