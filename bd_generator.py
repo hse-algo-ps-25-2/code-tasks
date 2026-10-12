@@ -110,7 +110,7 @@ class BDGenerator:
 
         return random.choice(candidates)
 
-    def _check_roots(self, lambda1, lambda2, low_bound, high_bound):
+    def _check_roots(self, lambda1, lambda2):
         """
         Проверяет соответствие корней условиям:
         - Ячейки матрицы должны быть меньше лимита значений
