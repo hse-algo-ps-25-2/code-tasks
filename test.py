@@ -143,7 +143,7 @@ class TestBDGenerator(unittest.TestCase):
                     generator.generate_band_determinant(low_bound, high_bound)
 
     def test_generator_rejects_invalid_limits(self):
-        """Тестирует ошибку при передаче некорректных значений в конструктор генератора"""
+        """Тестирует ошибку передачи некорректных значений в конструктор генератора"""
         for small_value_limit, max_denominator in [(1.5, 5), (5, "3")]:
             with self.subTest(
                 small_value_limit=small_value_limit,
