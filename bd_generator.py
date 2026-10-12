@@ -49,6 +49,9 @@ class BDGenerator:
         Генерирует условия для задачи о ленточном определителе методом
         неопределенных коэффициентов
 
+        Указанные границы диапазона могут быть уменьшены при вычислении,
+        так как значения матрицы не должны быть больше 2* small_value_limit
+
         Args:
             low_bound (int): нижняя граница диапазона для выбора корней
                 характеристического уравнения
@@ -73,9 +76,10 @@ class BDGenerator:
         """
         Подбирает корни и коэффициенты матрицы.
 
-        Перебирает пары целых корней из заданного диапазона
+        Перебирает пары целых корней из вычисленного диапазона
         в случайном порядке, проверяет их соответствие критериям
-        и подбирает диагонали матрицы.
+        и подбирает диагонали матрицы. Диапазон ограничен аргументами
+        и значением small_value_limit
 
         Args:
             low_bound (int): нижняя граница диапазона для выбора корней
@@ -85,23 +89,27 @@ class BDGenerator:
             tuple[int, int, int, int, int] | None:
                 (lambda1, lambda2, a, b, c) или None
         """
-        roots = list(range(low_bound, high_bound + 1))
-        random.shuffle(roots)
 
-        for i, lambda1 in enumerate(roots):
-            for j in range(i, len(roots)):
-                lambda2 = roots[j]
+        low = max(low_bound, -2 * self.small_value_limit)
+        high = min(high_bound, 2 * self.small_value_limit)
 
-                if not self._check_roots(lambda1, lambda2):
-                    continue
+        pairs = []
+        for i in range(low, high + 1):
+            for j in range(i, high + 1):
+                pairs.append((i, j))
+        random.shuffle(pairs)
 
-                diagonals = self._calculate_matrix(lambda1, lambda2)
+        for lambda1, lambda2 in pairs:
+            if not self._check_roots(lambda1, lambda2):
+                continue
 
-                if diagonals is None:
-                    continue
+            diagonals = self._calculate_matrix(lambda1, lambda2)
 
-                a, b, c = diagonals
-                return lambda1, lambda2, a, b, c
+            if diagonals is None:
+                continue
+
+            a, b, c = diagonals
+            return lambda1, lambda2, a, b, c
 
         return None
 
