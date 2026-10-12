@@ -198,7 +198,7 @@ class BDGenerator:
             A2 = -lambda2 / (lambda1 - lambda2)
         """
         if lambda1 == lambda2:
-            return [1, 1]
+            return [Fraction(1), Fraction(1)]
 
         return [
             Fraction(lambda1, lambda1 - lambda2),
