@@ -8,7 +8,7 @@ class BruteForceSolver(KnapsackAbstractSolver):
         """Возвращает набор максимальной стоимости, не тяжелее вместимости."""
         weights = self.weights
         costs = self.costs
-        weight_limit =self.weight_limit
+        weight_limit = self.weight_limit
 
         n = len(costs)
         sets = [[]]
@@ -34,5 +34,5 @@ class BruteForceSolver(KnapsackAbstractSolver):
             if cost > best_cost and not weight > weight_limit:
                 best_cost = cost
                 best_set = set
-        
+
         return KnapsackSolution(best_cost, best_set)
