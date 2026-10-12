@@ -113,5 +113,5 @@ class KnapsackAbstractSolver(ABC):
             raise ValueError(EMPTY_LIST.format(list_name))
         if not isinstance(all(items), int):
             raise TypeError(NOT_INT.format(list_name))
-        if any(items) <= 0:
+        if min(items) <= 0:
             raise ValueError(NOT_POS.format(list_name))
