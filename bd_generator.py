@@ -137,6 +137,9 @@ class BDGenerator:
         """
         Подбирает ненулевые целые a, b, c по корням.
 
+        Так как и b и c должны удовлетворять ограничениям
+        перебирается сокращенный диапазон множителей
+
         Returns:
             tuple[int, int, int] | None: (a, b, c) или None
         """
@@ -146,23 +149,25 @@ class BDGenerator:
         bc_module = abs(bc)
         a = lambda1 + lambda2
         results = []
-        limit = min(isqrt(bc_module), self.small_value_limit)
+        low_limit = (bc_module + self.small_value_limit - 1) // self.small_value_limit
+        high_limit = min(isqrt(bc_module), self.small_value_limit)
+        if low_limit > high_limit:
+            return None
 
-        for divisor in range(1, limit + 1):
+        for divisor in range(low_limit, high_limit + 1):
             if bc_module % divisor != 0:
                 continue
             quotient = bc_module // divisor
-            if abs(quotient) > self.small_value_limit:
-                continue
             for sign in (-1, 1):
                 b = sign * divisor
                 c = sign * quotient if bc > 0 else -sign * quotient
                 results.append((a, b, c))
-                if b != c:
+                if divisor != quotient:
                     results.append((a, c, b))
 
         if not results:
             return None
+
         return random.choice(results)
 
     def _calculate_coefficients(self, lambda1, lambda2):
