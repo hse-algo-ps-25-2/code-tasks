@@ -124,6 +124,42 @@ class TestBDGenerator(unittest.TestCase):
             ValueError, generator.generate_band_determinant, low_bound, high_bound
         )
 
+    def test_generate_without_valid_candidates(self):
+        """
+        Тестирует ошибку генерации при передаче математически некорректного диапазона
+        """
+        generator = BDGenerator()
+
+        with self.assertRaises(ValueError):
+            generator.generate_band_determinant(0, 0)
+
+    def test_generate_invalid_bound_types(self):
+        """Тестирует ошибку при передаче некорректных типов в метод генерации"""
+        generator = BDGenerator()
+
+        for low_bound, high_bound in [(1.5, 2), (1, "2")]:
+            with self.subTest(low_bound=low_bound, high_bound=high_bound):
+                with self.assertRaises(TypeError):
+                    generator.generate_band_determinant(low_bound, high_bound)
+
+    def test_generator_rejects_invalid_limits(self):
+        """Тестирует ошибку при передаче некорректных значений в конструктор генератора"""
+        for small_value_limit, max_denominator in [(1.5, 5), (5, "3")]:
+            with self.subTest(
+                small_value_limit=small_value_limit,
+                max_denominator=max_denominator,
+            ):
+                with self.assertRaises(TypeError):
+                    BDGenerator(small_value_limit, max_denominator)
+
+        for small_value_limit, max_denominator in [(0, 5), (-1, 5), (5, 0), (5, -1)]:
+            with self.subTest(
+                small_value_limit=small_value_limit,
+                max_denominator=max_denominator,
+            ):
+                with self.assertRaises(ValueError):
+                    BDGenerator(small_value_limit, max_denominator)
+
 
 if __name__ == "__main__":
     unittest.main()

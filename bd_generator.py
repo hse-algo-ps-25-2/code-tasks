@@ -32,11 +32,11 @@ class BDGenerator:
             max_denominator (int): ограничение знаменателя дробей
         """
         if not isinstance(small_value_limit, int):
-            raise ValueError("small_value_limit должен быть целым числом")
+            raise TypeError("small_value_limit должен быть целым числом")
         if small_value_limit <= 0:
             raise ValueError("small_value_limit должен быть больше нуля")
         if not isinstance(max_denominator, int):
-            raise ValueError("max_denominator должен быть целым числом")
+            raise TypeError("max_denominator должен быть целым числом")
         if max_denominator <= 0:
             raise ValueError("max_denominator должен быть больше нуля")
         self.small_value_limit = small_value_limit
@@ -56,9 +56,9 @@ class BDGenerator:
                 характеристического уравнения
         """
         if not isinstance(low_bound, int):
-            raise ValueError("low_bound должен быть целым числом")
+            raise TypeError("low_bound должен быть целым числом")
         if not isinstance(high_bound, int):
-            raise ValueError("high_bound должен быть целым числом")
+            raise TypeError("high_bound должен быть целым числом")
         if low_bound > high_bound:
             raise ValueError("Нижняя граница не может быть больше верхней.")
 
