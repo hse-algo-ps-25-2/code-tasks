@@ -120,14 +120,6 @@ class BDGenerator:
         if lambda1 == 0 or lambda2 == 0:
             return False
 
-        if (
-            lambda1 < low_bound
-            or lambda1 > high_bound
-            or lambda2 < low_bound
-            or lambda2 > high_bound
-        ):
-            return False
-
         if abs(lambda1 + lambda2) > self.small_value_limit:
             return False
 
