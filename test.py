@@ -82,8 +82,11 @@ class TestBDGenerator(unittest.TestCase):
                 self.assertLessEqual(abs(result.b), value_limit)
                 self.assertLessEqual(abs(result.c), value_limit)
 
-                for coefficients in result.coefficients:
-                    self.assertLessEqual(abs(coefficients), value_limit)
+                for coefficient in result.coefficients:
+                    self.assertLessEqual(abs(coefficient.numerator), value_limit)
+                    self.assertLessEqual(
+                        coefficient.denominator, generator.max_denominator
+                    )
 
                 self.assertEqual(result.a, result.roots[0] + result.roots[1])
                 self.assertEqual(result.b * result.c, result.roots[0] * result.roots[1])
