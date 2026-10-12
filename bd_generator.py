@@ -169,8 +169,6 @@ class BDGenerator:
                 if abs(c) > limit:
                     continue
                 results.append((a, b, c))
-                if b != c:
-                    results.append((a, c, b))
 
         if not results:
             return None
