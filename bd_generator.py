@@ -73,8 +73,9 @@ class BDGenerator:
         """
         Подбирает корни и коэффициенты матрицы.
 
-        Перебирает пары целых корней из заданного диапазона,
-        проверяет их удобство и подбирает диагонали матрицы.
+        Перебирает пары целых корней из заданного диапазона
+        в случайном порядке, проверяет их соответствие критериям
+        и подбирает диагонали матрицы.
 
         Args:
             low_bound (int): нижняя граница диапазона для выбора корней
@@ -84,17 +85,14 @@ class BDGenerator:
             tuple[int, int, int, int, int] | None:
                 (lambda1, lambda2, a, b, c) или None
         """
-        candidates = []
+        roots = list(range(low_bound, high_bound + 1))
+        random.shuffle(roots)
 
-        for lambda1 in range(low_bound, high_bound + 1):
-            for lambda2 in range(lambda1, high_bound + 1):
+        for i, lambda1 in enumerate(roots):
+            for j in range(i, len(roots)):
+                lambda2 = roots[j]
 
-                if not self._check_roots(
-                    lambda1,
-                    lambda2,
-                    low_bound,
-                    high_bound,
-                ):
+                if not self._check_roots(lambda1, lambda2):
                     continue
 
                 diagonals = self._calculate_matrix(lambda1, lambda2)
@@ -103,12 +101,9 @@ class BDGenerator:
                     continue
 
                 a, b, c = diagonals
-                candidates.append((lambda1, lambda2, a, b, c))
+                return lambda1, lambda2, a, b, c
 
-        if not candidates:
-            return None
-
-        return random.choice(candidates)
+        return None
 
     def _check_roots(self, lambda1, lambda2):
         """
