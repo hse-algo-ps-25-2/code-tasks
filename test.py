@@ -14,7 +14,6 @@ from strings_checker import check_strings
 
 BINOMIAL_FUNCTIONS = (binomial_coefficient_iter, binomial_coefficient_rec)
 WRONG_TYPE_VALUES = ["2", 2.5, None, True]
-BASE_CASES = [[0, 0], [1, 0], [1, 1], [10, 0], [10, 10]]
 
 
 class TestZeroOne(unittest.TestCase):
@@ -78,8 +77,9 @@ class TestBinomialCoefficient(unittest.TestCase):
 
     def test_base_cases(self):
         """базовые случаи"""
+        cases = [[0, 0], [1, 0], [1, 1], [10, 0], [10, 10]]
         for func in BINOMIAL_FUNCTIONS:
-            for n, k in BASE_CASES:
+            for n, k in cases:
                 with self.subTest(func=func.__name__):
                     self.assertEqual(func(n, k), 1)
 
