@@ -113,9 +113,14 @@ def binomial_coefficient_rec(n: int, k: int) -> int:
         raise ValueError(NEGATIVE_VALUE_TEMPL.format("k"))
     if n < k:
         raise ValueError(N_LESS_THAN_K_ERROR_MSG)
+    return _binomial_rec(n, k)
+
+
+def _binomial_rec(n: int, k: int) -> int:
+    """Внутренняя рекурсивная функция без повторной валидации."""
     if k == 0 or k == n:
         return 1
-    return n * binomial_coefficient_rec(n - 1, k - 1) // k
+    return n * _binomial_rec(n - 1, k - 1) // k
 
 
 def main():
