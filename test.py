@@ -37,7 +37,7 @@ def check_knapsack_items(weights, costs, weight_limit, result) -> bool:
 class TestBruteForceSolver(unittest.TestCase):
     """Тесты решения задачи о рюкзаке"""
 
-    def test_1(self):
+    def test_one_item(self):
         """Один предмет"""
         weights = [5]
         costs = [7]
@@ -46,7 +46,7 @@ class TestBruteForceSolver(unittest.TestCase):
         self.assertEqual(result.cost, 7)
         self.assertTrue(check_knapsack_items(weights, costs, weight_limit, result))
 
-    def test_2(self):
+    def test_two_items(self):
         """Два предмета"""
         weights = [1, 1]
         costs = [1, 2]
@@ -55,7 +55,7 @@ class TestBruteForceSolver(unittest.TestCase):
         self.assertEqual(result.cost, 2)
         self.assertTrue(check_knapsack_items(weights, costs, weight_limit, result))
 
-    def test_3(self):
+    def test_three_items(self):
         """Три предмета"""
         weights = [1, 1, 2]
         costs = [1, 2, 2]
@@ -124,6 +124,11 @@ class TestWeightAndCost(unittest.TestCase):
         solver = BruteForceSolver([2, 3, 5], [10, 20, 30], 7)
         self.assertEqual(solver.get_cost([True, True, True]), 0)
 
+    def test_weight_limit_equal_min_possible_weight(self):
+        """Вместимость равна минимальному весу"""
+        solver = BruteForceSolver([5, 7], [1, 1], 5)
+        self.assertEqual(solver.get_cost([True, False]), 1)
+
 
 class TestValidation(unittest.TestCase):
     """Проверка входных данных"""
@@ -175,6 +180,18 @@ class TestValidation(unittest.TestCase):
         with self.assertRaises(ValueError) as error:
             BruteForceSolver([1, 2], [1, -5], 3)
         self.assertEqual(NOT_POS.format(COSTS), str(error.exception))
+    
+    def test_str_weights(self):
+        """Стоимости содержат строковое значение"""
+        with self.assertRaises(TypeError) as error:
+            BruteForceSolver([1, "2"], [1, 5], 3)
+        self.assertEqual(NOT_INT.format(WEIGHTS), str(error.exception))
+
+    def test_str_costs(self):
+        """Стоимости содержат строковое значение"""
+        with self.assertRaises(TypeError) as error:
+            BruteForceSolver([1, 2], [1, "5"], 3)
+        self.assertEqual(NOT_INT.format(COSTS), str(error.exception))
 
     def test_lengths_not_equal(self):
         """Списки разной длины"""
@@ -188,6 +205,12 @@ class TestValidation(unittest.TestCase):
             BruteForceSolver([1], [1], 1.5)
         self.assertEqual(NOT_INT_WEIGHT_LIMIT, str(error.exception))
 
+    def test_negative_weight_limit(self):
+        """Вместимость равна нулю"""
+        with self.assertRaises(ValueError) as error:
+            BruteForceSolver([1], [1], -2)
+        self.assertEqual(NOT_POS_WEIGHT_LIMIT, str(error.exception))
+
     def test_not_pos_weight_limit(self):
         """Вместимость равна нулю"""
         with self.assertRaises(ValueError) as error:
@@ -200,6 +223,35 @@ class TestValidation(unittest.TestCase):
             BruteForceSolver([5, 7], [1, 1], 4)
         self.assertEqual(LESS_WEIGHT_LIMIT, str(error.exception))
 
+    def test_weights_limits_boolean_param(self):
+        """Ошибка при boolean в лимите веса"""
+        with self.assertRaises(TypeError) as error:
+            BruteForceSolver([2, 7], [1, 2], True)
+        self.assertEqual(NOT_INT_WEIGHT_LIMIT, str(error.exception))
+
+    def test_weights_boolean_param(self):
+        """Ошибка при boolean в весах"""
+        with self.assertRaises(TypeError) as error:
+            BruteForceSolver([True, 7], [1, 2], 4)
+        self.assertEqual(NOT_INT.format(WEIGHTS), str(error.exception))
+    
+    def test_costs_boolean_param(self):
+        """Ошибка при boolean в стоимостях"""
+        with self.assertRaises(TypeError) as error:
+            BruteForceSolver([5, 7], [True, True], 4)
+        self.assertEqual(NOT_INT.format(COSTS), str(error.exception))
+
+    def test_weights_tuple_param(self):
+        """Ошибка при boolean в стоимостях"""
+        with self.assertRaises(TypeError) as error:
+            BruteForceSolver((1, 2), [5, 7], 4)
+        self.assertEqual(NOT_LIST.format(WEIGHTS), str(error.exception))
+    
+    def test_costs_tuple_param(self):
+        """Ошибка при boolean в стоимостях"""
+        with self.assertRaises(TypeError) as error:
+            BruteForceSolver([5, 7], (1, 2), 4)
+        self.assertEqual(NOT_LIST.format(COSTS), str(error.exception))
 
 if __name__ == "__main__":
     unittest.main()

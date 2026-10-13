@@ -13,11 +13,11 @@ class BruteForceSolver(KnapsackAbstractSolver):
         quantity = len(costs)
         sets = [[]]
 
-        for i in range(quantity):
+        for item_index in range(quantity):
             new_sets = []
             for set in sets:
                 new_sets.append(set)
-                new_sets.append(set + [i])
+                new_sets.append(set + [item_index])
             sets = new_sets
 
         best_cost = 0
@@ -27,9 +27,9 @@ class BruteForceSolver(KnapsackAbstractSolver):
             weight = 0
             cost = 0
 
-            for i in set:
-                weight += weights[i]
-                cost += costs[i]
+            for item_index in set:
+                weight += weights[item_index]
+                cost += costs[item_index]
 
             if cost > best_cost and not weight > weight_limit:
                 best_cost = cost
