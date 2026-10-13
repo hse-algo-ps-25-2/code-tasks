@@ -12,13 +12,13 @@ def _put_one(result_arr, remaining, prefix):
         _put_both(result_arr, remaining - 1, prefix + "1")
 
 
-def _put_both(arr, length, s=""):
+def _put_both(result_arr, length, s=""):
     if length == 0:
-        arr.append(s)
+        result_arr.append(s)
     else:
-        _put_both(arr, length - 1, s + "1")
+        _put_both(result_arr, length - 1, s + "1")
         _put_one(
-            arr,
+            result_arr,
             length - 1,
             s + "0",
         )
