@@ -5,11 +5,11 @@ NEGATIVE_VALUE_TEMPL = "Параметр {0} отрицательный"
 N_LESS_THAN_K_ERROR_MSG = "Параметр n меньше чем k"
 
 
-def _put_one(arr, length, s):
-    if length == 0:
-        arr.append(s)
+def _put_one(result_arr, remaining, prefix):
+    if remaining == 0:
+        result_arr.append(prefix)
     else:
-        _put_both(arr, length - 1, s + "1")
+        _put_both(result_arr, remaining - 1, prefix + "1")
 
 
 def _put_both(arr, length, s=""):
@@ -38,11 +38,11 @@ def generate_strings(length: int) -> list[str]:
     if length < 1:
         raise ValueError(LENGTH_NOT_POS)
 
-    res = []
+    strings = []
 
-    _put_both(res, length)
+    _put_both(strings, length)
 
-    return res
+    return strings
 
 
 def _validate_param(value, name):
@@ -70,11 +70,11 @@ def binomial_coefficient_iter(n: int, k: int) -> int:
 
     triangle = [[1]]
    
-    for i in range(1, n + 1):
-        prev_row = triangle[i - 1]
+    for row_idx in range(1, n + 1):
+        prev_row = triangle[row_idx - 1]
         internal_part_of_row = []
 
-        for j in range(1, i):  
+        for j in range(1, row_idx):  
             internal_part_of_row.append(prev_row[j - 1] + prev_row[j])
         
         full_row = [1] + internal_part_of_row + [1]
