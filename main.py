@@ -109,7 +109,7 @@ def binomial_coefficient_rec(n: int, k: int) -> int:
 
 
 def main():
-    n = 4
+    n = 2
     print(f"Строки длиной {n}:\n{generate_strings(n)}")
 
     n = 30

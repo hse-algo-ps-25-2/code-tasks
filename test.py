@@ -56,11 +56,13 @@ class TestZeroOne(unittest.TestCase):
             generate_strings(0)
         self.assertEqual(str(error.exception), LENGTH_NOT_POS)
 
-    def test_length_not_int_bool(self):
-        """Длина не целое, bool значение"""
-        with self.assertRaises(TypeError) as error:
-            generate_strings(True)
-        self.assertEqual(str(error.exception), LENGTH_NOT_INT)
+    def test_length_not_int(self):
+        """Длина не целое"""
+        cases = ["1", 1.0, None, True]
+        for case_value in cases:
+            with self.assertRaises(TypeError) as error:
+                generate_strings(case_value)
+            self.assertEqual(str(error.exception), LENGTH_NOT_INT)
 
 
 class TestBinomialCoefficient(unittest.TestCase):
@@ -71,12 +73,6 @@ class TestBinomialCoefficient(unittest.TestCase):
         for func in BINOMIAL_FUNCTIONS:
             with self.subTest(func=func.__name__):
                 self.assertEqual(func(5, 2), 10)
-
-    def test_n_less_than_k(self):
-        """n меньше k"""
-        with self.assertRaises(ValueError) as error:
-            binomial_coefficient_iter(1, 2)
-        self.assertEqual(str(error.exception), N_LESS_THAN_K_ERROR_MSG)
 
     def test_base_cases(self):
         """базовые случаи"""
@@ -94,12 +90,24 @@ class TestBinomialCoefficient(unittest.TestCase):
                     func(1, 2)
                 self.assertEqual(N_LESS_THAN_K_ERROR_MSG, str(error.exception))
 
-    def test_param_is_not_int(self):
-        """k не является целым"""
+    def test_n_is_not_int(self):
+        """n не является целым"""
         cases = ["2", 2.5, None, True]
         for func in BINOMIAL_FUNCTIONS:
             for case_value in cases:
                 with self.subTest(func=func.__name__, n=case_value):
+                    with self.assertRaises(TypeError) as error:
+                        func(case_value, 1)
+                    self.assertEqual(
+                        NOT_INT_VALUE_TEMPL.format("n"), str(error.exception)
+                    )
+    
+    def test_k_is_not_int(self):
+        """k не является целым"""
+        cases = ["2", 2.5, None, True]
+        for func in BINOMIAL_FUNCTIONS:
+            for case_value in cases:
+                with self.subTest(func=func.__name__, k=case_value):
                     with self.assertRaises(TypeError) as error:
                         func(1, case_value)
                     self.assertEqual(
