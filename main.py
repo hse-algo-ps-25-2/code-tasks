@@ -25,7 +25,9 @@ def __check_strings_generator_constraints(length: int) -> None:
         raise ValueError(ErrorMessages.LENGTH_NOT_POS)
 
 
-def __generate_strings_with_prefix_not_ending_with_0(prefix: str, length: int) -> list[str]:
+def __generate_strings_with_prefix_not_ending_with_0(
+    prefix: str, length: int
+) -> list[str]:
     """Возвращает строки заданной длины, состоящие из 0 и 1, где никакие
     два нуля не стоят рядом, начинающиеся на заданний префикс, окончивающийся не на 0.
 
