@@ -5,6 +5,25 @@ NEGATIVE_VALUE_TEMPL = "Параметр {0} отрицательный"
 N_LESS_THAN_K_ERROR_MSG = "Параметр n меньше чем k"
 
 
+def _put_one(arr, length, s):
+    if length == 0:
+        arr.append(s)
+    else:
+        _put_both(arr, length - 1, s + "1")
+
+
+def _put_both(arr, length, s=""):
+    if length == 0:
+        arr.append(s)
+    else:
+        _put_both(arr, length - 1, s + "1")
+        _put_one(
+            arr,
+            length - 1,
+            s + "0",
+        )
+
+
 def generate_strings(length: int) -> list[str]:
     """Возвращает строки заданной длины, состоящие из 0 и 1, где никакие
     два нуля не стоят рядом.
@@ -14,8 +33,29 @@ def generate_strings(length: int) -> list[str]:
     :raise ValueError: если length меньше единицы
     :return: список строк
     """
-    pass
+    if not isinstance(length, int):
+        raise TypeError(LENGTH_NOT_INT)
+    if length < 1:
+        raise ValueError(LENGTH_NOT_POS)
 
+    res = []
+
+    _put_both(res, length)
+
+    return res
+
+
+def _validate_param(value, name):
+    if not isinstance(value, int):
+        raise TypeError(NOT_INT_VALUE_TEMPL.format(name))
+    if value < 0:
+        raise TypeError(NEGATIVE_VALUE_TEMPL.format(name))
+
+def _handle_raise(n, k):
+    _validate_param(n, "n")
+    _validate_param(k, "k")
+    if n < k:
+        raise ValueError(N_LESS_THAN_K_ERROR_MSG)
 
 def binomial_coefficient_iter(n: int, k: int) -> int:
     """Вычисляет биномиальный коэффициент из n по k итеративно.
@@ -26,7 +66,15 @@ def binomial_coefficient_iter(n: int, k: int) -> int:
     :raise ValueError: если n или k отрицательные либо n меньше k
     :return: значение биномиального коэффициента
     """
-    pass
+    _handle_raise(n, k)
+
+    
+
+def _solve_with_rec(n: int, k: int) -> int:
+    if (k == 0) or (n == k) or  (n == 0 and k == 0):
+        return 1
+    else:
+        return _solve_with_rec(n - 1, k) + _solve_with_rec(n - 1, k - 1)
 
 
 def binomial_coefficient_rec(n: int, k: int) -> int:
@@ -39,11 +87,13 @@ def binomial_coefficient_rec(n: int, k: int) -> int:
     :raise ValueError: если n или k отрицательные либо n меньше k
     :return: значение биномиального коэффициента
     """
-    pass
+    _handle_raise(n, k)
+
+    return _solve_with_rec(n, k)
 
 
 def main():
-    n = 2
+    n = 4
     print(f"Строки длиной {n}:\n{generate_strings(n)}")
 
     n = 30
