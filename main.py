@@ -32,18 +32,31 @@ def __generate_strings_with_prefix_not_ending_with_0(
     два нуля не стоят рядом, начинающиеся на заданний префикс, окончивающийся не на 0.
 
     :param prefix: строка префикс из 0 и 1 без двух нолей подряд окончивающаяся не на 0
-    :param length: длина строки которую приписать к префиксу, целое число
+    :param length: длина строки которую приписать к префиксу, целое число не меньше 1
     :return: список строк
     """
 
-    if length == 0:
-        return [prefix]
     if length == 1:
         return [prefix + "0", prefix + "1"]
 
-    return __generate_strings_with_prefix_not_ending_with_0(
-        prefix + "01", length - 2
+    return __generate_strings_with_prefix_ending_with_0(
+        prefix + "0", length - 1
     ) + __generate_strings_with_prefix_not_ending_with_0(prefix + "1", length - 1)
+
+
+def __generate_strings_with_prefix_ending_with_0(prefix: str, length: int) -> list[str]:
+    """Возвращает строки заданной длины, состоящие из 0 и 1, где никакие
+    два нуля не стоят рядом, начинающиеся на заданний префикс, окончивающийся не на 0.
+
+    :param prefix: строка префикс из 0 и 1 без двух нолей подряд окончивающаяся не на 0
+    :param length: длина строки которую приписать к префиксу, целое число не меньше 1
+    :return: список строк
+    """
+
+    if length == 1:
+        return [prefix + "1"]
+
+    return __generate_strings_with_prefix_not_ending_with_0(prefix + "1", length - 1)
 
 
 def generate_strings(length: int) -> list[str]:
@@ -55,7 +68,7 @@ def generate_strings(length: int) -> list[str]:
     :raise ValueError: если length меньше единицы
     :return: список строк
     """
-
+    print(f"generate_strings length={length}")
     __check_strings_generator_constraints(length)
     return __generate_strings_with_prefix_not_ending_with_0("", length)
 
@@ -100,14 +113,10 @@ def binomial_coefficient_iter(n: int, k: int) -> int:
 
     row = [1]
     for i in range(1, n + 1, 1):
-        # print(f"i={i}")
         prev_row = row
-        # print(f"prev_row={row}")
         row = [1] * i
-        # print(f"row1={row}")
         for j in range(1, i - 1):
             row[j] = prev_row[j - 1] + prev_row[j]
-        # print(f"row2={row}")
     return row[k - 1] + row[k]
 
 
