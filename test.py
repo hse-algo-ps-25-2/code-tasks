@@ -8,47 +8,88 @@ from main import (
 )
 from strings_checker import check_strings
 
-BINOMIAL_COEFFICIENT_FUNCTIONS = (
-    binomial_coefficient_iter,
-    binomial_coefficient_rec
-)
+BINOMIAL_COEFFICIENT_FUNCTIONS = (binomial_coefficient_iter, binomial_coefficient_rec)
+
+
+class TestZeroOneStringsChecker(unittest.TestCase):
+    """Набор тестов валидатора"""
+
+    def test_length_two(self):
+        """Полный набор длины 2"""
+        self.assertTrue(check_strings(["01", "10", "11"], 2))
+
+    def test_length_3(self):
+        """Полный набор длины 3"""
+        strings = ["010", "011", "110", "111", "101"]
+        self.assertTrue(check_strings(strings, 3))
+
+    def test_missing_string(self):
+        """Неполный набор"""
+        self.assertFalse(check_strings(["01", "11"], 2))
+
+    def test_not_str_in_string(self):
+        """Не Строка в strings"""
+        self.assertFalse(check_strings(["01", "11", 10], 2))
+
+    def test_duplicate(self):
+        """Повтор строки"""
+        self.assertFalse(check_strings(["01", "01", "11"], 2))
+
+    def test_wrong_length(self):
+        """Строка другой длины"""
+        self.assertFalse(check_strings(["01", "10", "111"], 2))
+
+    def test_bad_chars(self):
+        """Символы помимо 0 и 1"""
+        self.assertFalse(check_strings(["01", "10", "12"], 2))
+
+    def test_not_str_element(self):
+        """Нет олько строка на входе"""
+        self.assertFalse(check_strings(["01", "10", 11], 2))
+
+    def test_two_zeros_in_row(self):
+        """В строке два нуля подряд"""
+        self.assertFalse(check_strings(["00", "10", "11"], 2))
+
+    def test_extra_string(self):
+        """Лишняя строка"""
+        self.assertFalse(check_strings(["01", "10", "11", "00"], 2))
 
 
 class TestZeroOne(unittest.TestCase):
     """Набор тестов генерации строк"""
 
-    def test_length_two(self):
-        """Длина 2"""
+    def test_validator_accepts_result_length_two(self):
+        """Валидатор принимает набор наивного генератора длины 2"""
         self.assertTrue(check_strings(generate_strings(2), 2))
 
     def test_length_not_int(self):
-        """Длина не целое"""
+        """Правильный TypeError длина не целое"""
         with self.assertRaises(TypeError) as error:
             generate_strings(2.0)
         self.assertEqual(str(error.exception), ErrorMessages.LENGTH_NOT_INT)
 
     def test_negative_length(self):
-        """Отрицательная длина"""
+        """Правильный ValueError если отрицательная длина"""
         with self.assertRaises(ValueError) as error:
             generate_strings(-1)
         self.assertEqual(ErrorMessages.LENGTH_NOT_POS, str(error.exception))
 
     def test_zero_length(self):
-        """Нулевая длина"""
+        """Правильный ValueError если нулевая длина"""
         with self.assertRaises(ValueError) as error:
             generate_strings(0)
         self.assertEqual(ErrorMessages.LENGTH_NOT_POS, str(error.exception))
 
-    def test_validator_rejects_broken_result(self):
-        """Валидатор не подтверждает подложный результат генератора"""
-        strings = generate_strings(3)
-        strings.append("00")
-        self.assertFalse(check_strings(strings, 2))
-
-    def test_validator_accepts_result(self):
-        """Валидатор принимает набор наивного генератора"""
+    def test_validator_accepts_result_length3(self):
+        """Валидатор принимает набор наивного генератора длины 3"""
         strings = generate_strings(3)
         self.assertTrue(check_strings(strings, 3))
+
+    def test_validator_accepts_result(self):
+        """Валидатор принимает набор наивного генератора длины 10"""
+        strings = generate_strings(10)
+        self.assertTrue(check_strings(strings, 10))
 
 
 class TestBinomialCoefficient(unittest.TestCase):
