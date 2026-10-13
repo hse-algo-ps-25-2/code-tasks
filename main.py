@@ -72,14 +72,14 @@ def binomial_coefficient_iter(n: int, k: int) -> int:
    
     for i in range(1, n + 1):
         prev_row = triangle[i - 1]
-        internal = []
+        internal_part_of_row = []
 
         for j in range(1, i):  
-            internal.append(prev_row[j - 1] + prev_row[j])
+            internal_part_of_row.append(prev_row[j - 1] + prev_row[j])
         
-        row = [1] + internal + [1]
+        full_row = [1] + internal_part_of_row + [1]
         
-        triangle.append(row)
+        triangle.append(full_row)
 
     return triangle[n][k]
 
