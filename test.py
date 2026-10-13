@@ -13,6 +13,7 @@ from main import (
 from strings_checker import check_strings
 
 BINOMIAL_FUNCTIONS = (binomial_coefficient_iter, binomial_coefficient_rec)
+WRONG_TYPE_VALUES = ["2", 2.5, None, True]
 
 
 class TestZeroOne(unittest.TestCase):
@@ -92,9 +93,8 @@ class TestBinomialCoefficient(unittest.TestCase):
 
     def test_n_is_not_int(self):
         """n не является целым"""
-        cases = ["2", 2.5, None, True]
         for func in BINOMIAL_FUNCTIONS:
-            for case_value in cases:
+            for case_value in WRONG_TYPE_VALUES:
                 with self.subTest(func=func.__name__, n=case_value):
                     with self.assertRaises(TypeError) as error:
                         func(case_value, 1)
@@ -104,9 +104,8 @@ class TestBinomialCoefficient(unittest.TestCase):
     
     def test_k_is_not_int(self):
         """k не является целым"""
-        cases = ["2", 2.5, None, True]
         for func in BINOMIAL_FUNCTIONS:
-            for case_value in cases:
+            for case_value in WRONG_TYPE_VALUES:
                 with self.subTest(func=func.__name__, k=case_value):
                     with self.assertRaises(TypeError) as error:
                         func(1, case_value)
