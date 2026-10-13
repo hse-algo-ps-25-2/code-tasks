@@ -12,7 +12,7 @@ BINOMIAL_COEFFICIENT_FUNCTIONS = (binomial_coefficient_iter, binomial_coefficien
 
 
 class TestZeroOneStringsChecker(unittest.TestCase):
-    """Набор тестов валидатора"""
+    """Набор тестов валидатора генератора строк из 0 и 1 без 00"""
 
     def test_length_two(self):
         """Полный набор длины 2"""
@@ -44,7 +44,7 @@ class TestZeroOneStringsChecker(unittest.TestCase):
         self.assertFalse(check_strings(["01", "10", "12"], 2))
 
     def test_not_str_element(self):
-        """Нет олько строка на входе"""
+        """Не только строка на входе"""
         self.assertFalse(check_strings(["01", "10", 11], 2))
 
     def test_two_zeros_in_row(self):
@@ -56,44 +56,44 @@ class TestZeroOneStringsChecker(unittest.TestCase):
         self.assertFalse(check_strings(["01", "10", "11", "00"], 2))
 
 
-class TestZeroOne(unittest.TestCase):
-    """Набор тестов генерации строк"""
+class TestZeroOneStringGenerator(unittest.TestCase):
+    """Набор тестов генератора строк из 0 и 1 без 00"""
 
     def test_validator_accepts_result_length_two(self):
         """Валидатор принимает набор наивного генератора длины 2"""
         self.assertTrue(check_strings(generate_strings(2), 2))
 
     def test_length_not_int(self):
-        """Правильный TypeError длина не целое"""
+        """Правильный TypeError если длина не целое число"""
         with self.assertRaises(TypeError) as error:
             generate_strings(2.0)
         self.assertEqual(str(error.exception), ErrorMessages.LENGTH_NOT_INT)
 
     def test_negative_length(self):
-        """Правильный ValueError если отрицательная длина"""
+        """Правильный ValueError если длина отрицательная"""
         with self.assertRaises(ValueError) as error:
             generate_strings(-1)
         self.assertEqual(ErrorMessages.LENGTH_NOT_POS, str(error.exception))
 
     def test_zero_length(self):
-        """Правильный ValueError если нулевая длина"""
+        """Правильный ValueError если длина нулевая"""
         with self.assertRaises(ValueError) as error:
             generate_strings(0)
         self.assertEqual(ErrorMessages.LENGTH_NOT_POS, str(error.exception))
 
-    def test_validator_accepts_result_length3(self):
+    def test_validator_accepts_result_length_3(self):
         """Валидатор принимает набор наивного генератора длины 3"""
         strings = generate_strings(3)
         self.assertTrue(check_strings(strings, 3))
 
-    def test_validator_accepts_result(self):
+    def test_validator_accepts_result_length_10(self):
         """Валидатор принимает набор наивного генератора длины 10"""
         strings = generate_strings(10)
         self.assertTrue(check_strings(strings, 10))
 
 
 class TestBinomialCoefficient(unittest.TestCase):
-    """Набор тестов биномиального коэффициента"""
+    """Набор тестов вычисления биномиального коэффициента"""
 
     def test_small_both(self):
         """C(5, 2) == 10 у обеих функций"""
