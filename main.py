@@ -33,7 +33,7 @@ def generate_strings(length: int) -> list[str]:
     :raise ValueError: если length меньше единицы
     :return: список строк
     """
-    if not isinstance(length, int):
+    if not isinstance(length, int) or isinstance(length, bool):
         raise TypeError(LENGTH_NOT_INT)
     if length < 1:
         raise ValueError(LENGTH_NOT_POS)
@@ -46,7 +46,7 @@ def generate_strings(length: int) -> list[str]:
 
 
 def _validate_param(value, name):
-    if not isinstance(value, int):
+    if not isinstance(value, int) or isinstance(value, bool):
         raise TypeError(NOT_INT_VALUE_TEMPL.format(name))
     if value < 0:
         raise TypeError(NEGATIVE_VALUE_TEMPL.format(name))
