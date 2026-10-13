@@ -10,10 +10,10 @@ class BruteForceSolver(KnapsackAbstractSolver):
         costs = self.costs
         weight_limit = self.weight_limit
 
-        n = len(costs)
+        quantity = len(costs)
         sets = [[]]
 
-        for i in range(n):
+        for i in range(quantity):
             new_sets = []
             for set in sets:
                 new_sets.append(set)
