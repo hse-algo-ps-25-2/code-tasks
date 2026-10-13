@@ -68,7 +68,21 @@ def binomial_coefficient_iter(n: int, k: int) -> int:
     """
     _handle_raise(n, k)
 
-    
+    triangle = [[1]]
+   
+    for i in range(1, n + 1):
+        prev_row = triangle[i - 1]
+        internal = []
+
+        for j in range(1, i):  
+            internal.append(prev_row[j - 1] + prev_row[j])
+        
+        row = [1] + internal + [1]
+        
+        triangle.append(row)
+
+    return triangle[n][k]
+
 
 def _solve_with_rec(n: int, k: int) -> int:
     if (k == 0) or (n == k) or  (n == 0 and k == 0):
