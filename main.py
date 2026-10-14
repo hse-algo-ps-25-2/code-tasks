@@ -1,13 +1,20 @@
 import random
+from enum import StrEnum
 
-NOT_LIST_ERROR_MESSAGE = "Набор не является списком"
+
+class ErrorMessages(StrEnum):
+    "Перечисление сообщений об ошибках"
+
+    NOT_LIST_ERROR_MESSAGE = "Набор не является списком"
+    LIST_CONTAINS_NOT_COMPARABLE_ITEMS =\
+        "Список содержит не сравнимые оператором < элементы"
 
 
 def __check_constrains(items: list):
     "Проверка условий"
 
     if not isinstance(items, list):
-        raise TypeError(NOT_LIST_ERROR_MESSAGE)
+        raise TypeError(ErrorMessages.NOT_LIST_ERROR_MESSAGE)
 
 
 def recursive_quicksort(items: list) -> list:
@@ -20,7 +27,10 @@ def recursive_quicksort(items: list) -> list:
     :return: новый отсортированный список
     """
     __check_constrains(items)
-    return __recursive_quicksort(items)
+    try:
+        return __recursive_quicksort(items)
+    except TypeError as exception:
+        raise TypeError(ErrorMessages.LIST_CONTAINS_NOT_COMPARABLE_ITEMS) from exception
 
 
 def __recursive_quicksort(items: list) -> list:
@@ -38,6 +48,30 @@ def __recursive_quicksort(items: list) -> list:
         + recursive_quicksort(larger_than_pivot_items)
     )
 
+def __recursive_quicksort_optimized(items: list, start_idx, end_idx):
+
+    #print(f"items={items}\nstart={start_idx}\nend={end_idx}")
+    if start_idx >= len(items) or end_idx <= 0:
+        return
+
+    pivot = items[start_idx]
+
+    left_index = start_idx + 1
+    right_index = end_idx
+
+    while left_index < right_index:
+        while items[left_index] < pivot:
+            left_index = left_index + 1
+        while pivot < items[right_index]:
+            right_index = right_index - 1
+        if left_index < right_index and items[right_index] < items[left_index]:
+            items[left_index], items[right_index] = items[right_index], items[left_index]
+            left_index = left_index + 1
+            right_index = right_index - 1
+    if start_idx < right_index and items[right_index] < items[start_idx]:
+            items[start_idx], items[right_index] = items[right_index], items[start_idx]
+    __recursive_quicksort_optimized(items, start_idx, right_index-1)
+    __recursive_quicksort_optimized(items, left_index, len(items) - 1)
 
 def main():
     items = [5, 8, 1, 4, -7, 6, 12, 19, -6]
@@ -45,6 +79,8 @@ def main():
     print(f"Исходный список: {items}")
     print(f"Отсортированный список: {recursive_quicksort(items)}")
 
+    __recursive_quicksort_optimized(items, 0, len(items)-1)
+    print(f"\n2\n2Отсортированный список: {items}")
 
 if __name__ == "__main__":
     main()
