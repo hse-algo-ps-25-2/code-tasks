@@ -1,65 +1,52 @@
 import unittest
 
-from main import get_tridiagonal_determinant
+from main import (
+    LENGTH_NOT_INT,
+    N_LESS_THAN_K_ERROR_MSG,
+    NOT_INT_VALUE_TEMPL,
+    binomial_coefficient_iter,
+    binomial_coefficient_rec,
+    generate_strings,
+)
+from strings_checker import check_strings
+
+BINOMIAL_FUNCTIONS = (binomial_coefficient_iter, binomial_coefficient_rec)
 
 
-class TestTridiagonalDeterminant(unittest.TestCase):
-    """Набор тестов для проверки функции вычисления определителя
-    трёхдиагональной ленточной матрицы"""
+class TestZeroOne(unittest.TestCase):
+    """Набор тестов генерации строк"""
 
-    def test_none(self):
-        """Проверяет, что функция выбрасывает исключение при передаче в
-        параметр значения None"""
-        self.assertRaises(Exception, get_tridiagonal_determinant, None)
+    def test_length_two(self):
+        """Длина 2"""
+        self.assertTrue(check_strings(generate_strings(2), 2))
 
-    def test_empty_matrix(self):
-        """Проверяет, что функция выбрасывает исключение при передаче в
-        параметр пустого списка"""
-        self.assertRaises(Exception, get_tridiagonal_determinant, [])
+    def test_length_not_int(self):
+        """Длина не целое"""
+        with self.assertRaises(TypeError) as error:
+            generate_strings(2.0)
+        self.assertEqual(str(error.exception), LENGTH_NOT_INT)
 
-    def test_not_square_rectangle(self):
-        """Проверяет, что функция выбрасывает исключение при передаче в
-        параметр прямоугольной матрицы"""
-        matrix = [[1, 2, 0, 0], [3, 1, 2, 0], [0, 3, 1, 2]]
-        self.assertRaises(Exception, get_tridiagonal_determinant, matrix)
 
-    def test_not_tridiag_replace_zero(self):
-        """Проверяет, что функция выбрасывает исключение при передаче
-        матрицы с ненулевым элементом вне трёх диагоналей"""
-        matrix = [[1, 2, 0, 7], [3, 1, 2, 0], [0, 3, 1, 2], [0, 0, 3, 1]]
-        self.assertRaises(Exception, get_tridiagonal_determinant, matrix)
+class TestBinomialCoefficient(unittest.TestCase):
+    """Набор тестов биномиального коэффициента"""
 
-    def test_first_order(self):
-        """Проверяет расчет определителя для матрицы порядка 1"""
-        matrix = [[1]]
-        self.assertEqual(get_tridiagonal_determinant(matrix), 1)
+    def test_small_both(self):
+        """C(5, 2) у обеих функций"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                self.assertEqual(func(5, 2), 10)
 
-    def test_second_order(self):
-        """Проверяет расчет определителя для матрицы порядка 2"""
-        matrix = [[1, 2], [2, 1]]
-        self.assertEqual(get_tridiagonal_determinant(matrix), -3)
+    def test_n_less_than_k(self):
+        """n меньше k"""
+        with self.assertRaises(ValueError) as error:
+            binomial_coefficient_iter(1, 2)
+        self.assertEqual(str(error.exception), N_LESS_THAN_K_ERROR_MSG)
 
-    def test_third_order(self):
-        """Проверяет расчет определителя для матрицы порядка 3"""
-        matrix = [[1, -2, 0], [-4, 1, -2], [0, -4, 1]]
-        self.assertEqual(get_tridiagonal_determinant(matrix), -15)
-
-    def test_fourth_order(self):
-        """Проверяет расчет определителя для матрицы порядка 4"""
-        matrix = [[2, -3, 0, 0], [5, 2, -3, 0], [0, 5, 2, -3], [0, 0, 5, 2]]
-        self.assertEqual(get_tridiagonal_determinant(matrix), 421)
-
-    def test_different_main_diagonal(self):
-        matrix = [[1, 2, 0], [3, 4, 2], [0, 3, 1]]
-        self.assertRaises(Exception, get_tridiagonal_determinant, matrix)
-
-    def test_different_upper_diagonal(self):
-        matrix = [[1, 2, 0], [3, 1, 5], [0, 3, 1]]
-        self.assertRaises(Exception, get_tridiagonal_determinant, matrix)
-
-    def test_different_lower_diagonal(self):
-        matrix = [[1, 2, 0], [3, 1, 2], [0, 5, 1]]
-        self.assertRaises(Exception, get_tridiagonal_determinant, matrix)
+    def test_n_is_not_int(self):
+        """n не целое"""
+        with self.assertRaises(TypeError) as error:
+            binomial_coefficient_rec("a", 2)
+        self.assertEqual(str(error.exception), NOT_INT_VALUE_TEMPL.format("n"))
 
 
 if __name__ == "__main__":
