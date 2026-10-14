@@ -91,6 +91,13 @@ def binomial_coefficient_iter(n: int, k: int) -> int:
     """
     _validate_n_and_k_params(n, k)
 
+    k = min(k, n - k)
+
+    result = 1
+    for i in range(1, k + 1):
+        result = result * (n - k + i) // i
+    return result
+
 
 def binomial_coefficient_rec(n: int, k: int) -> int:
     """Вычисляет биномиальный коэффициент из n по k рекурсивно
