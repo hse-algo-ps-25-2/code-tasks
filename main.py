@@ -1,35 +1,48 @@
-def _check_int(value, name):
-    if not isinstance(value, int) or isinstance(value, bool):
-        raise TypeError(f"Параметр {name} не является целым числом")
+LENGTH_NOT_INT = "Длина строки не является целым числом"
+LENGTH_NOT_POS = "Длина строки меньше единицы"
+NOT_INT_VALUE_TEMPL = "Параметр {0} не является целым числом"
+NEGATIVE_VALUE_TEMPL = "Параметр {0} отрицательный"
+N_LESS_THAN_K_ERROR_MSG = "Параметр n меньше чем k"
+
+
+def _is_int(value):
+    return isinstance(value, int) and not isinstance(value, bool)
+
 
 def _any(n, s, out):
     if n == 0:
         out.append(s)
     else:
-        _any(n-1, s + "1", out)
-        _after_zero (n-1, s + "0", out)
+        _any(n - 1, s + "1", out)
+        _after_zero(n - 1, s + "0", out)
+
 
 def _after_zero(n, s, out):
     if n == 0:
         out.append(s)
     else:
-        _any(n-1, s + "1", out)
+        _any(n - 1, s + "1", out)
 
-def grnerate_strings(length: int) -> list[str]:
-    _check_int(length, "length")
+
+def generate_strings(length: int) -> list[str]:
+    if not _is_int(length):
+        raise TypeError(LENGTH_NOT_INT)
     if length < 1:
-        raise ValueError("Длина строки меньше единицы")
+        raise ValueError(LENGTH_NOT_POS)
     out = []
     _any(length, "", out)
     return out
 
+
 def _check_nk(n, k):
-    _check_int(n, "n")
-    _check_int(k, "k")
-    if n < 0 or k < 0:
-        raise ValueError("Параметры должны быть неотрицательными")
+    for value, name in ((n, "n"), (k, "k")):
+        if not _is_int(value):
+            raise TypeError(NOT_INT_VALUE_TEMPL.format(name))
+        if value < 0:
+            raise TypeError(NEGATIVE_VALUE_TEMPL.format(name))
     if n < k:
-        raise ValueError("Параметр n меньше k")
+        raise ValueError(N_LESS_THAN_K_ERROR_MSG)
+
 
 def binomial_coefficient_iter(n: int, k: int) -> int:
     _check_nk(n, k)
@@ -38,31 +51,22 @@ def binomial_coefficient_iter(n: int, k: int) -> int:
         row = [1, *(a + b for a, b in zip(row, row[1:])), 1]
     return row[k]
 
-def binomial_coefficient_rec(n: int, k: int) -> int:
-    _check_nk(n, k)
-    return _rec(n, k)
 
 def _rec(n, k):
     if k == 0 or k == n:
         return 1
     return _rec(n - 1, k) + _rec(n - 1, k - 1)
 
-def main():
-    n = 2
-    print(f"Строки длиной {n}:\n{generate_strings(n)}")
 
-    n = 30
-    k = 20
-    print(
-        f"Биномиальный коэффициент (итеративно) при n, k ({n}, {k}) = ",
-        binomial_coefficient_iter(n, k),
-    )
-    n = 5
-    k = 2
-    print(
-        f"Биномиальный коэффициент (рекурсивно) при n, k ({n}, {k}) = ",
-        binomial_coefficient_rec(n, k),
-    )
+def binomial_coefficient_rec(n: int, k: int) -> int:
+    _check_nk(n, k)
+    return _rec(n, k)
+
+
+def main():
+    print(generate_strings(2))
+    print(binomial_coefficient_iter(30, 20))
+    print(binomial_coefficient_rec(5, 2))
 
 
 if __name__ == "__main__":
