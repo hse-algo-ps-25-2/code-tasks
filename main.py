@@ -112,11 +112,12 @@ def binomial_coefficient_iter(n: int, k: int) -> int:
         return 1
 
     row = [1]
-    for i in range(1, n + 1, 1):
+    for index_pascal_triangle_string in range(1, n):
         prev_row = row
-        row = [1] * i
-        for j in range(1, i - 1):
-            row[j] = prev_row[j - 1] + prev_row[j]
+        row = [1] * index_pascal_triangle_string + [1]
+        for index_in_string in range(1, index_pascal_triangle_string):
+            row[index_in_string] = \
+                prev_row[index_in_string - 1] + prev_row[index_in_string]
     return row[k - 1] + row[k]
 
 
