@@ -5,6 +5,44 @@ NEGATIVE_VALUE_TEMPL = "Параметр {0} отрицательный"
 N_LESS_THAN_K_ERROR_MSG = "Параметр n меньше чем k"
 
 
+def _validate_length_param(length: int) -> None:
+    """Проводит валидацию параметра **length**.
+
+    :param length: длина строки, целое число не меньше 1
+    :raise TypeError: если length не целое
+    :raise ValueError: если length меньше единицы
+    """
+    if not isinstance(length, int):
+        raise TypeError(LENGTH_NOT_INT)
+
+    if length < 1:
+        raise ValueError(LENGTH_NOT_POS)
+
+
+def _validate_n_and_k_params(n: int, k: int) -> None:
+    """Проводит валидацию параметров **n** и **k**.
+
+    :param n: число элементов множества
+    :param k: число выбираемых элементов
+    :raise TypeError: если n или k не целое
+    :raise ValueError: если n или k отрицательные либо n меньше k
+    """
+    if not isinstance(n, int):
+        raise TypeError(NOT_INT_VALUE_TEMPL.format("n"))
+
+    if not isinstance(k, int):
+        raise TypeError(NOT_INT_VALUE_TEMPL.format("k"))
+
+    if n < 0:
+        raise ValueError(NEGATIVE_VALUE_TEMPL.format("n"))
+
+    if k < 0:
+        raise ValueError(NEGATIVE_VALUE_TEMPL.format("k"))
+
+    if n < k:
+        raise ValueError(N_LESS_THAN_K_ERROR_MSG)
+
+
 def generate_strings(length: int) -> list[str]:
     """Возвращает строки заданной длины, состоящие из 0 и 1, где никакие
     два нуля не стоят рядом.
@@ -14,7 +52,7 @@ def generate_strings(length: int) -> list[str]:
     :raise ValueError: если length меньше единицы
     :return: список строк
     """
-    pass
+    _validate_length_param(length)
 
 
 def binomial_coefficient_iter(n: int, k: int) -> int:
@@ -26,7 +64,7 @@ def binomial_coefficient_iter(n: int, k: int) -> int:
     :raise ValueError: если n или k отрицательные либо n меньше k
     :return: значение биномиального коэффициента
     """
-    pass
+    _validate_n_and_k_params(n, k)
 
 
 def binomial_coefficient_rec(n: int, k: int) -> int:
@@ -39,7 +77,7 @@ def binomial_coefficient_rec(n: int, k: int) -> int:
     :raise ValueError: если n или k отрицательные либо n меньше k
     :return: значение биномиального коэффициента
     """
-    pass
+    _validate_n_and_k_params(n, k)
 
 
 def main():
