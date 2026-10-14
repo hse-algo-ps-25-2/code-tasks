@@ -5,45 +5,79 @@ NEGATIVE_VALUE_TEMPL = "Параметр {0} отрицательный"
 N_LESS_THAN_K_ERROR_MSG = "Параметр n меньше чем k"
 
 
-def get_triangle_path_count(length: int) -> int:
-    """Возвращает число замкнутых маршрутов заданной длины
-    из вершины A в вершину A треугольника ABC.
+def a(m: int):
+    if m == 0:
+        return 1
+    return b(m - 1) + c(m - 1)
 
-    :param length: длина маршрута, целое число не меньше 1
-    :raise TypeError: если length не целое
-    :raise ValueError: если length меньше единицы
-    :return: число маршрутов
-    """
-    pass
+def b(m: int):
+    if m == 0:
+        return 0
+    return a(m - 1) + c(m - 1)
+
+def c(m: int):
+    if m == 0:
+        return 0
+    return a(m - 1) + b(m - 1)
+
+def _validate_length(length: int) -> None:
+    if isinstance(length, bool) or not isinstance(length, int):
+        raise TypeError(PATH_LENGTH_NOT_INT)
+
+    if length < 1:
+        raise ValueError(PATH_LENGTH_NOT_POS)
+
+
+def _validate_n_k(n: int, k: int) -> None:
+    for name, value in (("n", n), ("k", k)):
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise TypeError(NOT_INT_VALUE_TEMPL.format(name))
+
+    for name, value in (("n", n), ("k", k)):
+        if value < 0:
+            raise ValueError(NEGATIVE_VALUE_TEMPL.format(name))
+
+    if n < k:
+        raise ValueError(N_LESS_THAN_K_ERROR_MSG)
+
+
+def get_triangle_path_count(length: int) -> int:
+    _validate_length(length)
+
+    return a(length)
 
 
 def binomial_coefficient_iter(n: int, k: int) -> int:
-    """Вычисляет биномиальный коэффициент из n по k итеративно.
+    result = 1
 
-    :param n: число элементов множества
-    :param k: число выбираемых элементов
-    :raise TypeError: если n или k не целое
-    :raise ValueError: если n или k отрицательные либо n меньше k
-    :return: значение биномиального коэффициента
-    """
-    pass
+    _validate_n_k(n, k)
+
+
+
+    for i in range(1, k + 1):
+        result = result * (n - k + i) // i
+
+    return result
 
 
 def binomial_coefficient_rec(n: int, k: int) -> int:
-    """Вычисляет биномиальный коэффициент из n по k рекурсивно
-    по соотношению C(n, k) = (n / k) * C(n - 1, k - 1).
+    _validate_n_k(n, k)
 
-    :param n: число элементов множества
-    :param k: число выбираемых элементов
-    :raise TypeError: если n или k не целое
-    :raise ValueError: если n или k отрицательные либо n меньше k
-    :return: значение биномиального коэффициента
-    """
-    pass
+    def calculate(current_n: int, current_k: int) -> int:
+        if current_k == 0:
+            return 1
+
+        return (
+            current_n
+            * calculate(current_n - 1, current_k - 1)
+            // current_k
+        )
+
+    return calculate(n, k)
 
 
 def main():
-    n = 4
+    n = 5
     print(f"Количество маршрутов длиной {n} = {get_triangle_path_count(n)}")
 
     n = 30
