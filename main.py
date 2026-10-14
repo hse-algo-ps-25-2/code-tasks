@@ -111,6 +111,11 @@ def binomial_coefficient_rec(n: int, k: int) -> int:
     """
     _validate_n_and_k_params(n, k)
 
+    if k == 0 or k == n:
+        return 1
+
+    return binomial_coefficient_rec(n - 1, k - 1) + binomial_coefficient_rec(n - 1, k)
+
 
 def main():
     n = 2
