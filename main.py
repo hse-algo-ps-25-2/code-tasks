@@ -67,6 +67,12 @@ def binomial_coefficient_iter(n: int, k: int) -> int:
     return c_n_k
 
 
+def recursive_binomial(n: int, k: int) -> int:
+    if k == 0:
+        return 1
+    return recursive_binomial(n - 1, k - 1) * n // k
+
+
 def binomial_coefficient_rec(n: int, k: int) -> int:
     """Вычисляет биномиальный коэффициент из n по k рекурсивно
     по соотношению C(n, k) = (n / k) * C(n - 1, k - 1).
@@ -89,9 +95,7 @@ def binomial_coefficient_rec(n: int, k: int) -> int:
     if n < k:
         raise ValueError(N_LESS_THAN_K_ERROR_MSG)
 
-    if k == 0:
-        return 1
-    return binomial_coefficient_rec(n - 1, k - 1) * n // k
+    return recursive_binomial(n, k)
 
 
 def main():
