@@ -4,6 +4,23 @@ NOT_INT_VALUE_TEMPL = "Параметр {0} не является целым ч�
 NEGATIVE_VALUE_TEMPL = "Параметр {0} отрицательный"
 N_LESS_THAN_K_ERROR_MSG = "Параметр n меньше чем k"
 
+def _route_to_a(length: int) -> int:
+    if length == 1:
+        return 0
+    return _route_to_b(length - 1) + _route_to_c(length - 1)
+
+
+def _route_to_b(length: int) -> int:
+    if length == 1:
+        return 1
+    return _route_to_a(length - 1) + _route_to_c(length - 1)
+
+
+def _route_to_c(length: int) -> int:
+    if length == 1:
+        return 1
+    return _route_to_a(length - 1) + _route_to_b(length - 1)
+
 
 def get_triangle_path_count(length: int) -> int:
     """Возвращает число замкнутых маршрутов заданной длины
@@ -14,8 +31,36 @@ def get_triangle_path_count(length: int) -> int:
     :raise ValueError: если length меньше единицы
     :return: число маршрутов
     """
-    pass
+    if type(length) is not int:
+        raise TypeError(PATH_LENGTH_NOT_INT)
 
+    if length < 1:
+        raise ValueError(PATH_LENGTH_NOT_POS)
+
+    return _route_to_a(length)
+
+def _validate_binomial_args(n: int, k: int) -> None:
+    if type(n) is not int:
+        raise TypeError(NOT_INT_VALUE_TEMPL.format("n"))
+
+    if type(k) is not int:
+        raise TypeError(NOT_INT_VALUE_TEMPL.format("k"))
+
+    if n < 0:
+        raise ValueError(NEGATIVE_VALUE_TEMPL.format("n"))
+
+    if k < 0:
+        raise ValueError(NEGATIVE_VALUE_TEMPL.format("k"))
+
+    if n < k:
+        raise ValueError(N_LESS_THAN_K_ERROR_MSG)
+
+
+def _binomial_rec(n: int, k: int) -> int:
+    if k == 0:
+        return 1
+
+    return n * _binomial_rec(n - 1, k - 1) // k
 
 def binomial_coefficient_iter(n: int, k: int) -> int:
     """Вычисляет биномиальный коэффициент из n по k итеративно.
@@ -26,7 +71,16 @@ def binomial_coefficient_iter(n: int, k: int) -> int:
     :raise ValueError: если n или k отрицательные либо n меньше k
     :return: значение биномиального коэффициента
     """
-    pass
+
+
+    _validate_binomial_args(n, k)
+
+    result = 1
+
+    for i in range(1, k + 1):
+        result = result * (n - k + i) // i
+
+    return result
 
 
 def binomial_coefficient_rec(n: int, k: int) -> int:
@@ -39,7 +93,10 @@ def binomial_coefficient_rec(n: int, k: int) -> int:
     :raise ValueError: если n или k отрицательные либо n меньше k
     :return: значение биномиального коэффициента
     """
-    pass
+
+
+    _validate_binomial_args(n, k)
+    return _binomial_rec(n, k)
 
 
 def main():
@@ -50,6 +107,8 @@ def main():
     k = 20
     print(
         f"Биномиальный коэффициент (итеративно) при n, k ({n}, {k}) = ",
+
+
         binomial_coefficient_iter(n, k),
     )
     n = 5
