@@ -45,6 +45,34 @@ class TestTrianglePath(unittest.TestCase):
         """Длина 6"""
         self.assertEqual(get_triangle_path_count(6), 2 + 4 * 3 + 8)
 
+    def test_length_seven(self):
+        """Длина 7"""
+        self.assertEqual(get_triangle_path_count(7), 42)
+
+    def test_length_eight(self):
+        """Длина 8"""
+        self.assertEqual(get_triangle_path_count(8), 86)
+
+    def test_length_nine(self):
+        """Длина 9"""
+        self.assertEqual(get_triangle_path_count(9), 170)
+
+    def test_length_ten(self):
+        """Длина 10"""
+        self.assertEqual(get_triangle_path_count(10), 342)
+
+    def test_length_formula(self):
+        """Совпадение с замкнутой формулой для 1..20"""
+        for n in range(1, 21):
+            with self.subTest(n=n):
+                self.assertEqual(get_triangle_path_count(n), _closed_path_count(n))
+
+    def test_length_is_bool(self):
+        """Длина является bool"""
+        with self.assertRaises(TypeError) as error:
+            get_triangle_path_count(True)
+        self.assertEqual(str(error.exception), PATH_LENGTH_NOT_INT)
+
     def test_length_not_int(self):
         """Длина не целое"""
         with self.assertRaises(TypeError) as error:
@@ -89,6 +117,14 @@ class TestBinomialCoefficient(unittest.TestCase):
                 for k in range(n + 1):
                     self.assertEqual(func(n, k), result5[k])
 
+    def test_edges_both(self):
+        """C(n, 0) = C(n, n) = C(0, 0) = 1 у обеих функций"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                self.assertEqual(func(5, 0), 1)
+                self.assertEqual(func(5, 5), 1)
+                self.assertEqual(func(0, 0), 1)
+
     def test_big_both(self):
         """C(30, 20) у обеих функций"""
         for func in BINOMIAL_FUNCTIONS:
@@ -101,38 +137,61 @@ class TestBinomialCoefficient(unittest.TestCase):
             with self.subTest(func=func.__name__):
                 self.assertEqual(type(func(30, 20)), int)
 
-    def test_n_less_than_k(self):
-        """n меньше k"""
-        with self.assertRaises(ValueError) as error:
-            binomial_coefficient_iter(1, 2)
-        self.assertEqual(str(error.exception), N_LESS_THAN_K_ERROR_MSG)
+    def test_n_less_than_k_both(self):
+        """n меньше k у обеих функций"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                with self.assertRaises(ValueError) as error:
+                    func(1, 2)
+                self.assertEqual(str(error.exception), N_LESS_THAN_K_ERROR_MSG)
 
-    def test_n_is_not_int(self):
-        """n не целое"""
-        with self.assertRaises(TypeError) as error:
-            binomial_coefficient_rec("a", 2)
-        self.assertEqual(str(error.exception), NOT_INT_VALUE_TEMPL.format("n"))
+    def test_n_is_not_int_both(self):
+        """n не целое у обеих функций"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                with self.assertRaises(TypeError) as error:
+                    func("a", 2)
+                self.assertEqual(str(error.exception), NOT_INT_VALUE_TEMPL.format("n"))
 
-    def test_k_is_not_int(self):
-        """k не целое"""
-        with self.assertRaises(TypeError) as error:
-            binomial_coefficient_rec(2, "k")
-        self.assertEqual(str(error.exception), NOT_INT_VALUE_TEMPL.format("k"))
+    def test_k_is_not_int_both(self):
+        """k не целое у обеих функций"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                with self.assertRaises(TypeError) as error:
+                    func(2, "k")
+                self.assertEqual(str(error.exception), NOT_INT_VALUE_TEMPL.format("k"))
 
-    def test_n_is_not_pos(self):
-        """n не положительное"""
-        with self.assertRaises(ValueError) as error:
-            binomial_coefficient_rec(-3, 1)
-        self.assertIn(
-            str(error.exception),
-            [NEGATIVE_VALUE_TEMPL.format("n"), N_LESS_THAN_K_ERROR_MSG],
-        )
+    def test_n_is_bool_both(self):
+        """n является bool у обеих функций"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                with self.assertRaises(TypeError) as error:
+                    func(True, 1)
+                self.assertEqual(str(error.exception), NOT_INT_VALUE_TEMPL.format("n"))
 
-    def test_k_is_not_pos(self):
-        """k не положительное"""
-        with self.assertRaises(ValueError) as error:
-            binomial_coefficient_rec(2, -10)
-        self.assertEqual(str(error.exception), NEGATIVE_VALUE_TEMPL.format("k"))
+    def test_k_is_bool_both(self):
+        """k является bool у обеих функций"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                with self.assertRaises(TypeError) as error:
+                    func(2, True)
+                self.assertEqual(str(error.exception), NOT_INT_VALUE_TEMPL.format("k"))
+
+    def test_n_is_not_pos_both(self):
+        """n не положительное у обеих функций"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                with self.assertRaises(ValueError) as error:
+                    func(-3, 1)
+                self.assertEqual(str(error.exception), NEGATIVE_VALUE_TEMPL.format("n"))
+
+    def test_k_is_not_pos_both(self):
+        """k не положительное у обеих функций"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                with self.assertRaises(ValueError) as error:
+                    func(2, -10)
+                self.assertEqual(str(error.exception), NEGATIVE_VALUE_TEMPL.format("k"))
 
 
 if __name__ == "__main__":
