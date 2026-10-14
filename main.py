@@ -43,9 +43,32 @@ def _validate_n_and_k_params(n: int, k: int) -> None:
         raise ValueError(N_LESS_THAN_K_ERROR_MSG)
 
 
+def _generate_zero_ending_strings(length: int) -> list[str]:
+    """Возвращает строки с нулём на конце, исключая строки c двумя нулями подряд."""
+    if length == 1:
+        return ["0"]
+
+    return [s + "0" for s in _generate_one_ending_strings(length - 1)]
+
+
+def _generate_one_ending_strings(length: int) -> list[str]:
+    """Возвращает строки с единицей на конце."""
+    if length == 1:
+        return ["1"]
+
+    return [
+        s + "1"
+        for s in _generate_zero_ending_strings(length - 1)
+        + _generate_one_ending_strings(length - 1)
+    ]
+
+
 def generate_strings(length: int) -> list[str]:
     """Возвращает строки заданной длины, состоящие из 0 и 1, где никакие
     два нуля не стоят рядом.
+
+    Использует функции **_generate_zero_ending_strings()**
+    и **_generate_one_ending_strings()**
 
     :param length: длина строки, целое число не меньше 1
     :raise TypeError: если length не целое
@@ -53,6 +76,8 @@ def generate_strings(length: int) -> list[str]:
     :return: список строк
     """
     _validate_length_param(length)
+
+    return _generate_zero_ending_strings(length) + _generate_one_ending_strings(length)
 
 
 def binomial_coefficient_iter(n: int, k: int) -> int:
