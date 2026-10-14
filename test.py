@@ -68,17 +68,85 @@ class TestBinomialCoefficient(unittest.TestCase):
             with self.subTest(func=func.__name__):
                 self.assertEqual(func(5, 2), 10)
 
+    def test_big_both(self):
+        """C(20, 10) у обеих функций"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                self.assertEqual(func(20, 10), 184756)
+
+    def test_k_zero(self):
+        """C(n, 0) = 1"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                self.assertEqual(func(5, 0), 1)
+
+    def test_k_equals_n(self):
+        """C(n, n) = 1"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                self.assertEqual(func(5, 5), 1)
+
+    def test_zero_zero(self):
+        """C(0, 0) = 1"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                self.assertEqual(func(0, 0), 1)
+
     def test_n_less_than_k(self):
         """n меньше k"""
-        with self.assertRaises(ValueError) as error:
-            binomial_coefficient_iter(1, 2)
-        self.assertEqual(str(error.exception), N_LESS_THAN_K_ERROR_MSG)
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                with self.assertRaises(ValueError) as error:
+                    func(1, 2)
+                self.assertEqual(str(error.exception), N_LESS_THAN_K_ERROR_MSG)
 
     def test_n_is_not_int(self):
         """n не целое"""
-        with self.assertRaises(TypeError) as error:
-            binomial_coefficient_rec("a", 2)
-        self.assertEqual(str(error.exception), NOT_INT_VALUE_TEMPL.format("n"))
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                with self.assertRaises(TypeError) as error:
+                    func("a", 2)
+                self.assertEqual(str(error.exception), NOT_INT_VALUE_TEMPL.format("n"))
+
+    def test_k_is_not_int(self):
+        """k не целое"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                with self.assertRaises(TypeError) as error:
+                    func(2, "b")
+                self.assertEqual(str(error.exception), NOT_INT_VALUE_TEMPL.format("k"))
+
+    def test_n_is_bool(self):
+        """n типа bool"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                with self.assertRaises(TypeError) as error:
+                    func(True, 0)
+                self.assertEqual(str(error.exception), NOT_INT_VALUE_TEMPL.format("n"))
+
+    def test_k_is_bool(self):
+        """k типа bool"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                with self.assertRaises(TypeError) as error:
+                    func(5, False)
+                self.assertEqual(str(error.exception), NOT_INT_VALUE_TEMPL.format("k"))
+
+    def test_n_negative(self):
+        """n отрицательное"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                with self.assertRaises(ValueError) as error:
+                    func(-1, 0)
+                self.assertEqual(str(error.exception), NEGATIVE_VALUE_TEMPL.format("n"))
+
+    def test_k_negative(self):
+        """k отрицательное"""
+        for func in BINOMIAL_FUNCTIONS:
+            with self.subTest(func=func.__name__):
+                with self.assertRaises(ValueError) as error:
+                    func(1, -1)
+                self.assertEqual(str(error.exception), NEGATIVE_VALUE_TEMPL.format("k"))
 
 
 if __name__ == "__main__":

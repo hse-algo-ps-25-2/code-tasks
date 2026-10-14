@@ -81,6 +81,19 @@ def get_triangle_path_count(length: int) -> int:
     return get_triangle_path_count_a(length)
 
 
+def _validate_binomial_coefficient(n: int, k: int) -> None:
+    if type(n) is not int:
+        raise TypeError(NOT_INT_VALUE_TEMPL.format("n"))
+    if type(k) is not int:
+        raise TypeError(NOT_INT_VALUE_TEMPL.format("k"))
+    if n < 0:
+        raise ValueError(NEGATIVE_VALUE_TEMPL.format("n"))
+    if k < 0:
+        raise ValueError(NEGATIVE_VALUE_TEMPL.format("k"))
+    if n < k:
+        raise ValueError(N_LESS_THAN_K_ERROR_MSG)
+
+
 def binomial_coefficient_iter(n: int, k: int) -> int:
     """Вычисляет биномиальный коэффициент из n по k итеративно.
 
@@ -90,7 +103,14 @@ def binomial_coefficient_iter(n: int, k: int) -> int:
     :raise ValueError: если n или k отрицательные либо n меньше k
     :return: значение биномиального коэффициента
     """
-    pass
+    _validate_binomial_coefficient(n, k)
+
+    binomial_coefficient = 1
+
+    for i in range(1, k + 1):
+        binomial_coefficient = binomial_coefficient * (n - k + i) // i
+
+    return binomial_coefficient
 
 
 def binomial_coefficient_rec(n: int, k: int) -> int:
@@ -103,24 +123,16 @@ def binomial_coefficient_rec(n: int, k: int) -> int:
     :raise ValueError: если n или k отрицательные либо n меньше k
     :return: значение биномиального коэффициента
     """
-    if type(n) is not int:
-        raise TypeError(NOT_INT_VALUE_TEMPL.format("n"))
-    if type(k) is not int:
-        raise TypeError(NOT_INT_VALUE_TEMPL.format("k"))
-    if n < 0:
-        raise ValueError(NEGATIVE_VALUE_TEMPL.format("n"))
-    if k < 0:
-        raise ValueError(NEGATIVE_VALUE_TEMPL.format("k"))
-    if n < k:
-        raise ValueError(N_LESS_THAN_K_ERROR_MSG)
-    return _binomial_rec(n, k)
+    _validate_binomial_coefficient(n, k)
 
+    def _binomial_coefficient_rec(n: int, k: int) -> int:
+        """Внутренняя рекурсивная функция без повторной валидации."""
+        if k == 0 or k == n:
+            return 1
 
-def _binomial_rec(n: int, k: int) -> int:
-    """Внутренняя рекурсивная функция без повторной валидации."""
-    if k == 0 or k == n:
-        return 1
-    return n * _binomial_rec(n - 1, k - 1) // k
+        return n * _binomial_coefficient_rec(n - 1, k - 1) // k
+
+    return _binomial_coefficient_rec(n, k)
 
 
 def main():
