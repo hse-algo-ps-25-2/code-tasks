@@ -1,46 +1,51 @@
-LENGTH_NOT_INT = "Длина строки не является целым числом"
-LENGTH_NOT_POS = "Длина строки меньше единицы"
-NOT_INT_VALUE_TEMPL = "Параметр {0} не является целым числом"
-NEGATIVE_VALUE_TEMPL = "Параметр {0} отрицательный"
-N_LESS_THAN_K_ERROR_MSG = "Параметр n меньше чем k"
+def _check_int(value, name):
+    if not isinstance(value, int) or isinstance(value, bool):
+        raise TypeError(f"Параметр {name} не является целым числом")
 
+def _any(n, s, out):
+    if n == 0:
+        out.append(s)
+    else:
+        _any(n-1, s + "1", out)
+        _after_zero (n-1, s + "0", out)
 
-def generate_strings(length: int) -> list[str]:
-    """Возвращает строки заданной длины, состоящие из 0 и 1, где никакие
-    два нуля не стоят рядом.
+def _after_zero(n, s, out):
+    if n == 0:
+        out.append(s)
+    else:
+        _any(n-1, s + "1", out)
 
-    :param length: длина строки, целое число не меньше 1
-    :raise TypeError: если length не целое
-    :raise ValueError: если length меньше единицы
-    :return: список строк
-    """
-    pass
+def grnerate_strings(length: int) -> list[str]:
+    _check_int(length, "length")
+    if length < 1:
+        raise ValueError("Длина строки меньше единицы")
+    out = []
+    _any(length, "", out)
+    return out
 
+def _check_nk(n, k):
+    _check_int(n, "n")
+    _check_int(k, "k")
+    if n < 0 or k < 0:
+        raise ValueError("Параметры должны быть неотрицательными")
+    if n < k:
+        raise ValueError("Параметр n меньше k")
 
 def binomial_coefficient_iter(n: int, k: int) -> int:
-    """Вычисляет биномиальный коэффициент из n по k итеративно.
-
-    :param n: число элементов множества
-    :param k: число выбираемых элементов
-    :raise TypeError: если n или k не целое
-    :raise ValueError: если n или k отрицательные либо n меньше k
-    :return: значение биномиального коэффициента
-    """
-    pass
-
+    _check_nk(n, k)
+    row = [1]
+    for _ in range(n):
+        row = [1, *(a + b for a, b in zip(row, row[1:])), 1]
+    return row[k]
 
 def binomial_coefficient_rec(n: int, k: int) -> int:
-    """Вычисляет биномиальный коэффициент из n по k рекурсивно
-    по правилу Паскаля.
+    _check_nk(n, k)
+    return _rec(n, k)
 
-    :param n: число элементов множества
-    :param k: число выбираемых элементов
-    :raise TypeError: если n или k не целое
-    :raise ValueError: если n или k отрицательные либо n меньше k
-    :return: значение биномиального коэффициента
-    """
-    pass
-
+def _rec(n, k):
+    if k == 0 or k == n:
+        return 1
+    return _rec(n - 1, k) + _rec(n - 1, k - 1)
 
 def main():
     n = 2
