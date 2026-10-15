@@ -180,7 +180,7 @@ class TestValidation(unittest.TestCase):
         with self.assertRaises(ValueError) as error:
             BruteForceSolver([1, 2], [1, -5], 3)
         self.assertEqual(NOT_POS.format(COSTS), str(error.exception))
-    
+
     def test_str_weights(self):
         """Стоимости содержат строковое значение"""
         with self.assertRaises(TypeError) as error:
@@ -234,7 +234,7 @@ class TestValidation(unittest.TestCase):
         with self.assertRaises(TypeError) as error:
             BruteForceSolver([True, 7], [1, 2], 4)
         self.assertEqual(NOT_INT.format(WEIGHTS), str(error.exception))
-    
+
     def test_costs_boolean_param(self):
         """Ошибка при boolean в стоимостях"""
         with self.assertRaises(TypeError) as error:
@@ -246,12 +246,13 @@ class TestValidation(unittest.TestCase):
         with self.assertRaises(TypeError) as error:
             BruteForceSolver((1, 2), [5, 7], 4)
         self.assertEqual(NOT_LIST.format(WEIGHTS), str(error.exception))
-    
+
     def test_costs_tuple_param(self):
         """Ошибка при boolean в стоимостях"""
         with self.assertRaises(TypeError) as error:
             BruteForceSolver([5, 7], (1, 2), 4)
         self.assertEqual(NOT_LIST.format(COSTS), str(error.exception))
+
 
 if __name__ == "__main__":
     unittest.main()
