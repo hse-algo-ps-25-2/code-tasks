@@ -36,6 +36,7 @@ def check_knapsack_items(weights, costs, weight_limit, result) -> bool:
 
 class TestBruteForceSolver(unittest.TestCase):
     """Набор тестов для рюкзака полным перебором"""
+
     def test_one_item(self):
         """Один предмет"""
         weights = [5]
@@ -145,7 +146,6 @@ class TestBruteForceSolver(unittest.TestCase):
         with self.assertRaises(ValueError) as error:
             BruteForceSolver([1, 0], [1, 1], 3)
         self.assertEqual(NOT_POS.format(WEIGHTS), str(error.exception))
-
 
     def test_not_pos_costs(self):
         """Стоимости содержат отрицательное значение"""
