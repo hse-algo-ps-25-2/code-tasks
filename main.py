@@ -28,29 +28,12 @@ def recursive_quicksort(items: list) -> list:
     """
     __check_constrains(items)
     try:
-        return __recursive_quicksort(items)
+        return __recursive_quicksort(items, 0, len(items) - 1)
     except TypeError as exception:
         raise TypeError(ErrorMessages.LIST_CONTAINS_NOT_COMPARABLE_ITEMS) from exception
 
+def __recursive_quicksort(items: list, start_idx, end_idx):
 
-def __recursive_quicksort(items: list) -> list:
-
-    if len(items) <= 1:
-        return items
-    pivot = random.choice(items)
-    less_than_pivot_items = [item for item in items if item < pivot]
-    equal_pivot_items = [item for item in items if item == pivot]
-    larger_than_pivot_items = [item for item in items if item > pivot]
-
-    return (
-        recursive_quicksort(less_than_pivot_items)
-        + equal_pivot_items
-        + recursive_quicksort(larger_than_pivot_items)
-    )
-
-def __recursive_quicksort_optimized(items: list, start_idx, end_idx):
-
-    #print(f"items={items}\nstart={start_idx}\nend={end_idx}")
     if start_idx >= len(items) or end_idx <= 0:
         return
 
@@ -60,9 +43,9 @@ def __recursive_quicksort_optimized(items: list, start_idx, end_idx):
     right_index = end_idx
 
     while left_index < right_index:
-        while items[left_index] < pivot:
+        while left_index < len(items) and items[left_index] < pivot:
             left_index = left_index + 1
-        while pivot < items[right_index]:
+        while right_index > 0 and pivot < items[right_index]:
             right_index = right_index - 1
         if left_index < right_index and items[right_index] < items[left_index]:
             items[left_index], items[right_index] = items[right_index], items[left_index]
@@ -70,17 +53,15 @@ def __recursive_quicksort_optimized(items: list, start_idx, end_idx):
             right_index = right_index - 1
     if start_idx < right_index and items[right_index] < items[start_idx]:
             items[start_idx], items[right_index] = items[right_index], items[start_idx]
-    __recursive_quicksort_optimized(items, start_idx, right_index-1)
-    __recursive_quicksort_optimized(items, left_index, len(items) - 1)
+    __recursive_quicksort(items, start_idx, right_index-1)
+    __recursive_quicksort(items, left_index, len(items) - 1)
 
 def main():
     items = [5, 8, 1, 4, -7, 6, 12, 19, -6]
     print("Пример рекурсивной быстрой сортировки")
     print(f"Исходный список: {items}")
-    print(f"Отсортированный список: {recursive_quicksort(items)}")
-
-    __recursive_quicksort_optimized(items, 0, len(items)-1)
-    print(f"\n2\n2Отсортированный список: {items}")
+    recursive_quicksort(items)
+    print(f"Отсортированный список: {items}")
 
 if __name__ == "__main__":
     main()

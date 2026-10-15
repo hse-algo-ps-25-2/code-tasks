@@ -8,17 +8,23 @@ class TestRecursiveSort(unittest.TestCase):
 
     def test_empty(self):
         """Пустой список"""
-        self.assertEqual(recursive_quicksort([]), [])
+        items = []
+        recursive_quicksort(items)
+        self.assertEqual(items, [])
 
     def test_two(self):
         """Два элемента"""
-        self.assertEqual(recursive_quicksort([2, 1]), [1, 2])
+        items = [2, 1]
+        recursive_quicksort(items)
+        self.assertEqual(items, [1, 2])
 
     def test_items_list_from_example(self):
         "items из примера"
 
+        items = [5, 8, 1, 4, -7, 6, 12, 19, -6]
+        recursive_quicksort(items)
         self.assertEqual(
-            recursive_quicksort([5, 8, 1, 4, -7, 6, 12, 19, -6]),
+            items,
             [-7, -6, 1, 4, 5, 6, 8, 12, 19],
         )
 
@@ -52,14 +58,14 @@ class TestRecursiveSort(unittest.TestCase):
             print(f"{mathematician.name} {mathematician.birthdate}")
         print()
 
-        mathematician_sorted_by_age = recursive_quicksort(mathematicians)
+        recursive_quicksort(mathematicians)
         print("Математики по возрасту:")
-        for mathematician in recursive_quicksort(mathematicians):
+        for mathematician in mathematicians:
             print(f"{mathematician.name} {mathematician.birthdate}")
 
-        for pair in [(mathematician_sorted_by_age[i].birthdate,
-                     mathematician_sorted_by_age[i + 1].birthdate)\
-                         for i in range(len(mathematician_sorted_by_age) - 1)]:
+        for pair in [(mathematicians[i].birthdate,
+                     mathematicians[i + 1].birthdate)\
+                         for i in range(len(mathematicians) - 1)]:
             current_birthdate, next_birthdate = pair
             self.assertTrue(current_birthdate <= next_birthdate)
 
