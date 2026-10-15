@@ -71,7 +71,7 @@ class KnapsackAbstractSolver(ABC):
         """
         sum_weight = 0
         for i, item in enumerate(selected_items):
-            if item:
+            if item is True:
                 sum_weight += self.weights[i]
 
         return sum_weight
@@ -83,12 +83,9 @@ class KnapsackAbstractSolver(ABC):
 
         :param selected_items: для каждого предмета True, если он в наборе
         """
-        if self.get_weight(selected_items) > self.weight_limit:
-            return 0
-
         sum_cost = 0
         for i, item in enumerate(selected_items):
-            if item:
+            if item is True:
                 sum_cost += self.costs[i]
 
         return sum_cost
@@ -114,9 +111,7 @@ class KnapsackAbstractSolver(ABC):
             raise TypeError(NOT_LIST.format(list_name))
         if len(items) == 0:
             raise ValueError(EMPTY_LIST.format(list_name))
-        if not all(isinstance(item, int) for item in items) or any(
-            isinstance(item, bool) for item in items
-        ):
+        if not all(isinstance(item, int) for item in items):
             raise TypeError(NOT_INT.format(list_name))
         if min(items) <= 0:
             raise ValueError(NOT_POS.format(list_name))
