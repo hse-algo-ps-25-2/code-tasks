@@ -101,7 +101,7 @@ class TestBinomialCoefficient(unittest.TestCase):
                     self.assertEqual(
                         NOT_INT_VALUE_TEMPL.format("n"), str(error.exception)
                     )
-    
+
     def test_k_is_not_int(self):
         """k не является целым"""
         for func in BINOMIAL_FUNCTIONS:
