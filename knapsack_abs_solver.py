@@ -83,6 +83,9 @@ class KnapsackAbstractSolver(ABC):
 
         :param selected_items: для каждого предмета True, если он в наборе
         """
+        if self.get_weight(selected_items) > self.weight_limit:
+            return 0
+
         sum_cost = 0
         for i, item in enumerate(selected_items):
             if item is True:
