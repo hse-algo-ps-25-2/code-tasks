@@ -35,7 +35,7 @@ def check_knapsack_items(weights, costs, weight_limit, result) -> bool:
 
 
 class TestBruteForceSolver(unittest.TestCase):
-    """Тесты решения задачи о рюкзаке"""
+    """Набор тестов для рюкзака полным перебором"""
 
     def test_one_item(self):
         """Один предмет"""
