@@ -105,6 +105,91 @@ class TestMinCostPath(unittest.TestCase):
             Result(cost=9, path=[(0, 0), (1, 0), (1, 1), (1, 2)]),
         )
 
+    def test_not_a_list_row(self):
+        """Элемент верхнего списка не список"""
+        with self.assertRaises(TypeError) as error:
+            get_min_cost_path([[1, 2], "not_a_list"])
+        self.assertEqual(str(error.exception), TABLE_NOT_LISTS)
+
+    def test_flat_list_passed(self):
+        """Передан одномерный список чисел вместо списка списков"""
+        with self.assertRaises(TypeError) as error:
+            get_min_cost_path([1, 2, 3])
+        self.assertEqual(str(error.exception), TABLE_NOT_LISTS)
+
+    def test_empty_sublist(self):
+        """Таблица состоит из пустой строки"""
+        with self.assertRaises(ValueError) as error:
+            get_min_cost_path([[]])
+        self.assertEqual(str(error.exception), TABLE_NOT_RECT)
+
+    def test_cell_with_container(self):
+        """В клетке недопустимый контейнер - словарь"""
+        with self.assertRaises(TypeError) as error:
+            get_min_cost_path([[1, {}]])
+        self.assertEqual(str(error.exception), CELL_NOT_NUMBER)
+
+    def test_start_blocked_in_multicell(self):
+        """Стартовая клетка заблокирована в матрице 2 на 2"""
+        table = [[None, 2], [3, 4]]
+        self.assertEqual(get_min_cost_path(table), Result(None, None))
+
+    def test_finish_blocked_in_multicell(self):
+        """Финишная клетка заблокирована в матрице 2 на 2"""
+        table = [[1, 2], [3, None]]
+        self.assertEqual(get_min_cost_path(table), Result(None, None))
+
+    def test_single_row_table(self):
+        """Таблица 1 на 4, ход только вправо"""
+        table = [[1, 2, 3, 4]]
+        expected = Result(
+            cost=10,
+            path=[(0, 0), (0, 1), (0, 2), (0, 3)],
+        )
+        self.assertEqual(get_min_cost_path(table), expected)
+
+    def test_single_row_blocked(self):
+        """Таблица 1 на 3 со стеной посередине"""
+        table = [[1, None, 3]]
+        self.assertEqual(get_min_cost_path(table), Result(None, None))
+
+    def test_single_column_table(self):
+        """Таблица 4 на 1, ход только вниз"""
+        table = [[10], [20], [30], [40]]
+        expected = Result(
+            cost=100,
+            path=[(0, 0), (1, 0), (2, 0), (3, 0)],
+        )
+        self.assertEqual(get_min_cost_path(table), expected)
+
+    def test_single_column_blocked(self):
+        """Таблица 3 на 1 со стеной посередине"""
+        table = [[1], [None], [3]]
+        self.assertEqual(get_min_cost_path(table), Result(None, None))
+
+    def test_negative_values(self):
+        """Таблица с отрицательными весами"""
+        table = [
+            [-5, -2, 10],
+            [1, -10, 2],
+            [3, 4, -1],
+        ]
+        res = get_min_cost_path(table)
+        _assert_optimal_result(self, table, res, -16)
+
+    def test_snake_labyrinth(self):
+        """Лабиринт со стенами, по которому надо идти змейкой"""
+        table = [
+            [1, 1, 1, 1],
+            [None, None, None, 1],
+            [1, 1, 1, 1],
+            [1, None, None, None],
+            [1, 1, 1, 1],
+        ]
+        res = get_min_cost_path(table)
+        expected_cost = 14
+        _assert_optimal_result(self, table, res, expected_cost)
+
 
 if __name__ == "__main__":
     unittest.main()
