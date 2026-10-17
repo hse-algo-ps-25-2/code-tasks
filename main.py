@@ -34,25 +34,25 @@ def _validate(price_table: list[list[float | int]]) -> None:
                 raise TypeError(TABLE_NOT_NUMBERS)
 
 
-def _table_zero_expand(price_table: list[list[float | int]]) -> list[list[float | int]]:
-    """Дополняет таблицу нулями.
+def _table_inf_expand(price_table: list[list[float | int]]) -> list[list[float | int]]:
+    """Дополняет таблицу бесконечностями.
 
     Изначальная первая строка становится второй
-    — на её месте появляется строка с нулями
+    — на её месте появляется строка с бесконечностями
 
     Изначальный первый столбец становится вторым
-    — на его месте появляется столбец с нулями
+    — на его месте появляется столбец с бесконечностями
 
     :param price_table: прямоугольная таблица цен посещения ячеек
-    :return new_price_table: таблица, дополненная слева и сверху нулями
+    :return new_price_table: таблица, дополненная слева и сверху бесконечностями
     """
     height = len(price_table)
-    zero_row = [0 for i in range(height + 1)]
+    zero_row = [float("inf") for i in range(height + 1)]
 
     new_price_table = [zero_row]
 
     for row in price_table:
-        new_price_table.append((row[::-1] + [0])[::-1])
+        new_price_table.append((row[::-1] + [float("inf")])[::-1])
 
     return new_price_table
 
@@ -67,7 +67,7 @@ def get_min_cost_path(price_table: list[list[float | int]]) -> Result:
     :return: Result со стоимостью и списком индексов (строка, столбец)
     """
     _validate(price_table)
-    price_table = _table_zero_expand(price_table)
+    price_table = _table_inf_expand(price_table)
 
 
 def main():
