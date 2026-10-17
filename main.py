@@ -33,7 +33,7 @@ def _validate_table(price_table: list[list[float | int | None]]) -> tuple[int, i
 
         for cell in row:
             if type(cell) is bool or (
-                cell is not None and (type(cell) is not tuple[int, float])
+                cell is not None and (type(cell) not in (int, float))
             ):
                 raise TypeError(CELL_NOT_NUMBER)
 
@@ -102,4 +102,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-    

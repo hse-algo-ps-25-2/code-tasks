@@ -181,15 +181,14 @@ class TestMinCostPath(unittest.TestCase):
         """Лабиринт со стенами, по которому надо идти змейкой"""
         table = [
             [1, 1, 1, 1],
-            [None, None, None, 1],
-            [1, 1, 1, 1],
             [1, None, None, None],
+            [1, 1, 1, 1],
+            [None, None, None, 1],
             [1, 1, 1, 1],
         ]
         res = get_min_cost_path(table)
-        expected_cost = 14
+        expected_cost = 8
         _assert_optimal_result(self, table, res, expected_cost)
-
 
 if __name__ == "__main__":
     unittest.main()
