@@ -22,9 +22,19 @@ class ProfitValueError(Exception):
         self.row_idx = row_idx
         super().__init__(message)
 
+
 def _validate_list(profit_matrix: list[list[float | int]]):
-    if not isinstance(profit_matrix, list) or not all(isinstance(sublist, list) for sublist in profit_matrix) or not all((isinstance(list_item, int) or isinstance(list_item, float)) for list_item in sublist for sublist in profit_matrix):
-        raise TypeError(TABLE_NOT_NUMBERS)
+    if (
+        not isinstance(profit_matrix, list)
+        or not all(isinstance(sublist, list) for sublist in profit_matrix)
+        or not all(
+            (isinstance(item_of_sublit, int) or isinstance(item_of_sublit, float)) and not isinstance(item_of_sublit, bool)
+            for sublist in profit_matrix
+            for item_of_sublit in sublist
+        )
+    ):
+        raise TypeError(ErrorMessages.TABLE_NOT_NUMBERS)
+
 
 def get_invest_distributions(
     profit_matrix: list[list[float | int]],
