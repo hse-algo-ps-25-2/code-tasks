@@ -22,6 +22,9 @@ class ProfitValueError(Exception):
         self.row_idx = row_idx
         super().__init__(message)
 
+def _validate_list(profit_matrix: list[list[float | int]]):
+    if not isinstance(profit_matrix, list) or not all(isinstance(sublist, list) for sublist in profit_matrix) or not all((isinstance(list_item, int) or isinstance(list_item, float)) for list_item in sublist for sublist in profit_matrix):
+        raise TypeError(TABLE_NOT_NUMBERS)
 
 def get_invest_distributions(
     profit_matrix: list[list[float | int]],
@@ -34,7 +37,7 @@ def get_invest_distributions(
     :raise ProfitValueError: если прибыль отрицательная или убывает по столбцу
     :return: Result с полями profit и distributions
     """
-    pass
+    _validate_list(profit_matrix)
 
 
 def main():
