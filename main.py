@@ -23,6 +23,55 @@ class ProfitValueError(Exception):
         super().__init__(message)
 
 
+def validate_profit_matrix(
+    profit_matrix: list[list[float | int]],
+):
+    """Выполняет проверку матрицы"""
+    pass
+
+
+def collect_distributions(
+    optimal_choices: list[list[list[int]]],
+    lots_remaining: int,
+    projects_remaining: int,
+    current_distribution: list[int],
+    distributions: list[list[int]],
+):
+    """Обходит сохраненные оптимальные распределения лотов
+    и добавляет готовые планы в список результатов
+    """
+    if projects_remaining == 0:
+        if lots_remaining == 0:
+            distributions.append(current_distribution.copy())
+        return
+
+    project_id = projects_remaining - 1
+    choices = optimal_choices[lots_remaining][projects_remaining]
+    for lots_for_project in choices:
+        current_distribution[project_id] = lots_for_project
+        collect_distributions(
+            optimal_choices,
+            lots_remaining - lots_for_project,
+            projects_remaining - 1,
+            current_distribution,
+            distributions,
+        )
+
+
+def build_distributions_set(
+    optimal_choices: list[list[list[int]]], total_lots: int, total_projects: int
+) -> list[list[int]]:
+    """Собирает итоговые распределения инвестиций
+    из сохраненных распределений лотов
+    """
+    distributions = []
+    current_distribution = [0] * total_projects
+    collect_distributions(
+        optimal_choices, total_lots, total_projects, current_distribution, distributions
+    )
+    return distributions
+
+
 def get_invest_distributions(
     profit_matrix: list[list[float | int]],
 ) -> Result:
@@ -34,7 +83,43 @@ def get_invest_distributions(
     :raise ProfitValueError: если прибыль отрицательная или убывает по столбцу
     :return: Result с полями profit и distributions
     """
-    pass
+    validate_profit_matrix(profit_matrix)
+
+    total_lots = len(profit_matrix)
+    total_projects = len(profit_matrix[0])
+    max_profits = [[UNREACHABLE] * (total_projects + 1) for _ in range(total_lots + 1)]
+    optimal_choices = [
+        [[] for _ in range(total_projects + 1)] for _ in range(total_lots + 1)
+    ]
+    max_profits[0][0] = 0
+    for project_num in range(1, total_projects + 1):
+        project_id = project_num - 1
+
+        for lots_for_step in range(total_lots + 1):
+            for lots_for_project in range(lots_for_step + 1):
+                lots_remaining = lots_for_step - lots_for_project
+                previous_profit = max_profits[lots_remaining][project_num - 1]
+
+                if previous_profit == UNREACHABLE:
+                    continue
+
+                project_profit = (
+                    0
+                    if lots_for_project == 0
+                    else profit_matrix[lots_for_project - 1][project_id]
+                )
+                project_total_profit = previous_profit + project_profit
+
+                if project_total_profit > max_profits[lots_for_step][project_num]:
+                    max_profits[lots_for_step][project_num] = project_total_profit
+                    optimal_choices[lots_for_step][project_num] = [lots_for_project]
+                elif project_total_profit == max_profits[lots_for_step][project_num]:
+                    optimal_choices[lots_for_step][project_num].append(lots_for_project)
+
+    distributions = build_distributions_set(optimal_choices, total_lots, total_projects)
+    return Result(
+        profit=max_profits[total_lots][total_projects], distributions=distributions
+    )
 
 
 def main():
