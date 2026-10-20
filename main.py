@@ -27,7 +27,29 @@ def validate_profit_matrix(
     profit_matrix: list[list[float | int]],
 ):
     """Выполняет проверку матрицы"""
-    pass
+    if not profit_matrix or not profit_matrix[0]:
+        raise ValueError(ErrorMessages.TABLE_NOT_RECT)
+
+    row_len = len(profit_matrix[0])
+    for i in profit_matrix:
+        if len(i) != row_len:
+            raise ValueError(ErrorMessages.TABLE_NOT_RECT)
+
+    for i in profit_matrix:
+        for j in i:
+            if type(j) is not int and type(j) is not float:
+                raise TypeError(TABLE_NOT_NUMBERS)
+
+    for row_idx in range(len(profit_matrix)):
+        for project_idx in range(len(profit_matrix[row_idx])):
+            value = profit_matrix[row_idx][project_idx]
+            if value < 0:
+                raise ProfitValueError(ErrorMessages.NEG_PROFIT, project_idx, row_idx)
+
+    for row in range(len(profit_matrix) - 1):
+        for col in range(len(profit_matrix[row])):
+            if profit_matrix[row + 1][col] < profit_matrix[row][col]:
+                raise ProfitValueError(ErrorMessages.DECR_PROFIT, col, row + 1)
 
 
 def collect_distributions(
