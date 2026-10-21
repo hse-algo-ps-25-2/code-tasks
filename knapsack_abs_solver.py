@@ -70,9 +70,9 @@ class KnapsackAbstractSolver(ABC):
         :param selected_items: для каждого предмета True, если он в наборе
         """
         weight = 0
-        for i in range(self.item_cnt):
-            if selected_items[i]:
-                weight += self.weights[i]
+        for item_idx in range(self.item_cnt):
+            if selected_items[item_idx]:
+                weight += self.weights[item_idx]
         return weight
 
     def get_cost(self, selected_items: list[bool]) -> int:
@@ -85,9 +85,9 @@ class KnapsackAbstractSolver(ABC):
         if self.get_weight(selected_items) > self._weight_limit:
             return 0
         cost = 0
-        for i in range(self.item_cnt):
-            if selected_items[i]:
-                cost += self.costs[i]
+        for item_idx in range(self.item_cnt):
+            if selected_items[item_idx]:
+                cost += self.costs[item_idx]
         return cost
 
     def _validate_params(
