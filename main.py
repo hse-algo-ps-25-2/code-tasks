@@ -61,6 +61,10 @@ def _table_inf_clear(price_table: list[list[float | int]]) -> list[list[float | 
     """Функция, обратная **_table_enf_expand()**.
 
     Удаляет из таблицы нули, полученные путём дополнения
+
+    :param price_table: прямоугольная таблица цен посещения ячеек,
+    дополненная слева и сверху бесконечностями
+    :return new_price_table: чистая таблица без бесконечностей
     """
     price_table = [x[1:] for x in price_table[1:]]
     return price_table
