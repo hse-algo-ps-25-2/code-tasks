@@ -106,16 +106,15 @@ def get_invest_distributions(
     """
     _validate_list(profit_matrix)
 
-    processed_profit_matrix = [[Decimal(str(item)) for item in row] for row in profit_matrix]
+    processed_profit_matrix = [
+        [Decimal(str(item)) for item in row] for row in profit_matrix
+    ]
 
     lot_count = len(processed_profit_matrix)
     project_count = len(processed_profit_matrix[0])
 
     max_profits = [[UNREACHABLE] * (project_count + 1) for _ in range(lot_count + 1)]
     max_profits[0][0] = Decimal(0)
-
-    for lots in range(1, lot_count + 1):
-        max_profits[lots][0] = UNREACHABLE
 
     for project_idx in range(1, project_count + 1):
         max_profits[0][project_idx] = Decimal(0)
