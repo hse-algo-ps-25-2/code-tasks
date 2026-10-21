@@ -91,7 +91,7 @@ class KnapsackAbstractSolver(ABC):
         return cost
 
     def _validate_params(
-            self, weights: list[int], costs: list[int], weight_limit: int
+        self, weights: list[int], costs: list[int], weight_limit: int
     ) -> None:
         """Проверяет входные данные задачи о рюкзаке."""
         self._validate_list(weights, WEIGHTS)

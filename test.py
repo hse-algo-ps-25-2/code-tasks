@@ -114,6 +114,7 @@ class TestDynamicSolver(unittest.TestCase):
         self.assertEqual(result.cost, 10)
         self.assertEqual(result.items, [0])
 
+
 class TestValidation(unittest.TestCase):
     """Набор тестов для проверки входных данных"""
 
