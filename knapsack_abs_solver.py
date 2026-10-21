@@ -110,9 +110,9 @@ class KnapsackAbstractSolver(ABC):
         if not isinstance(items, list):
             raise TypeError(NOT_LIST.format(list_name))
         elif len(items) == 0:
-            raise TypeError(EMPTY_LIST.format(list_name))
+            raise ValueError(EMPTY_LIST.format(list_name))
         for item in items:
             if not isinstance(item, int):
                 raise TypeError(NOT_INT.format(list_name))
-            if item < 0:
+            if item <= 0:
                 raise ValueError(NOT_POS.format(list_name))

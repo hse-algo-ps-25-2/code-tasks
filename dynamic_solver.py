@@ -23,7 +23,7 @@ class DynamicSolver(KnapsackAbstractSolver):
 
             for weight_idx in range(self.weight_limit):
                 table[cost_idx + 1][weight_idx + 1] = table[cost_idx][weight_idx + 1]
-                if (weight <= weight_idx
+                if (weight <= weight_idx + 1
                         and table[cost_idx][weight_idx - weight + 1] + cost > table[cost_idx + 1][weight_idx + 1]):
                     table[cost_idx + 1][weight_idx + 1] = table[cost_idx][weight_idx - weight + 1] + cost
 
