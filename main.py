@@ -74,25 +74,6 @@ def _table_inf_clear(price_table: list[list[float | int]]) -> list[list[float | 
     return price_table
 
 
-def _table_fill_costs(price_table: list[list[float | int]]) -> list[list[float | int]]:
-    price_table = _table_inf_expand(price_table)
-    new_price_table = price_table
-
-    for row in range(len(price_table) - 1):
-        for column in range(len(price_table) - 1):
-            current_cell = price_table[row + 1][column + 1]
-            up_cell = price_table[row][column + 1]
-            left_cell = price_table[row + 1][column]
-            best_previous_way = min(up_cell, left_cell)
-
-            if best_previous_way == float("inf"):
-                best_previous_way = 0
-
-            new_price_table[row + 1][column + 1] = current_cell + best_previous_way
-
-    return new_price_table
-
-
 def get_min_cost_path(price_table: list[list[float | int]]) -> Result:
     """Возвращает путь минимальной стоимости из левого верхнего угла
     таблицы в правый нижний. Ходы только вправо или вниз
@@ -103,8 +84,34 @@ def get_min_cost_path(price_table: list[list[float | int]]) -> Result:
     :return: Result со стоимостью и списком индексов (строка, столбец)
     """
     _validate(price_table)
-    price_table = _table_inf_clear(_table_fill_costs(price_table))
-    return price_table
+
+    height, width = len(price_table), len(price_table[0])
+    costs = [[0] * width for _ in range(height)]
+    costs[0][0] = price_table[0][0]
+
+    for j in range(1, width):
+        costs[0][j] = costs[0][j - 1] + price_table[0][j]
+    for i in range(1, height):
+        costs[i][0] = costs[i - 1][0] + price_table[i][0]
+    for i in range(1, height):
+        for j in range(1, width):
+            costs[i][j] = price_table[i][j] + min(costs[i - 1][j], costs[i][j - 1])
+
+    path = [(height - 1, width - 1)]
+    i, j = height - 1, width - 1
+    while i > 0 or j > 0:
+        if i == 0:
+            j -= 1
+        elif j == 0:
+            i -= 1
+        elif costs[i - 1][j] <= costs[i][j - 1]:
+            i -= 1
+        else:
+            j -= 1
+        path.append((i, j))
+    path.reverse()
+
+    return Result(cost=costs[-1][-1], path=path)
 
 
 def main():
