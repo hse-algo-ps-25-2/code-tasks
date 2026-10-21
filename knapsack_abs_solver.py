@@ -98,7 +98,7 @@ class KnapsackAbstractSolver(ABC):
         self._validate_list(costs, COSTS)
         if len(weights) != len(costs):
             raise ValueError(LENGTHS_NOT_EQUAL)
-        elif not isinstance(weight_limit, int):
+        elif not isinstance(weight_limit, int) or isinstance(weight_limit, bool):
             raise TypeError(NOT_INT_WEIGHT_LIMIT)
         elif weight_limit < 1:
             raise ValueError(NOT_POS_WEIGHT_LIMIT)
@@ -112,7 +112,7 @@ class KnapsackAbstractSolver(ABC):
         elif len(items) == 0:
             raise ValueError(EMPTY_LIST.format(list_name))
         for item in items:
-            if not isinstance(item, int):
+            if not isinstance(item, int) or isinstance(item, bool):
                 raise TypeError(NOT_INT.format(list_name))
             if item <= 0:
                 raise ValueError(NOT_POS.format(list_name))

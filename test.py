@@ -137,6 +137,9 @@ class TestValidation(unittest.TestCase):
         """Нецелое значение в списке"""
         self.check_error(TypeError, NOT_INT.format(WEIGHTS), [1, 2.5], [1, 2], 3)
         self.check_error(TypeError, NOT_INT.format(WEIGHTS), [1, "2"], [1, 2], 3)
+        self.check_error(TypeError, NOT_INT.format(WEIGHTS), [True], [1], 3)
+        self.check_error(TypeError, NOT_INT.format(COSTS), [1, 2], [1, None], 3)
+        self.check_error(TypeError, NOT_INT.format(COSTS), [1], [False], 3)
 
     def test_not_positive(self):
         """Нулевое или отрицательное значение в списке"""
@@ -150,6 +153,7 @@ class TestValidation(unittest.TestCase):
         self.check_error(TypeError, NOT_INT_WEIGHT_LIMIT, [1], [1], 2.5)
         self.check_error(TypeError, NOT_INT_WEIGHT_LIMIT, [1], [1], "3")
         self.check_error(TypeError, NOT_INT_WEIGHT_LIMIT, [1], [1], None)
+        self.check_error(TypeError, NOT_INT_WEIGHT_LIMIT, [1], [1], True)
 
     def test_not_positive_weight_limit(self):
         """Вместимость меньше единицы"""
