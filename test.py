@@ -50,6 +50,106 @@ class TestInvestDistributions(unittest.TestCase):
             get_invest_distributions([])
         self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_RECT)
 
+    def test_non_rectangular(self):
+        """Таблица с разной длиной строк"""
+        with self.assertRaises(ValueError) as error:
+            get_invest_distributions([[1, 2], [3]])
+
+        self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_RECT)
+
+    def test_empty_row(self):
+        """Таблица содержит пустую строку"""
+        with self.assertRaises(ValueError) as error:
+            get_invest_distributions([[1], []])
+
+        self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_RECT)
+
+    def test_empty_columns(self):
+        """Таблица без столбцов"""
+        with self.assertRaises(ValueError) as error:
+            get_invest_distributions([[], []])
+
+        self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_RECT)
+
+    def test_non_list_row(self):
+        """Строка таблицы не является списком"""
+        with self.assertRaises(TypeError) as error:
+            get_invest_distributions([[1, 2], 3])
+
+        self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_NUMBERS)
+
+    def test_string_cell(self):
+        """В клетке находится строка"""
+        with self.assertRaises(TypeError) as error:
+            get_invest_distributions([[1, "2"]])
+
+        self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_NUMBERS)
+
+    def test_negative_profit_indices(self):
+        """Отрицательная прибыль: проверка индексов"""
+        with self.assertRaises(ProfitValueError) as error:
+            get_invest_distributions([[1, 2], [3, -1]])
+
+        self.assertEqual(str(error.exception), ErrorMessages.NEG_PROFIT)
+        self.assertEqual(error.exception.project_idx, 1)
+        self.assertEqual(error.exception.row_idx, 1)
+
+    def test_decreasing_profit_indices(self):
+        """Убывание прибыли: проверка индексов"""
+        with self.assertRaises(ProfitValueError) as error:
+            get_invest_distributions([[1, 3], [2, 2]])
+
+        self.assertEqual(str(error.exception), ErrorMessages.DECR_PROFIT)
+        self.assertEqual(error.exception.project_idx, 1)
+        self.assertEqual(error.exception.row_idx, 1)
+
+    def test_all_zero_profits(self):
+        """Все прибыли равны нулю: три оптимальных плана"""
+        matrix = [[0, 0], [0, 0]]
+        result = get_invest_distributions(matrix)
+
+        _assert_all_optima(self, matrix, result, 0, 3)
+
+    def test_single_project_multiple_lots(self):
+        """Все лоты распределяются единственному проекту"""
+        matrix = [[1], [2], [4]]
+        result = get_invest_distributions(matrix)
+
+        _assert_all_optima(self, matrix, result, 4, 1)
+        self.assertEqual(result.distributions, [[3]])
+
+    def test_single_lot_multiple_projects(self):
+        """Один лот можно отдать любому из трёх проектов"""
+        matrix = [[5, 5, 5]]
+        result = get_invest_distributions(matrix)
+
+        _assert_all_optima(self, matrix, result, 5, 3)
+
+    def test_two_lots_three_projects(self):
+        """Несколько оптимальных способов распределить два лота"""
+        matrix = [[1, 1, 1], [2, 2, 2]]
+        result = get_invest_distributions(matrix)
+
+        _assert_all_optima(self, matrix, result, 2, 6)
+
+    def test_fractional_zero_profit(self):
+        """Дробная прибыль и нулевая прибыль отдельных проектов"""
+        matrix = [[0.0, 1.5], [0.0, 3.25]]
+        result = get_invest_distributions(matrix)
+
+        _assert_all_optima(self, matrix, result, 3.25, 1)
+        self.assertEqual(result.distributions, [[0, 2]])
+
+    def test_all_optimal_distributions_are_unique(self):
+        """Все оптимальные планы уникальны"""
+        matrix = [[1, 1, 1], [2, 2, 2], [3, 3, 3]]
+        result = get_invest_distributions(matrix)
+
+        distributions = [tuple(plan) for plan in result.distributions]
+
+        self.assertEqual(len(distributions), len(set(distributions)))
+        self.assertEqual(len(distributions), 10)
+
     def test_negative_profit(self):
         """Отрицательная прибыль"""
         with self.assertRaises(ProfitValueError) as error:
