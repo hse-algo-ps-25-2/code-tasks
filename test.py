@@ -106,5 +106,206 @@ class TestMinCostPath(unittest.TestCase):
         )
 
 
+
+class TestMinCostPathExtended(unittest.TestCase):
+    """Дополнительные тесты алгоритма и проверки входных данных."""
+
+    def test_invalid_table_types(self):
+        """Таблица должна быть списком."""
+        for value in (5, "table", {}, ()):
+            with self.subTest(value=value):
+                with self.assertRaises(TypeError) as error:
+                    get_min_cost_path(value)
+
+                self.assertEqual(
+                    str(error.exception),
+                    TABLE_NOT_LISTS,
+                )
+
+    def test_invalid_row_types(self):
+        """Каждая строка должна быть списком."""
+        for table in (
+            [1, 2],
+            [[1], (2,)],
+            [[1], "abc"],
+            [[1], None],
+        ):
+            with self.subTest(table=table):
+                with self.assertRaises(TypeError) as error:
+                    get_min_cost_path(table)
+
+                self.assertEqual(
+                    str(error.exception),
+                    TABLE_NOT_LISTS,
+                )
+
+    def test_empty_rows(self):
+        """Пустые строки и нарушение прямоугольности."""
+        for table in (
+            [[]],
+            [[], []],
+            [[1], []],
+            [[], [1]],
+        ):
+            with self.subTest(table=table):
+                with self.assertRaises(ValueError) as error:
+                    get_min_cost_path(table)
+
+                self.assertEqual(
+                    str(error.exception),
+                    TABLE_NOT_RECT,
+                )
+
+    def test_invalid_cell_types(self):
+        """Недопустимые типы значений."""
+        for value in (
+            True,
+            False,
+            "1",
+            [],
+            {},
+            1 + 2j,
+        ):
+            with self.subTest(value=value):
+                with self.assertRaises(TypeError) as error:
+                    get_min_cost_path([[1, value]])
+
+                self.assertEqual(
+                    str(error.exception),
+                    CELL_NOT_NUMBER,
+                )
+
+    def test_blocked_start(self):
+        """Стартовая клетка заблокирована."""
+        table = [
+            [None, 1],
+            [2, 3],
+        ]
+
+        self.assertEqual(
+            get_min_cost_path(table),
+            Result(None, None),
+        )
+
+    def test_blocked_finish(self):
+        """Финишная клетка заблокирована."""
+        table = [
+            [1, 2],
+            [3, None],
+        ]
+
+        self.assertEqual(
+            get_min_cost_path(table),
+            Result(None, None),
+        )
+
+    def test_single_row(self):
+        """Маршрут по одной строке."""
+        table = [[1, 2, 3, 4]]
+
+        _assert_optimal_result(
+            self,
+            table,
+            get_min_cost_path(table),
+            10,
+        )
+
+    def test_single_column(self):
+        """Маршрут по одному столбцу."""
+        table = [
+            [1],
+            [2],
+            [3],
+            [4],
+        ]
+
+        _assert_optimal_result(
+            self,
+            table,
+            get_min_cost_path(table),
+            10,
+        )
+
+    def test_single_row_with_wall(self):
+        """Стена в единственной строке."""
+        table = [[1, None, 3]]
+
+        self.assertEqual(
+            get_min_cost_path(table),
+            Result(None, None),
+        )
+
+    def test_single_column_with_wall(self):
+        """Стена в единственном столбце."""
+        table = [
+            [1],
+            [None],
+            [3],
+        ]
+
+        self.assertEqual(
+            get_min_cost_path(table),
+            Result(None, None),
+        )
+
+    def test_zero_costs(self):
+        """Нулевые стоимости клеток."""
+        table = [
+            [0, 0],
+            [0, 0],
+        ]
+
+        _assert_optimal_result(
+            self,
+            table,
+            get_min_cost_path(table),
+            0,
+        )
+
+    def test_negative_costs(self):
+        """Отрицательные стоимости клеток."""
+        table = [
+            [1, -5],
+            [2, 3],
+        ]
+
+        _assert_optimal_result(
+            self,
+            table,
+            get_min_cost_path(table),
+            -1,
+        )
+
+    def test_larger_rectangle(self):
+        """Прямоугольная таблица с обходом стены."""
+        table = [
+            [1, 2, 3, 4],
+            [5, None, 1, 2],
+            [3, 2, 1, 1],
+        ]
+
+        _assert_optimal_result(
+            self,
+            table,
+            get_min_cost_path(table),
+            9,
+        )
+
+    def test_multiple_optimal_paths(self):
+        """Несколько маршрутов одинаковой стоимости."""
+        table = [
+            [1, 1, 1],
+            [1, 1, 1],
+            [1, 1, 1],
+        ]
+
+        _assert_optimal_result(
+            self,
+            table,
+            get_min_cost_path(table),
+            5,
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
