@@ -32,10 +32,28 @@ def _assert_all_optima(test_case, matrix, result, expected_profit, expected_coun
 class TestInvestDistributions(unittest.TestCase):
     """Набор тестов всех оптимальных распределений"""
 
+    def test_matrix_not_list(self):
+        """Аргумент int"""
+        with self.assertRaises(TypeError) as error:
+            get_invest_distributions(123)
+        self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_NUMBERS)
+
     def test_none(self):
         """Аргумент None"""
         with self.assertRaises(TypeError) as error:
             get_invest_distributions(None)
+        self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_NUMBERS)
+
+    def test_row_not_list(self):
+        """Строки матрицы - не списки"""
+        with self.assertRaises(TypeError) as error:
+            get_invest_distributions([123, 456])
+        self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_NUMBERS)
+
+    def test_str_value(self):
+        """В клетке str"""
+        with self.assertRaises(TypeError) as error:
+            get_invest_distributions([[1, "2"]])
         self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_NUMBERS)
 
     def test_bool_value(self):
@@ -44,10 +62,28 @@ class TestInvestDistributions(unittest.TestCase):
             get_invest_distributions([[1, True]])
         self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_NUMBERS)
 
+    def test_none_value(self):
+        """В клетке None"""
+        with self.assertRaises(TypeError) as error:
+            get_invest_distributions([[7, None]])
+        self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_NUMBERS)
+
     def test_empty(self):
         """Пустой список"""
         with self.assertRaises(ValueError) as error:
             get_invest_distributions([])
+        self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_RECT)
+
+    def test_empty_row(self):
+        """Пустая строка"""
+        with self.assertRaises(ValueError) as error:
+            get_invest_distributions([[]])
+        self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_RECT)
+
+    def test_not_rect(self):
+        """Строки разной длины"""
+        with self.assertRaises(ValueError) as error:
+            get_invest_distributions([[1], [2, 3, 4], [5, 6]])
         self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_RECT)
 
     def test_negative_profit(self):
@@ -72,6 +108,18 @@ class TestInvestDistributions(unittest.TestCase):
         matrix = [[1]]
         result = get_invest_distributions(matrix)
         _assert_all_optima(self, matrix, result, 1, 1)
+
+    def test_same_profit(self):
+        """Одинаковые значения прибыли"""
+        matrix = [[1, 1, 1], [1, 1, 1]]
+        result = get_invest_distributions(matrix)
+        _assert_all_optima(self, matrix, result, 2, 3)
+
+    def test_zero_profit(self):
+        """Нулевая прибыль"""
+        matrix = [[0, 0], [0, 0]]
+        result = get_invest_distributions(matrix)
+        _assert_all_optima(self, matrix, result, 0, 3)
 
     def test_float_profit(self):
         """Прибыль задана числами float"""
@@ -102,6 +150,34 @@ class TestInvestDistributions(unittest.TestCase):
         ]
         result = get_invest_distributions(matrix)
         _assert_all_optima(self, matrix, result, 73, 1)
+
+    def test_one_row(self):
+        """Точный набор планов: 1 лот, 3 проекта"""
+        matrix = [[1, 3, 2]]
+        result = get_invest_distributions(matrix)
+        self.assertEqual(result.profit, 3)
+        self.assertCountEqual(result.distributions, [[0, 1, 0]])
+
+    def test_one_row_same_value(self):
+        """Точный набор планов: 1 лот, 3 проекта, одинаковая прибыль"""
+        matrix = [[3, 3, 3]]
+        result = get_invest_distributions(matrix)
+        self.assertEqual(result.profit, 3)
+        self.assertCountEqual(result.distributions, [[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+
+    def test_one_project(self):
+        """Точный набор планов: 1 проект"""
+        matrix = [[1], [2], [3]]
+        result = get_invest_distributions(matrix)
+        self.assertEqual(result.profit, 3)
+        self.assertCountEqual(result.distributions, [[3]])
+
+    def test_several_projects(self):
+        """Точный набор планов: несколько проектов"""
+        matrix = [[1, 1.5], [2, 2.5]]
+        result = get_invest_distributions(matrix)
+        self.assertEqual(result.profit, 2.5)
+        self.assertCountEqual(result.distributions, [[1, 1], [0, 2]])
 
 
 if __name__ == "__main__":

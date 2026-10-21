@@ -23,10 +23,14 @@ class ProfitValueError(Exception):
         super().__init__(message)
 
 
-def validate_profit_matrix(
-    profit_matrix: list[list[float | int]],
-):
-    """Выполняет проверку матрицы"""
+def validate_profit_matrix_shape(profit_matrix: list[list[float | int]]) -> None:
+    """Выполняет проверку формы матрицы"""
+    if not isinstance(profit_matrix, list):
+        raise TypeError(ErrorMessages.TABLE_NOT_NUMBERS)
+
+    if not all(isinstance(row, list) for row in profit_matrix):
+        raise TypeError(ErrorMessages.TABLE_NOT_NUMBERS)
+
     if not profit_matrix or not profit_matrix[0]:
         raise ValueError(ErrorMessages.TABLE_NOT_RECT)
 
@@ -35,10 +39,17 @@ def validate_profit_matrix(
         if len(i) != row_len:
             raise ValueError(ErrorMessages.TABLE_NOT_RECT)
 
+
+def validate_profit_matrix(
+    profit_matrix: list[list[float | int]],
+):
+    """Выполняет проверку матрицы"""
+    validate_profit_matrix_shape(profit_matrix)
+
     for i in profit_matrix:
         for j in i:
             if type(j) is not int and type(j) is not float:
-                raise TypeError(TABLE_NOT_NUMBERS)
+                raise TypeError(ErrorMessages.TABLE_NOT_NUMBERS)
 
     for row_idx in range(len(profit_matrix)):
         for project_idx in range(len(profit_matrix[row_idx])):
