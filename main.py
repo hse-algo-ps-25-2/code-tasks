@@ -1,7 +1,8 @@
 from collections import namedtuple
+from decimal import Decimal
 from enum import StrEnum
 
-UNREACHABLE = float("-inf")
+UNREACHABLE = Decimal("-inf")
 
 
 class ErrorMessages(StrEnum):
@@ -60,8 +61,8 @@ def _validate_list(profit_matrix: list[list[float | int]]):
 
 
 def _get_invest_distributions_rec(
-    max_profits: list[list[float | int]],
-    profit_matrix: list[list[float | int]],
+    max_profits: list[list[Decimal]],
+    profit_matrix: list[list[Decimal]],
     project_count: int,
     lot_count: int,
     current_distribution: list[int],
@@ -99,20 +100,25 @@ def _get_invest_distributions_rec(
 def get_invest_distributions(
     profit_matrix: list[list[float | int]],
 ) -> Result:
-    """Возвращает максимальную прибыль и все оптимальные распределения лотов."""
+    """
+    Возвращает максимальную прибыль и все оптимальные распределения лотов.
+    Внутри для избежания ошибок в математических операциях использует тип Decimal вместо float
+    """
     _validate_list(profit_matrix)
 
-    lot_count = len(profit_matrix)
-    project_count = len(profit_matrix[0])
+    decimal_matrix = [[Decimal(str(item)) for item in row] for row in profit_matrix]
+
+    lot_count = len(decimal_matrix)
+    project_count = len(decimal_matrix[0])
 
     max_profits = [[UNREACHABLE] * (project_count + 1) for _ in range(lot_count + 1)]
-    max_profits[0][0] = 0
+    max_profits[0][0] = Decimal(0)
 
     for lots in range(1, lot_count + 1):
         max_profits[lots][0] = UNREACHABLE
 
     for project_idx in range(1, project_count + 1):
-        max_profits[0][project_idx] = 0
+        max_profits[0][project_idx] = Decimal(0)
 
     for project_idx in range(1, project_count + 1):
         for lots in range(1, lot_count + 1):
@@ -124,7 +130,7 @@ def get_invest_distributions(
                 cur_profit = (
                     0
                     if cur_project_lots == 0
-                    else profit_matrix[cur_project_lots - 1][project_idx - 1]
+                    else decimal_matrix[cur_project_lots - 1][project_idx - 1]
                 )
 
                 prev_profit = max_profits[prev_project_lots][project_idx - 1]
@@ -141,14 +147,18 @@ def get_invest_distributions(
 
     _get_invest_distributions_rec(
         max_profits,
-        profit_matrix,
+        decimal_matrix,
         project_count,
         lot_count,
         [],
         distributions,
     )
 
-    return Result(max_profits[lot_count][project_count], distributions)
+    max_profit = max_profits[lot_count][project_count]
+
+    return Result(
+        int(max_profit) if max_profit % 1 == 0 else float(max_profit), distributions
+    )
 
 
 def main():

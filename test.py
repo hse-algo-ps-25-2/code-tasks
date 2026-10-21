@@ -1,14 +1,15 @@
 import unittest
+from decimal import Decimal
 
 from main import ErrorMessages, ProfitValueError, get_invest_distributions
 
 
 def _realized_profit(matrix, distribution):
-    profit = 0
+    profit = Decimal("0")
     for project, lots in enumerate(distribution):
         if lots != 0:
-            profit += matrix[lots - 1][project]
-    return profit
+            profit += Decimal(str(matrix[lots - 1][project]))
+    return int(profit) if profit % 1 == 0 else float(profit)
 
 
 def _assert_all_optima(test_case, matrix, result, expected_profit, expected_count):
