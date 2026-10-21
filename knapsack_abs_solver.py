@@ -19,7 +19,7 @@ KnapsackSolution = namedtuple("KnapsackSolution", ["cost", "items"])
 
 
 class KnapsackAbstractSolver(ABC):
-    """Абстрактный класс для решения задачи о рюкзаке."""
+    """Абстрактный класс для решения задачи о рюкзаке"""
 
     def __init__(self, weights: list[int], costs: list[int], weight_limit: int):
         """Создаёт объект для решения задачи о рюкзаке.
@@ -62,14 +62,18 @@ class KnapsackAbstractSolver(ABC):
         """Возвращает решение: cost — стоимость набора, items — индексы
         выбранных предметов (с нуля).
         """
-        pass
+        raise NotImplementedError
 
     def get_weight(self, selected_items: list[bool]) -> int:
         """Возвращает суммарный вес выбранных предметов.
 
         :param selected_items: для каждого предмета True, если он в наборе
         """
-        pass
+        total_weight = 0
+        for index in range(self.item_cnt):
+            if selected_items[index]:
+                total_weight += self.weights[index]
+        return total_weight
 
     def get_cost(self, selected_items: list[bool]) -> int:
         """Возвращает суммарную стоимость выбранных предметов.
@@ -78,14 +82,41 @@ class KnapsackAbstractSolver(ABC):
 
         :param selected_items: для каждого предмета True, если он в наборе
         """
-        pass
+        if self.get_weight(selected_items) > self.weight_limit:
+            return 0
+
+        total_cost = 0
+        for index in range(self.item_cnt):
+            if selected_items[index]:
+                total_cost += self.costs[index]
+        return total_cost
 
     def _validate_params(
         self, weights: list[int], costs: list[int], weight_limit: int
     ) -> None:
-        """Проверяет входные данные задачи о рюкзаке."""
-        pass
+        """Проверяет входные данные задачи о рюкзаке"""
+        self._validate_list(weights, WEIGHTS)
+        self._validate_list(costs, COSTS)
+
+        if len(weights) != len(costs):
+            raise ValueError(LENGTHS_NOT_EQUAL)
+
+        if not isinstance(weight_limit, int) or isinstance(weight_limit, bool):
+            raise TypeError(NOT_INT_WEIGHT_LIMIT)
+        if weight_limit < 1:
+            raise ValueError(NOT_POS_WEIGHT_LIMIT)
+        if weight_limit < min(weights):
+            raise ValueError(LESS_WEIGHT_LIMIT)
 
     def _validate_list(self, items: list[int], list_name: str) -> None:
-        """Проверяет список весов или стоимостей."""
-        pass
+        """Проверяет список весов или стоимостей"""
+        if not isinstance(items, list):
+            raise TypeError(NOT_LIST.format(list_name))
+        if len(items) == 0:
+            raise ValueError(EMPTY_LIST.format(list_name))
+
+        for item in items:
+            if not isinstance(item, int) or isinstance(item, bool):
+                raise TypeError(NOT_INT.format(list_name))
+            if item <= 0:
+                raise ValueError(NOT_POS.format(list_name))
