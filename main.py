@@ -19,18 +19,19 @@ def _validate(price_table: list[list[float | int]]) -> None:
     if not isinstance(price_table, list):
         raise TypeError(INCORRECT_DATA_TYPE)
 
-    height = len(price_table)
-
-    if height == 0:
+    if len(price_table) == 0:
         raise ValueError(TABLE_IS_EMPTY)
 
+    width = None
     for row in price_table:
-        length = len(row)
-        if height != length:
+        if not isinstance(row, list):
+            raise TypeError(INCORRECT_DATA_TYPE)
+        if width is None:
+            width = len(row)
+        elif len(row) != width:
             raise ValueError(TABLE_NOT_RECT)
-
         for item in row:
-            if not (isinstance(item, int) or isinstance(item, float)):
+            if isinstance(item, bool) or not isinstance(item, (int, float)):
                 raise TypeError(TABLE_NOT_NUMBERS)
 
 
