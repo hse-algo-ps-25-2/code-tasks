@@ -57,6 +57,34 @@ def _table_inf_expand(price_table: list[list[float | int]]) -> list[list[float |
     return new_price_table
 
 
+def _table_inf_clear(price_table: list[list[float | int]]) -> list[list[float | int]]:
+    """Функция, обратная **_table_enf_expand()**.
+
+    Удаляет из таблицы нули, полученные путём дополнения
+    """
+    price_table = [x[1:] for x in price_table[1:]]
+    return price_table
+
+
+def _table_fill_costs(price_table: list[list[float | int]]) -> list[list[float | int]]:
+    price_table = _table_inf_expand(price_table)
+    new_price_table = price_table
+
+    for row in range(len(price_table) - 1):
+        for column in range(len(price_table) - 1):
+            current_cell = price_table[row + 1][column + 1]
+            up_cell = price_table[row][column + 1]
+            left_cell = price_table[row + 1][column]
+            best_previous_way = min(up_cell, left_cell)
+
+            if best_previous_way == float("inf"):
+                best_previous_way = 0
+
+            new_price_table[row + 1][column + 1] = current_cell + best_previous_way
+
+    return new_price_table
+
+
 def get_min_cost_path(price_table: list[list[float | int]]) -> Result:
     """Возвращает путь минимальной стоимости из левого верхнего угла
     таблицы в правый нижний. Ходы только вправо или вниз
@@ -67,7 +95,8 @@ def get_min_cost_path(price_table: list[list[float | int]]) -> Result:
     :return: Result со стоимостью и списком индексов (строка, столбец)
     """
     _validate(price_table)
-    price_table = _table_inf_expand(price_table)
+    price_table = _table_inf_clear(_table_fill_costs(price_table))
+    return price_table
 
 
 def main():
