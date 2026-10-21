@@ -22,6 +22,9 @@ def _validate(price_table: list[list[float | int]]) -> None:
     if len(price_table) == 0:
         raise ValueError(TABLE_IS_EMPTY)
 
+    if len(price_table[0]) == 0:
+        raise ValueError(TABLE_IS_EMPTY)
+
     width = None
     for row in price_table:
         if not isinstance(row, list):
