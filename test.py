@@ -87,6 +87,61 @@ class TestInvestDistribution(unittest.TestCase):
         result = get_invest_distribution(matrix)
         _assert_optimal_result(self, matrix, result, 73)
 
+    def test_not_list(self):
+        """Аргумент - не список (например, кортеж)"""
+        with self.assertRaises(TypeError) as error:
+            get_invest_distribution(((1, 2), (3, 4)))
+        self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_NUMBERS)
+
+    def test_row_not_list(self):
+        """Одна из строк - не список"""
+        with self.assertRaises(TypeError) as error:
+            get_invest_distribution([[1, 2], (3, 4)])
+        self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_NUMBERS)
+
+    def test_string_value(self):
+        """В клетке строка"""
+        with self.assertRaises(TypeError) as error:
+            get_invest_distribution([[1, "2"]])
+        self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_NUMBERS)
+
+    def test_not_rectangular(self):
+        """Непрямоугольная матрица"""
+        with self.assertRaises(ValueError) as error:
+            get_invest_distribution([[1, 2], [3]])
+        self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_RECT)
+
+    def test_empty_row(self):
+        """Матрица с пустой строкой"""
+        with self.assertRaises(ValueError) as error:
+            get_invest_distribution([[]])
+        self.assertEqual(str(error.exception), ErrorMessages.TABLE_NOT_RECT)
+
+    def test_zero_profits(self):
+        """Все прибыли равны нулю"""
+        matrix = [[0, 0], [0, 0]]
+        result = get_invest_distribution(matrix)
+        _assert_optimal_result(self, matrix, result, 0)
+
+    def test_all_in_one_project(self):
+        """Оптимально вложить всё в один проект"""
+        matrix = [[1, 10], [2, 100], [3, 1000]]
+        result = get_invest_distribution(matrix)
+        _assert_optimal_result(self, matrix, result, 1000)
+        self.assertEqual(result.distribution, [0, 3])
+
+    def test_multiple_optimal(self):
+        """Несколько оптимальных планов (проверяем, что возвращается хотя бы один верный)"""
+        matrix = [[5, 5], [10, 10]]
+        result = get_invest_distribution(matrix)
+        _assert_optimal_result(self, matrix, result, 10)
+
+    def test_equal_profit_growth(self):
+        """Прибыль не убывает (равна), ошибки быть не должно"""
+        matrix = [[1, 1], [1, 1]]
+        result = get_invest_distribution(matrix)
+        _assert_optimal_result(self, matrix, result, 2)
+
 
 if __name__ == "__main__":
     unittest.main()
