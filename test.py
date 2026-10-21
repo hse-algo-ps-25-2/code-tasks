@@ -179,6 +179,12 @@ class TestInvestDistributions(unittest.TestCase):
         result = get_invest_distributions(matrix)
         _assert_all_optima(self, matrix, result, 4.5, 1)
 
+    def test_float_with_binary_wrong_sum_profit(self):
+        """Прибыль задана числами float с бинарно неправильным сложением"""
+        matrix = [[0.1, 0.2], [0.1, 0.2]]
+        result = get_invest_distributions(matrix)
+        _assert_all_optima(self, matrix, result, 0.3, 1)
+
     def test_two_optima(self):
         """Два плана с прибылью 7"""
         matrix = [[1, 2, 2], [3, 5, 4], [7, 6, 5]]
