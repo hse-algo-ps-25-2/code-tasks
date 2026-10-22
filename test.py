@@ -40,6 +40,18 @@ class TestMinCostPath(unittest.TestCase):
             get_min_cost_path(None)
         self.assertEqual(str(error.exception), TABLE_NOT_NUMBERS)
 
+    def test_not_list(self):
+        """Аргумент не список"""
+        with self.assertRaises(TypeError) as error:
+            get_min_cost_path("table")
+        self.assertEqual(str(error.exception), TABLE_NOT_NUMBERS)
+
+    def test_row_not_list(self):
+        """Строка таблицы не список"""
+        with self.assertRaises(TypeError) as error:
+            get_min_cost_path([[1, 2], (3, 4)])
+        self.assertEqual(str(error.exception), TABLE_NOT_NUMBERS)
+
     def test_str_value(self):
         """В клетке строка"""
         with self.assertRaises(TypeError) as error:
@@ -56,6 +68,12 @@ class TestMinCostPath(unittest.TestCase):
         """Пустой список"""
         with self.assertRaises(ValueError) as error:
             get_min_cost_path([])
+        self.assertEqual(str(error.exception), TABLE_NOT_RECT)
+
+    def test_empty_row(self):
+        """Пустая строка таблицы"""
+        with self.assertRaises(ValueError) as error:
+            get_min_cost_path([[]])
         self.assertEqual(str(error.exception), TABLE_NOT_RECT)
 
     def test_jagged(self):
@@ -94,6 +112,32 @@ class TestMinCostPath(unittest.TestCase):
             get_min_cost_path(table),
             Result(cost=6, path=[(0, 0), (0, 1), (0, 2), (1, 2)]),
         )
+
+    def test_single_row(self):
+        """Таблица из одной строки"""
+        table = [[1, 2, 3, 4]]
+        self.assertEqual(
+            get_min_cost_path(table),
+            Result(cost=10, path=[(0, 0), (0, 1), (0, 2), (0, 3)]),
+        )
+
+    def test_single_column(self):
+        """Таблица из одного столбца"""
+        table = [[1], [2], [3], [4]]
+        self.assertEqual(
+            get_min_cost_path(table),
+            Result(cost=10, path=[(0, 0), (1, 0), (2, 0), (3, 0)]),
+        )
+
+    def test_negative_values(self):
+        """Таблица с отрицательными ценами"""
+        table = [[1, -5], [2, 1]]
+        _assert_optimal_result(self, table, get_min_cost_path(table), -3)
+
+    def test_equal_optimal_paths(self):
+        """Несколько путей имеют одинаковую минимальную стоимость"""
+        table = [[1, 1], [1, 1]]
+        _assert_optimal_result(self, table, get_min_cost_path(table), 3)
 
 
 if __name__ == "__main__":
