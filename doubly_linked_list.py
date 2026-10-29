@@ -1,0 +1,168 @@
+from doubly_list_node import DoublyListNode
+
+
+class DoublyLinkedList:
+    """
+    Класс, реализующий двусвязный список.
+
+    Атрибуты:
+        head (DoublyListNode | None): ссылка на первый узел списка.
+        tail (DoublyListNode | None): ссылка на последний узел списка.
+        size (int): количество элементов в списке.
+
+    Поддерживает базовые операции:
+        - добавление элемента в конец (append),
+        - вставка по индексу (insert),
+        - удаление элемента по значению (remove),
+        - поиск индекса элемента (index),
+        - получение длины (__len__),
+        - прямой обход (__iter__),
+        - обратный обход (__reversed__),
+        - строковое представление (__str__).
+    """
+
+    def __init__(self):
+        """Создаёт пустой двусвязный список."""
+        self.head = None
+        self.tail = None
+        self.size = 0
+
+    def append(self, value):
+        """
+        Добавляет элемент в конец списка.
+
+        Аргументы:
+            value: значение нового элемента.
+        """
+        node = DoublyListNode(value)
+        if self.tail is None:
+            self.head = self.tail = node
+        else:
+            node.prev = self.tail
+            self.tail.next = node
+            self.tail = node
+        self.size += 1
+
+    def insert(self, index, value):
+        """
+        Вставляет элемент по указанному индексу.
+
+        Аргументы:
+            index (int): позиция вставки (0 ≤ index ≤ len).
+            value: значение нового элемента.
+
+        Исключения:
+            IndexError — если индекс вне диапазона.
+        """
+        if not 0 <= index <= self.size:
+            raise IndexError("индекс вне диапазона")
+
+        if index == self.size:
+            self.append(value)
+            return
+
+        new_node = DoublyListNode(value)
+
+        node = self.head
+        for _ in range(index):
+            assert node is not None
+            node = node.next
+
+        assert node is not None
+
+        new_node.prev = node.prev
+        new_node.next = node
+        if node.prev is None:
+            self.head = new_node
+        else:
+            node.prev.next = new_node
+        node.prev = new_node
+        self.size += 1
+
+    def remove(self, value):
+        """
+        Удаляет первый элемент с указанным значением.
+
+        Аргументы:
+            value: значение для удаления.
+
+        Исключения:
+            ValueError — если элемента с таким значением нет.
+        """
+        node = self.head
+        while node is not None:
+            if node.value == value:
+                if node.prev is None:
+                    self.head = node.next
+                else:
+                    node.prev.next = node.next
+                if node.next is None:
+                    self.tail = node.prev
+                else:
+                    node.next.prev = node.prev
+                node.prev = node.next = None
+                self.size -= 1
+                return
+            node = node.next
+        raise ValueError(f"{value} нет в списке")
+
+    def index(self, value):
+        """
+        Возвращает индекс первого элемента с указанным значением.
+
+        Аргументы:
+            value: искомое значение.
+
+        Возвращает:
+            int: индекс элемента, если найден.
+            None: если элемент отсутствует.
+        """
+        for i, val in enumerate(self):
+            if val == value:
+                return i
+        return None
+
+    def __len__(self):
+        """Возвращает количество элементов в списке."""
+        return self.size
+
+    def __iter__(self):
+        """
+        Позволяет итерироваться по значениям элементов списка в цикле for
+        от головы к хвосту.
+
+        Использование:
+            for x in my_list:
+                ...
+        """
+        node = self.head
+        while node is not None:
+            yield node.value
+            node = node.next
+
+    def __reversed__(self):
+        """
+        Позволяет итерироваться по значениям элементов списка
+        от хвоста к голове.
+
+        Использование:
+            for x in reversed(my_list):
+                ...
+        """
+        node = self.tail
+        while node is not None:
+            yield node.value
+            node = node.prev
+
+    def __str__(self):
+        """
+        Возвращает строковое представление списка.
+
+        Формат:
+            [elem1 <-> elem2 <-> elem3]
+
+        Пустой список:
+            []
+        """
+        values = [str(v) for v in self]
+        return "[" + " <-> ".join(values) + "]"

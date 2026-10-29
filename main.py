@@ -1,5 +1,41 @@
 from queue import Queue
 
+PUBERTY_TIME = 2
+
+def validate_param(value):
+    if not isinstance(value, int):
+        raise TypeError('Значение должно быть числом')
+
+
+def validate_month(value):
+    validate_param(value)
+    if value < 1:
+         raise ValueError('Значение должно быть больше либо равно единице')
+
+def validate_lifetime(value):
+    validate_param(value)
+    if value < 2:
+         raise ValueError('Значение должно быть больше либо равно единице')
+
+def rabbit_life_req(couple, que, cur_month, lifetime):
+    count = 1
+
+    if cur_month >= couple + PUBERTY_TIME:
+        children_count = cur_month - (couple + PUBERTY_TIME)
+        for _ in range(children_count):
+            que.enqueue(cur_month)
+            count += rabbit_life_req(cur_month, que, cur_month, lifetime)
+
+
+
+    if cur_month == couple + lifetime:
+        que.dequeue()
+        count -= 1
+        new_oldest_couple = que.peek()
+        count += rabbit_life_req(new_oldest_couple, que, cur_month, lifetime)
+
+    return count
+
 
 def rabbits(month: int, lifetime: int) -> int:
     """Возвращает количество живых пар кроликов в месяце month.
@@ -17,7 +53,18 @@ def rabbits(month: int, lifetime: int) -> int:
     :raises ValueError: month < 1 или lifetime < 2
     :return: число живых пар
     """
-    pass
+    validate_month(month)
+    validate_lifetime(lifetime)
+
+    que = Queue()
+    que.enqueue(1)
+    count = 1
+    
+    for cur_month in range(2, month):
+        couple = que.peek()
+        count += rabbit_life_req(couple, que, cur_month, lifetime)
+     
+    return count
 
 
 def main():
