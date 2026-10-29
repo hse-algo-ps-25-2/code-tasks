@@ -23,7 +23,21 @@ def generate_permutations_iter(elements: list) -> list[list]:
     :return: список перестановок; для пустого списка — список из одной
         пустой перестановки
     """
-    pass
+    if not isinstance(elements, list):
+        raise TypeError("Аргумент не является списком.")
+
+    result = [[]]
+    for cur_element in elements:
+        new_result = []
+        for cur_perm in result:
+            for insert_idx in range(len(cur_perm) + 1):
+                cur_perm_copy = cur_perm.copy()
+                cur_perm_copy.insert(insert_idx, cur_element)
+                new_result.append(cur_perm_copy)
+
+        result = new_result
+
+    return result
 
 
 def main():
