@@ -15,26 +15,22 @@ def validate_month(value):
 def validate_lifetime(value):
     validate_param(value)
     if value < 2:
-         raise ValueError('Значение должно быть больше либо равно единице')
+         raise ValueError('Значение должно быть больше либо равно двойке')
 
-def rabbit_life_req(couple, que, cur_month, lifetime):
+def rabbit_life_req(couple_birth, que, lifetime, finalMonth):
     count = 1
-
-    if cur_month >= couple + PUBERTY_TIME:
-        children_count = cur_month - (couple + PUBERTY_TIME)
-        for _ in range(children_count):
-            que.enqueue(cur_month)
-            count += rabbit_life_req(cur_month, que, cur_month, lifetime)
-
-
-
-    if cur_month == couple + lifetime:
-        que.dequeue()
-        count -= 1
-        new_oldest_couple = que.peek()
-        count += rabbit_life_req(new_oldest_couple, que, cur_month, lifetime)
-
+    death_month = couple_birth + lifetime
+    first_parenting_month = couple_birth + PUBERTY_TIME
+    for month in range(first_parenting_month, finalMonth):
+        que.enqueue(month)
+        count += rabbit_life_req(month, que, lifetime, finalMonth)
+        
+        if death_month == month:
+            count -= 1
+            que.dequeue()
+            break
     return count
+
 
 
 def rabbits(month: int, lifetime: int) -> int:
@@ -55,15 +51,12 @@ def rabbits(month: int, lifetime: int) -> int:
     """
     validate_month(month)
     validate_lifetime(lifetime)
-
+    count = 0
     que = Queue()
-    que.enqueue(1)
-    count = 1
-    
-    for cur_month in range(2, month):
-        couple = que.peek()
-        count += rabbit_life_req(couple, que, cur_month, lifetime)
-     
+    que.enqueue(0)
+    first_couple_birth = que.peek()
+    count += rabbit_life_req(first_couple_birth, que,  lifetime, month)
+        
     return count
 
 
