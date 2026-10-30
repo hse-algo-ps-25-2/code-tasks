@@ -2,20 +2,23 @@ from queue import Queue
 
 PUBERTY_TIME = 2
 
+
 def validate_param(value):
-    if not isinstance(value, int):
-        raise TypeError('Значение должно быть числом')
+    if not isinstance(value, int) or isinstance(value, bool):
+        raise TypeError("Значение должно быть числом")
 
 
 def validate_month(value):
     validate_param(value)
     if value < 1:
-         raise ValueError('Значение должно быть больше либо равно единице')
+        raise ValueError("Значение должно быть больше либо равно единице")
+
 
 def validate_lifetime(value):
     validate_param(value)
     if value < 2:
-         raise ValueError('Значение должно быть больше либо равно двойке')
+        raise ValueError("Значение должно быть больше либо равно двойке")
+
 
 def rabbit_life_req(couple_birth, que, lifetime, finalMonth):
     count = 1
@@ -24,13 +27,12 @@ def rabbit_life_req(couple_birth, que, lifetime, finalMonth):
     for month in range(first_parenting_month, finalMonth):
         que.enqueue(month)
         count += rabbit_life_req(month, que, lifetime, finalMonth)
-        
+
         if death_month == month:
             count -= 1
             que.dequeue()
             break
     return count
-
 
 
 def rabbits(month: int, lifetime: int) -> int:
@@ -55,8 +57,8 @@ def rabbits(month: int, lifetime: int) -> int:
     que = Queue()
     que.enqueue(0)
     first_couple_birth = que.peek()
-    count += rabbit_life_req(first_couple_birth, que,  lifetime, month)
-        
+    count += rabbit_life_req(first_couple_birth, que, lifetime, month)
+
     return count
 
 

@@ -1,5 +1,6 @@
 from doubly_linked_list import DoublyLinkedList
 
+
 class Queue:
     """Структура данных Очередь"""
 
@@ -29,7 +30,7 @@ class Queue:
         :return: удалённое значение
         """
         if self.is_empty():
-            raise IndexError('очередь пуста')
+            raise IndexError("очередь пуста")
         first = self.peek()
         self.list.remove(first)
         return first
@@ -41,7 +42,6 @@ class Queue:
         :return: значение в начале
         """
         if self.is_empty():
-            raise IndexError('очередь пуста')
-        
-        return self.list.head.value
+            raise IndexError("очередь пуста")
 
+        return self.list.head.value
