@@ -1,5 +1,8 @@
 from linked_list import LinkedList
 
+CANNOT_EMPTY_STACK_POP = "Нельзя снять элемент с пустого стека"
+CANNOT_EMPTY_STACK_PEEK = "Нельзя посмотреть вершину пустого стека"
+
 
 class Stack:
     """Стек на готовом односвязном списке.
@@ -24,7 +27,7 @@ class Stack:
 
         :param value: новое значение вершины
         """
-        pass
+        self.stack.insert(0, value)
 
     def pop(self):
         """Снимает и возвращает вершину.
@@ -32,7 +35,11 @@ class Stack:
         :raises IndexError: стек пуст
         :return: снятое значение
         """
-        pass
+        if self.is_empty():
+            raise IndexError(CANNOT_EMPTY_STACK_POP)
+        value = self.stack.head.value
+        self.stack.remove(value)
+        return value
 
     def peek(self):
         """Возвращает вершину, не снимая её.
@@ -40,4 +47,6 @@ class Stack:
         :raises IndexError: стек пуст
         :return: значение вершины
         """
-        pass
+        if self.is_empty():
+            raise IndexError(CANNOT_EMPTY_STACK_PEEK)
+        return self.stack.head.value
