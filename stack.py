@@ -1,3 +1,6 @@
+from linked_list import LinkedList
+
+
 class Stack:
     """Стек на готовом односвязном списке.
 
@@ -6,15 +9,15 @@ class Stack:
 
     def __init__(self):
         """Создаёт пустой стек."""
-        pass
+        self.stack = LinkedList()
 
     def is_empty(self) -> bool:
         """Возвращает True, если стек пуст."""
-        pass
+        return self.__len__() == 0
 
     def __len__(self) -> int:
         """Возвращает число элементов."""
-        pass
+        return self.stack.size
 
     def push(self, value):
         """Кладёт элемент на вершину.
