@@ -5,12 +5,12 @@ title: Диаграмма классов решения
 ---
 classDiagram
 	DoublyLinkedList "1" *-- "*" DoublyListNode : композиция
-    Que "1" *-- "1" DoublyLinkedList : композиция
+    Queue "1" *-- "1" DoublyLinkedList : композиция
     
     class DoublyLinkedList{
 	    +head
 	    +tail
-	    +Number size
+	    +int size
 	    +append()
 	    +insert()
 	    +remove()
@@ -26,7 +26,7 @@ classDiagram
         +DoublyListNode prev
         +DoublyListNode next
     }
-    class Que{
+    class Queue{
        +DoublyLinkedList list
        +enqueue()
        +dequeue()
