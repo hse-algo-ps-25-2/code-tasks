@@ -1,3 +1,4 @@
+from constants import PAIRS, Exceptions
 from stack import Stack
 
 
@@ -11,9 +12,23 @@ def is_brackets_balanced(expression: str) -> bool:
 
     :param expression: проверяемая строка
     :raises TypeError: аргумент не строка
-    :return: True, если скобки расставлены верно
+    :return: True, если скобки расставлены верно, False в ином случае
     """
-    pass
+    if not isinstance(expression, str):
+        raise TypeError(Exceptions.INVALID_TYPE_BRACKETS)
+
+    stack = Stack()
+
+    for char in expression:
+        if char in PAIRS.values():
+            stack.push(char)
+
+        elif char in PAIRS.keys():
+            if stack.is_empty() or stack.peek() != PAIRS[char]:
+                return False
+
+            stack.pop()
+    return stack.is_empty()
 
 
 def main():

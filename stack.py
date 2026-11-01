@@ -1,7 +1,5 @@
+from constants import Exceptions
 from linked_list import LinkedList
-
-CANNOT_EMPTY_STACK_POP = "Нельзя снять элемент с пустого стека"
-CANNOT_EMPTY_STACK_PEEK = "Нельзя посмотреть вершину пустого стека"
 
 
 class Stack:
@@ -36,7 +34,7 @@ class Stack:
         :return: снятое значение
         """
         if self.is_empty():
-            raise IndexError(CANNOT_EMPTY_STACK_POP)
+            raise IndexError(Exceptions.CANNOT_EMPTY_STACK_POP)
         value = self._items.head.value
         self._items.remove(value)
         return value
@@ -48,5 +46,5 @@ class Stack:
         :return: значение вершины
         """
         if self.is_empty():
-            raise IndexError(CANNOT_EMPTY_STACK_PEEK)
+            raise IndexError(Exceptions.CANNOT_EMPTY_STACK_PEEK)
         return self._items.head.value
