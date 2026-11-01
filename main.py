@@ -20,21 +20,6 @@ def validate_lifetime(value):
         raise ValueError("Значение должно быть больше либо равно двойке")
 
 
-def rabbit_life_req(couple_birth, que, lifetime, finalMonth):
-    count = 1
-    death_month = couple_birth + lifetime
-    first_parenting_month = couple_birth + PUBERTY_TIME
-    for month in range(first_parenting_month, finalMonth):
-        que.enqueue(month)
-        count += rabbit_life_req(month, que, lifetime, finalMonth)
-
-        if death_month == month:
-            count -= 1
-            que.dequeue()
-            break
-    return count
-
-
 def rabbits(month: int, lifetime: int) -> int:
     """Возвращает количество живых пар кроликов в месяце month.
 
@@ -55,9 +40,20 @@ def rabbits(month: int, lifetime: int) -> int:
     validate_lifetime(lifetime)
     count = 0
     que = Queue()
-    que.enqueue(0)
-    first_couple_birth = que.peek()
-    count += rabbit_life_req(first_couple_birth, que, lifetime, month)
+    que.enqueue(1)
+
+    while not que.is_empty():
+        birth_month = que.dequeue()
+        death_month = birth_month + lifetime
+
+        if birth_month <= month and month < death_month:
+            count += 1
+
+        first_parenting_month = birth_month + PUBERTY_TIME
+        last_parenting_month = min(month, death_month)
+
+        for rabbit_born_month in range(first_parenting_month, last_parenting_month + 1):
+            que.enqueue(rabbit_born_month)
 
     return count
 
