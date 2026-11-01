@@ -12,22 +12,22 @@ class Stack:
 
     def __init__(self):
         """Создаёт пустой стек."""
-        self.stack = LinkedList()
+        self._items = LinkedList()
 
     def is_empty(self) -> bool:
         """Возвращает True, если стек пуст."""
-        return self.__len__() == 0
+        return self._items.head is None
 
     def __len__(self) -> int:
         """Возвращает число элементов."""
-        return self.stack.size
+        return len(self._items)
 
     def push(self, value):
         """Кладёт элемент на вершину.
 
         :param value: новое значение вершины
         """
-        self.stack.insert(0, value)
+        self._items.insert(0, value)
 
     def pop(self):
         """Снимает и возвращает вершину.
@@ -37,8 +37,8 @@ class Stack:
         """
         if self.is_empty():
             raise IndexError(CANNOT_EMPTY_STACK_POP)
-        value = self.stack.head.value
-        self.stack.remove(value)
+        value = self._items.head.value
+        self._items.remove(value)
         return value
 
     def peek(self):
@@ -49,4 +49,4 @@ class Stack:
         """
         if self.is_empty():
             raise IndexError(CANNOT_EMPTY_STACK_PEEK)
-        return self.stack.head.value
+        return self._items.head.value
