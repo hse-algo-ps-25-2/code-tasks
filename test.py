@@ -8,7 +8,7 @@ def _same_items(left, right):
     pending = list(right)
     for item in left:
         for index, candidate in enumerate(pending):
-            if candidate == item:
+            if type(candidate) is type(item) and candidate == item:
                 del pending[index]
                 break
         else:
@@ -23,7 +23,7 @@ def _assert_all_permutations(test_case, permutations, elements):
     for permutation in permutations:
         test_case.assertIsInstance(permutation, list)
         test_case.assertTrue(_same_items(permutation, elements))
-        snapshot = list(permutation)
+        snapshot = [(type(element), element) for element in permutation]
         test_case.assertNotIn(snapshot, seen)
         seen.append(snapshot)
 
