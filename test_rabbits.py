@@ -28,6 +28,7 @@ class TestRabbits(unittest.TestCase):
         self.assertRaises(ValueError, rabbits, -1, 2)
         self.assertRaises(ValueError, rabbits, 1, 1)
         self.assertRaises(ValueError, rabbits, 2, 0)
+        self.assertRaises(ValueError, rabbits, 2, -2)
 
     def test_first_months(self):
         """До первой смерти численность совпадает с числами Фибоначчи."""
