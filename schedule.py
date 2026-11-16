@@ -1,4 +1,5 @@
 from abstract_schedule import AbstractSchedule
+from schedule_item import ScheduleItem
 from task import Task
 
 
@@ -59,4 +60,31 @@ class Schedule(AbstractSchedule):
         """Процедура составляет расписание из элементов ScheduleItem для каждого
         исполнителя, на основе исходного списка задач и общей продолжительности
         расписания."""
-        pass
+        t_opt = self._duration
+
+        task_idx = 0
+        task_offset = 0.0
+
+        for executor_idx in range(self.executor_count):
+            cursor = 0.0
+
+            while cursor < t_opt and task_idx < self.task_count:
+                task = self._tasks[task_idx]
+                remaining = task.duration - task_offset
+                piece = min(remaining, t_opt - cursor)
+
+                if piece > 0:
+                    self._executor_schedule[executor_idx].append(
+                        ScheduleItem(task, cursor, piece)
+                    )
+                    cursor += piece
+                    task_offset += piece
+
+                if task_offset >= task.duration:
+                    task_idx += 1
+                    task_offset = 0.0
+
+            if cursor < t_opt:
+                self._executor_schedule[executor_idx].append(
+                    ScheduleItem(None, cursor, t_opt - cursor)
+                )
