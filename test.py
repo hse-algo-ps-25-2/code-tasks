@@ -21,6 +21,30 @@ class TestShortestPath(unittest.TestCase):
         ):
             shortest_path(None, 0, 0)
 
+    def test_empty_list(self):
+        """Орграф передают списком списков"""
+        with self.assertRaisesRegex(TypeError, "Граф не должен быть пустым"):
+            shortest_path([], 0, 0)
+
+    def test_edge_not_a_list(self):
+        """Орграф передают списком списков"""
+        with self.assertRaisesRegex(
+            TypeError, "Граф задают списком списков целых номеров вершин"
+        ):
+            shortest_path([None], 0, 0)
+
+    def test_invalid_type_vertex(self):
+        """Орграф передают списком списков"""
+        with self.assertRaisesRegex(
+            TypeError, "Граф задают списком списков целых номеров вершин"
+        ):
+            shortest_path([[True]], 0, 0)
+
+    def test_invalid_value_vertex(self):
+        """Орграф передают списком списков"""
+        with self.assertRaisesRegex(ValueError, "Номер вершины вне диапазона"):
+            shortest_path([[2]], 0, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

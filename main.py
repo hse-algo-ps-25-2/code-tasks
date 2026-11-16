@@ -1,4 +1,7 @@
-from enum import IntEnum
+from enum import IntEnum, StrEnum
+from queue import Queue
+
+from unreachable_vertex_error import UnreachableVertexError
 
 
 class VertexState(IntEnum):
@@ -7,6 +10,37 @@ class VertexState(IntEnum):
     UNOPENED = 0
     OPEN = 1
     PROCESSED = 2
+
+class ErrorMessages(StrEnum):
+    """Перечисление сообщений об ошибках"""
+    TYPE_ERROR = "Граф задают списком списков целых номеров вершин"
+    VALUE_ERROR = "Номер вершины вне диапазона"
+    EMPTY_ERROR = "Граф не должен быть пустым"
+
+
+def validate_graph(graph: list[list[int]]):
+    if not isinstance(graph, list):
+        raise TypeError(ErrorMessages.TYPE_ERROR)
+    if len(graph) == 0:
+        raise TypeError(ErrorMessages.EMPTY_ERROR)
+
+    if (
+        not isinstance(graph, list)
+        or not all(isinstance(sublist, list) for sublist in graph)
+        or not all(
+            (isinstance(item_of_sublist, int) or isinstance(item_of_sublist, float))
+            and not isinstance(item_of_sublist, bool)
+            for sublist in graph
+            for item_of_sublist in sublist
+        )
+    ):
+        raise TypeError(ErrorMessages.TYPE_ERROR)
+    if not all(
+        (item_of_sublist >= 0 and item_of_sublist < len(graph))
+        for sublist in graph
+        for item_of_sublist in sublist
+    ):
+        raise ValueError(ErrorMessages.VALUE_ERROR)
 
 
 def shortest_path(graph: list[list[int]], start: int, goal: int) -> list[int]:
@@ -26,7 +60,15 @@ def shortest_path(graph: list[list[int]], start: int, goal: int) -> list[int]:
     :raises UnreachableVertexError: Вершина недостижима
     :return: вершины кратчайшего пути
     """
-    pass
+    validate_graph(graph)
+    queue = Queue()
+    queue.enqueue(start)
+    path = []
+
+    if len(path) == 0:
+        raise UnreachableVertexError("Вершина недостижима")
+
+    return path
 
 
 def main():
