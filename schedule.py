@@ -51,7 +51,9 @@ class Schedule(AbstractSchedule):
 
     def __calculate_duration(self) -> float:
         """Вычисляет и возвращает минимальную продолжительность расписания"""
-        pass
+        total_duration = sum(task.duration for task in self._tasks)
+        max_task_duration = max(task.duration for task in self._tasks)
+        return float(max(max_task_duration, total_duration / self.executor_count))
 
     def __fill_schedule_for_each_executor(self) -> None:
         """Процедура составляет расписание из элементов ScheduleItem для каждого
