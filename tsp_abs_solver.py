@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from collections import namedtuple
+from itertools import pairwise
 
 from error_message_enum import ErrorMessageEnum
 
@@ -42,7 +43,7 @@ class AbstractTspSolver(ABC):
         :param dist_matrix: матрица расстояний
         :param path: вершины маршрута
         """
-        pass
+        return sum(dist_matrix[start][end] for start, end in pairwise(path))
 
     def _validate_params(self, matrix: list[list[NullableNumber]]) -> None:
         """Проверяет, что матрица прямоугольная и длины рёбер неотрицательны."""
