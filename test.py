@@ -138,6 +138,138 @@ class TestSchedule(unittest.TestCase):
         self.assertCountEqual(executor2_schedule, schedule.get_schedule_for_executor(1))
 
 
+class TestScheduleTeam(unittest.TestCase):
+    """Дополнительные тесты команды для ленточного расписания"""
+
+    def test_duration_balanced_between_executors(self):
+        """Проверяет, что продолжительность расписания определяется средней
+        загрузкой исполнителей, когда самая длинная задача её не превышает."""
+        task_a = Task("a", 4)
+        task_b = Task("b", 4)
+        schedule = Schedule([task_a, task_b], 2)
+        self.assertEqual(4, schedule.duration)
+        executor1_schedule = [ScheduleItem(task_a, 0, task_a.duration)]
+        executor2_schedule = [ScheduleItem(task_b, 0, task_b.duration)]
+        self.assertCountEqual(executor1_schedule, schedule.get_schedule_for_executor(0))
+        self.assertCountEqual(executor2_schedule, schedule.get_schedule_for_executor(1))
+
+    def test_duration_dominated_by_longest_task(self):
+        """Проверяет, что продолжительность расписания определяется самой
+        длинной задачей, когда она превышает среднюю загрузку исполнителей."""
+        task_a = Task("a", 10)
+        task_b = Task("b", 1)
+        task_c = Task("c", 1)
+        schedule = Schedule([task_a, task_b, task_c], 3)
+        self.assertEqual(10, schedule.duration)
+        # Вторая лента (задачи b и c) целиком попадает на второго
+        # исполнителя, оставшееся окно заполняется простоем.
+        executor2_schedule = [
+            ScheduleItem(task_b, 0, task_b.duration),
+            ScheduleItem(task_c, task_b.duration, task_c.duration),
+            ScheduleItem(None, task_b.duration + task_c.duration, 8),
+        ]
+        executor3_schedule = [ScheduleItem(None, 0, schedule.duration)]
+        self.assertCountEqual(executor2_schedule, schedule.get_schedule_for_executor(1))
+        self.assertCountEqual(executor3_schedule, schedule.get_schedule_for_executor(2))
+
+    def test_duration_fractional(self):
+        """Проверяет, что продолжительность расписания может оказаться
+        дробной, если суммарное время задач не делится нацело на количество
+        исполнителей."""
+        task_a = Task("a", 1)
+        task_b = Task("b", 1)
+        task_c = Task("c", 1)
+        schedule = Schedule([task_a, task_b, task_c], 2)
+        self.assertAlmostEqual(1.5, schedule.duration)
+
+    def test_task_split_between_executors(self):
+        """Проверяет, что одна задача может быть разделена между несколькими
+        исполнителями при ленточном распределении."""
+        task_a = Task("a", 1)
+        task_b = Task("b", 3)
+        task_c = Task("c", 2)
+        schedule = Schedule([task_a, task_b, task_c], 2)
+        self.assertEqual(3, schedule.duration)
+        executor1_schedule = [
+            ScheduleItem(task_a, 0, task_a.duration),
+            ScheduleItem(task_b, task_a.duration, 2),
+        ]
+        executor2_schedule = [
+            ScheduleItem(task_b, 0, 1),
+            ScheduleItem(task_c, 1, task_c.duration),
+        ]
+        self.assertCountEqual(executor1_schedule, schedule.get_schedule_for_executor(0))
+        self.assertCountEqual(executor2_schedule, schedule.get_schedule_for_executor(1))
+
+    def test_no_downtime_when_balanced(self):
+        """Проверяет, что при равномерном распределении задач простой в окне
+        исполнителей отсутствует."""
+        tasks = [Task("a", 1), Task("b", 1), Task("c", 1), Task("d", 1)]
+        schedule = Schedule(tasks, 2)
+        self.assertEqual(2, schedule.duration)
+        for executor_index in range(schedule.executor_count):
+            for piece in schedule.get_schedule_for_executor(executor_index):
+                self.assertFalse(piece.is_downtime)
+
+    def test_idle_executors_full_downtime(self):
+        """Проверяет, что исполнители, которым не досталось ни одного
+        фрагмента ленты, простаивают всё окно расписания."""
+        task_a = Task("a", 2)
+        task_b = Task("b", 2)
+        schedule = Schedule([task_a, task_b], 4)
+        self.assertEqual(2, schedule.duration)
+        for executor_index in (2, 3):
+            executor_schedule = schedule.get_schedule_for_executor(executor_index)
+            self.assertEqual(1, len(executor_schedule))
+            piece = executor_schedule[0]
+            self.assertTrue(piece.is_downtime)
+            self.assertEqual(0, piece.start)
+            self.assertEqual(schedule.duration, piece.end)
+
+    def test_schedule_coverage_property(self):
+        """Проверяет инварианты ленточного расписания: элементы каждого
+        исполнителя непрерывно покрывают окно расписания, а суммарные доли
+        задач совпадают с их исходной продолжительностью."""
+        tasks = [Task("a", 1), Task("b", 2), Task("c", 3)]
+        schedule = Schedule(tasks, 2)
+
+        total_duration = sum(task.duration for task in tasks)
+        maximum_task_duration = max(task.duration for task in tasks)
+        expected_duration = max(maximum_task_duration, total_duration / 2)
+        self.assertEqual(expected_duration, schedule.duration)
+
+        allocated_durations = {task.name: 0 for task in tasks}
+        for executor_index in range(schedule.executor_count):
+            position = 0
+            for piece in schedule.get_schedule_for_executor(executor_index):
+                self.assertEqual(position, piece.start)
+                position = piece.end
+                if not piece.is_downtime:
+                    allocated_durations[piece.task_name] += piece.duration
+            self.assertEqual(schedule.duration, position)
+
+        for task in tasks:
+            self.assertEqual(task.duration, allocated_durations[task.name])
+
+    def test_three_task_three_executor_no_downtime(self):
+        """Проверяет граничный случай, когда число задач совпадает с числом
+        исполнителей и каждая задача целиком помещается в своё окно."""
+        task_a = Task("a", 3)
+        task_b = Task("b", 3)
+        task_c = Task("c", 3)
+        schedule = Schedule([task_a, task_b, task_c], 3)
+        self.assertEqual(3, schedule.duration)
+        expected_schedules = (
+            [ScheduleItem(task_a, 0, task_a.duration)],
+            [ScheduleItem(task_b, 0, task_b.duration)],
+            [ScheduleItem(task_c, 0, task_c.duration)],
+        )
+        for executor_index, expected in enumerate(expected_schedules):
+            self.assertCountEqual(
+                expected, schedule.get_schedule_for_executor(executor_index)
+            )
+
+
 class TestTask(unittest.TestCase):
     name = "a"
     duration = 1
@@ -206,7 +338,6 @@ class TestTask(unittest.TestCase):
 
 
 class TestScheduleItem(unittest.TestCase):
-
     def test_init_not_number_start(self):
         """Проверяет выброс исключения при некорректном указании времени
         начала выполнения задачи - передано не число"""
