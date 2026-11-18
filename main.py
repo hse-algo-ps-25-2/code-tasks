@@ -31,9 +31,10 @@ def _validate_graph(graph: list[list[int]], start: int, goal: int):
 
     for edge in graph:
         _validate_edge(edge, vertex_count)
-    
+
     _validate_vertex(start, vertex_count, ErrorMessages.VERTEX_TYPE_ERROR)
     _validate_vertex(goal, vertex_count, ErrorMessages.VERTEX_TYPE_ERROR)
+
 
 def _validate_edge(edge: list[int], vertex_count: int):
     if not isinstance(edge, list):
