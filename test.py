@@ -138,6 +138,73 @@ class TestSchedule(unittest.TestCase):
         self.assertCountEqual(executor2_schedule, schedule.get_schedule_for_executor(1))
 
 
+
+    def test_duration_by_average_load(self):
+            """Проверяет случай, когда средняя загрузка больше самой длинной задачи."""
+            tasks = [
+                Task("a", 8),
+                Task("b", 7),
+                Task("c", 7),
+                Task("d", 6),
+                Task("e", 6),
+                Task("f", 5),
+                Task("g", 5),
+                Task("h", 6),
+            ]
+            schedule = Schedule(tasks, 5)
+            self.assertEqual(10, schedule.duration)
+    
+    def test_duration_by_longest_task(self):
+        """Проверяет случай, когда самая длинная задача задает длину расписания."""
+        tasks = [Task("a", 17), Task("b", 3)]
+        schedule = Schedule(tasks, 5)
+        self.assertEqual(17, schedule.duration)
+    
+    def test_task_split_between_executors(self):
+        """Проверяет разрез задачи на границе окон двух исполнителей."""
+        task_a = Task("a", 6)
+        task_b = Task("b", 6)
+        task_c = Task("c", 6)
+        schedule = Schedule([task_a, task_b, task_c], 2)
+    
+        executor1_schedule = (
+            ScheduleItem(task_a, 0, 6),
+            ScheduleItem(task_b, 6, 3),
+        )
+        executor2_schedule = (
+            ScheduleItem(task_b, 0, 3),
+            ScheduleItem(task_c, 3, 6),
+        )
+    
+        self.assertEqual(9, schedule.duration)
+        self.assertEqual(executor1_schedule, schedule.get_schedule_for_executor(0))
+        self.assertEqual(executor2_schedule, schedule.get_schedule_for_executor(1))
+    
+    def test_unused_executors_have_downtime(self):
+        """Проверяет полный простой исполнителей, которым не досталась лента."""
+        task_a = Task("a", 2)
+        schedule = Schedule([task_a], 4)
+  
+        self.assertEqual(
+            (ScheduleItem(task_a, 0, 2),),
+            schedule.get_schedule_for_executor(0),
+        )
+        for executor_idx in range(1, 4):
+            self.assertEqual(
+                (ScheduleItem(None, 0, 2),),
+                schedule.get_schedule_for_executor(executor_idx),
+            )
+    
+    def test_float_task_durations(self):
+        """Проверяет построение расписания для вещественных длительностей."""
+        tasks = [Task("a", 0.1), Task("b", 0.2), Task("c", 0.3)]
+        schedule = Schedule(tasks, 2)
+    
+        self.assertAlmostEqual(0.3, schedule.duration)
+        for executor_idx in range(schedule.executor_count):
+            for item in schedule.get_schedule_for_executor(executor_idx):
+                self.assertGreater(item.duration, 0)
+                self.assertLessEqual(item.end, schedule.duration + 1e-12)
 class TestTask(unittest.TestCase):
     name = "a"
     duration = 1
