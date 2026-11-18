@@ -11,36 +11,40 @@ class VertexState(IntEnum):
     OPEN = 1
     PROCESSED = 2
 
+
 class ErrorMessages(StrEnum):
     """Перечисление сообщений об ошибках"""
-    TYPE_ERROR = "Граф задают списком списков целых номеров вершин"
-    VALUE_ERROR = "Номер вершины вне диапазона"
-    EMPTY_ERROR = "Граф не должен быть пустым"
+
+    GRAPH_TYPE_ERROR = "Граф задают списком списков целых номеров вершин"
+    GRAPH_EMPTY_ERROR = "Граф не должен быть пустым"
+    VERTEX_VALUE_ERROR = "Номер вершины вне диапазона"
+    VERTEX_TYPE_ERROR = "Номер вершины должен быть целым числом"
 
 
 def validate_graph(graph: list[list[int]]):
     if not isinstance(graph, list):
-        raise TypeError(ErrorMessages.TYPE_ERROR)
+        raise TypeError(ErrorMessages.GRAPH_TYPE_ERROR)
     if len(graph) == 0:
-        raise TypeError(ErrorMessages.EMPTY_ERROR)
+        raise TypeError(ErrorMessages.GRAPH_EMPTY_ERROR)
+    vertex_count = len(graph)
+    for edge in graph:
+        validate_edge(edge, vertex_count)
 
-    if (
-        not isinstance(graph, list)
-        or not all(isinstance(sublist, list) for sublist in graph)
-        or not all(
-            (isinstance(item_of_sublist, int) or isinstance(item_of_sublist, float))
-            and not isinstance(item_of_sublist, bool)
-            for sublist in graph
-            for item_of_sublist in sublist
-        )
-    ):
-        raise TypeError(ErrorMessages.TYPE_ERROR)
-    if not all(
-        (item_of_sublist >= 0 and item_of_sublist < len(graph))
-        for sublist in graph
-        for item_of_sublist in sublist
-    ):
-        raise ValueError(ErrorMessages.VALUE_ERROR)
+
+def validate_edge(edge: list[int], vertex_count: int):
+    if not isinstance(edge, list):
+        raise TypeError(ErrorMessages.GRAPH_TYPE_ERROR)
+
+    for vertex in edge:
+        validate_vertex(vertex, vertex_count)
+
+
+def validate_vertex(vertex: int, vertex_count: int):
+    if not isinstance(vertex, int) or isinstance(vertex, bool):
+        raise TypeError(ErrorMessages.VERTEX_TYPE_ERROR)
+
+    if not (vertex >= 0 and vertex < vertex_count):
+        raise ValueError(ErrorMessages.VERTEX_VALUE_ERROR)
 
 
 def shortest_path(graph: list[list[int]], start: int, goal: int) -> list[int]:
@@ -61,14 +65,42 @@ def shortest_path(graph: list[list[int]], start: int, goal: int) -> list[int]:
     :return: вершины кратчайшего пути
     """
     validate_graph(graph)
+    vertex_count = len(graph)
+    validate_vertex(start, vertex_count)
+    validate_vertex(goal, vertex_count)
+
     queue = Queue()
     queue.enqueue(start)
-    path = []
 
-    if len(path) == 0:
-        raise UnreachableVertexError("Вершина недостижима")
+    parent: list[int | None] = [None] * vertex_count
+    visited = [False] * vertex_count
+    visited[start] = True
 
-    return path
+    while not queue.is_empty():
+        vertex = queue.dequeue()
+
+        if vertex == goal:
+            break
+
+        for sibling_vertex in graph[vertex]:
+            if not visited[sibling_vertex]:
+                visited[sibling_vertex] = True
+                parent[sibling_vertex] = vertex
+                queue.enqueue(sibling_vertex)
+
+    if not visited[goal]:
+        raise UnreachableVertexError()
+
+    result = []
+    node = goal
+
+    while node is not None:
+        result.append(node)
+        node = parent[node]
+
+    result.reverse()
+
+    return result
 
 
 def main():
