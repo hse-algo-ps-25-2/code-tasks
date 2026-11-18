@@ -144,6 +144,110 @@ class TestConveyorSchedule(unittest.TestCase):
         self.assertEqual(stage1_schedule, schedule.get_schedule_for_executor(0))
         self.assertEqual(stage2_schedule, schedule.get_schedule_for_executor(1))
 
+    def test_many_tasks(self):
+        """Проверяет составление расписания для набора из семи заданий"""
+        tasks = [
+            StagedTask("a", [7, 2]),
+            StagedTask("b", [3, 4]),
+            StagedTask("c", [2, 5]),
+            StagedTask("d", [4, 1]),
+            StagedTask("e", [6, 6]),
+            StagedTask("f", [5, 3]),
+            StagedTask("g", [4, 5]),
+        ]
+        schedule = ConveyorSchedule(tasks)
+        stage1_schedule = (
+            ScheduleItem(tasks[2], 0, 2),
+            ScheduleItem(tasks[1], 2, 3),
+            ScheduleItem(tasks[6], 5, 4),
+            ScheduleItem(tasks[4], 9, 6),
+            ScheduleItem(tasks[5], 15, 5),
+            ScheduleItem(tasks[0], 20, 7),
+            ScheduleItem(tasks[3], 27, 4),
+            ScheduleItem(None, 31, 1),
+        )
+        stage2_schedule = (
+            ScheduleItem(None, 0, 2),
+            ScheduleItem(tasks[2], 2, 5),
+            ScheduleItem(tasks[1], 7, 4),
+            ScheduleItem(tasks[6], 11, 5),
+            ScheduleItem(tasks[4], 16, 6),
+            ScheduleItem(tasks[5], 22, 3),
+            ScheduleItem(None, 25, 2),
+            ScheduleItem(tasks[0], 27, 2),
+            ScheduleItem(None, 29, 2),
+            ScheduleItem(tasks[3], 31, 1),
+        )
+        self.assertEqual(32, schedule.duration)
+        self.assertEqual(stage1_schedule, schedule.get_schedule_for_executor(0))
+        self.assertEqual(stage2_schedule, schedule.get_schedule_for_executor(1))
+
+    def test_input_order_does_not_change_result(self):
+        """Проверяет, что порядок заданий во входном списке не влияет
+        на расписание"""
+        tasks = [
+            StagedTask("a", [7, 2]),
+            StagedTask("b", [3, 4]),
+            StagedTask("c", [2, 5]),
+            StagedTask("d", [4, 1]),
+            StagedTask("e", [6, 6]),
+            StagedTask("f", [5, 3]),
+            StagedTask("g", [4, 5]),
+        ]
+        schedule = ConveyorSchedule(list(reversed(tasks)))
+        direct_schedule = ConveyorSchedule(tasks)
+        self.assertEqual(direct_schedule.duration, schedule.duration)
+        for executor in range(schedule.executor_count):
+            self.assertEqual(
+                direct_schedule.get_schedule_for_executor(executor),
+                schedule.get_schedule_for_executor(executor),
+            )
+
+    def test_all_tasks_second_group(self):
+        """Проверяет набор, в котором все задания относятся ко второй
+        группе алгоритма Джонсона"""
+        task_a = StagedTask("a", [3, 1])
+        task_b = StagedTask("b", [5, 2])
+        task_c = StagedTask("c", [4, 1])
+        schedule = ConveyorSchedule([task_a, task_b, task_c])
+        stage1_schedule = (
+            ScheduleItem(task_b, 0, 5),
+            ScheduleItem(task_a, 5, 3),
+            ScheduleItem(task_c, 8, 4),
+            ScheduleItem(None, 12, 1),
+        )
+        stage2_schedule = (
+            ScheduleItem(None, 0, 5),
+            ScheduleItem(task_b, 5, 2),
+            ScheduleItem(None, 7, 1),
+            ScheduleItem(task_a, 8, 1),
+            ScheduleItem(None, 9, 3),
+            ScheduleItem(task_c, 12, 1),
+        )
+        self.assertEqual(13, schedule.duration)
+        self.assertEqual(stage1_schedule, schedule.get_schedule_for_executor(0))
+        self.assertEqual(stage2_schedule, schedule.get_schedule_for_executor(1))
+
+    def test_float_durations(self):
+        """Проверяет составление расписания для заданий с дробными
+        длительностями этапов"""
+        task_a = StagedTask("a", [1.5, 2.5])
+        task_b = StagedTask("b", [0.5, 3])
+        schedule = ConveyorSchedule([task_a, task_b])
+        stage1_schedule = (
+            ScheduleItem(task_b, 0, 0.5),
+            ScheduleItem(task_a, 0.5, 1.5),
+            ScheduleItem(None, 2, 4),
+        )
+        stage2_schedule = (
+            ScheduleItem(None, 0, 0.5),
+            ScheduleItem(task_b, 0.5, 3),
+            ScheduleItem(task_a, 3.5, 2.5),
+        )
+        self.assertEqual(6, schedule.duration)
+        self.assertEqual(stage1_schedule, schedule.get_schedule_for_executor(0))
+        self.assertEqual(stage2_schedule, schedule.get_schedule_for_executor(1))
+
 
 class TestTask(unittest.TestCase):
     name = "a"
@@ -351,7 +455,6 @@ class TestStagedTask(unittest.TestCase):
 
 
 class TestScheduleItem(unittest.TestCase):
-
     def test_init_not_number_start(self):
         """Проверяет выброс исключения при некорректном указании времени
         начала выполнения задачи - передано не число"""

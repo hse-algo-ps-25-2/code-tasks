@@ -1,9 +1,10 @@
 from abstract_schedule import AbstractSchedule
 from errors import (
-    ScheduleArgumentError,
     ErrorMessages,
     ErrorTemplates,
+    ScheduleArgumentError,
 )
+from schedule_item import ScheduleItem
 from staged_task import StagedTask
 
 
@@ -55,13 +56,48 @@ class ConveyorSchedule(AbstractSchedule):
     def __fill_schedule(self, tasks: list[StagedTask]) -> None:
         """Процедура составляет расписание из элементов ScheduleItem для каждого
         исполнителя, согласно алгоритму Джонсона."""
-        pass
+        first_executor = self._executor_schedule[0]
+        second_executor = self._executor_schedule[1]
+        for task in tasks:
+            first_duration = task.stage_duration(0)
+            second_duration = task.stage_duration(1)
+
+            first_start = first_executor[-1].end if first_executor else 0
+            first_executor.append(ScheduleItem(task, first_start, first_duration))
+
+            second_free = second_executor[-1].end if second_executor else 0
+            second_start = max(first_executor[-1].end, second_free)
+            if second_start > second_free:
+                second_executor.append(
+                    ScheduleItem(None, second_free, second_start - second_free)
+                )
+            second_executor.append(ScheduleItem(task, second_start, second_duration))
+
+        # Второй исполнитель может закончить позже первого, тогда в конец
+        # расписания первого добавляется простой до этого момента, чтобы
+        # продолжительность расписания совпадала с моментом окончания
+        # последнего интервала первого исполнителя.
+        first_end = first_executor[-1].end
+        second_end = second_executor[-1].end
+        if second_end > first_end:
+            first_executor.append(ScheduleItem(None, first_end, second_end - first_end))
 
     @staticmethod
     def __sort_tasks(tasks: list[StagedTask]) -> list[StagedTask]:
         """Возвращает отсортированный список задач для применения
         алгоритма Джонсона."""
-        pass
+        # Задания с a_i <= b_i идут первыми по возрастанию a_i,
+        # остальные — по убыванию b_i.
+        first_group = []
+        second_group = []
+        for task in tasks:
+            if task.stage_duration(0) <= task.stage_duration(1):
+                first_group.append(task)
+            else:
+                second_group.append(task)
+        first_group.sort(key=lambda task: task.stage_duration(0))
+        second_group.sort(key=lambda task: task.stage_duration(1), reverse=True)
+        return first_group + second_group
 
     @staticmethod
     def __validate_params(tasks: list[StagedTask]) -> None:
