@@ -1,4 +1,5 @@
 import unittest
+from itertools import permutations
 
 from abstract_schedule import AbstractSchedule
 from constants import (
@@ -22,37 +23,28 @@ from task import Task
 
 
 class TestConveyorSchedule(unittest.TestCase):
-    """Примеры конвейерного расписания"""
-
+    
     def test_class_inheritance(self):
-        """Проверяет наследование от класса AbstractSchedule"""
         schedule = ConveyorSchedule([StagedTask("a", [1, 1])])
         self.assertIsInstance(schedule, AbstractSchedule)
 
     def test_none_tasks(self):
-        """Проверяет выброс исключения при передаче некорректного параметра
-        списка задач."""
         with self.assertRaises(ScheduleArgumentError) as error:
             ConveyorSchedule(None)
         self.assertEqual(ErrorMessages.TASKS_NOT_LIST, str(error.exception))
 
     def test_empty_tasks(self):
-        """Проверяет выброс исключения при передаче пустого списка задач."""
         with self.assertRaises(ScheduleArgumentError) as error:
             ConveyorSchedule([])
         self.assertEqual(ErrorMessages.TASKS_EMPTY_LIST, str(error.exception))
 
     def test_tasks_contains_non_task(self):
-        """Проверяет выброс исключения при передаче в списке задачи в
-        некорректном формате."""
         tasks = [StagedTask("a", [1, 1]), StagedTask("b", [1, 1]), "non task object"]
         with self.assertRaises(ScheduleArgumentError) as error:
             ConveyorSchedule(tasks)
         self.assertEqual(ErrorTemplates.INVALID_TASK.format(2), str(error.exception))
 
     def test_not_int_executor_idx(self):
-        """Проверяет выброс исключения при передаче не корректного индекса
-        исполнителя."""
         tasks = [StagedTask("a", [1, 1]), StagedTask("b", [1, 1])]
         schedule = ConveyorSchedule(tasks)
         incorrect_idx = [-1, 1.1, None, "str", []]
@@ -63,8 +55,6 @@ class TestConveyorSchedule(unittest.TestCase):
                 self.assertEqual(ErrorMessages.EXECUTOR_NOT_INT, str(error.exception))
 
     def test_out_of_range_executor_idx(self):
-        """Проверяет выброс исключения при передаче не корректного индекса
-        исполнителя."""
         tasks = [StagedTask("a", [1, 1]), StagedTask("b", [1, 1])]
         schedule = ConveyorSchedule(tasks)
         incorrect_idx = [len(tasks), len(tasks) + 1]
@@ -77,14 +67,12 @@ class TestConveyorSchedule(unittest.TestCase):
                 )
 
     def test_str(self):
-        """Проверяет корректность приведения расписания к строковому типу."""
         tasks = [StagedTask("a", [1, 1]), StagedTask("b", [1, 1])]
         schedule = ConveyorSchedule(tasks)
         str_schedule = SCHEDULE_STR_TEMPL.format(3, 2, 2)
         self.assertEqual(str_schedule, str(schedule))
 
     def test_single_task(self):
-        """Проверяет корректность составления расписания для одной задачи."""
         task_a = StagedTask("a", [1, 2])
         schedule = ConveyorSchedule([task_a])
         stage1_schedule = (
@@ -102,7 +90,6 @@ class TestConveyorSchedule(unittest.TestCase):
         self.assertEqual(stage2_schedule, schedule.get_schedule_for_executor(1))
 
     def test_double_task(self):
-        """Проверяет корректность составления расписания для двух задач."""
         task_a = StagedTask("a", [2, 1])
         task_b = StagedTask("b", [1, 2])
         schedule = ConveyorSchedule([task_a, task_b])
@@ -123,7 +110,6 @@ class TestConveyorSchedule(unittest.TestCase):
         self.assertEqual(stage2_schedule, schedule.get_schedule_for_executor(1))
 
     def test_equal_stages(self):
-        """Проверяет расписание, в котором этапы одной задачи равны"""
         task_a = StagedTask("a", [2, 2])
         task_b = StagedTask("b", [3, 1])
         schedule = ConveyorSchedule([task_a, task_b])
@@ -144,6 +130,181 @@ class TestConveyorSchedule(unittest.TestCase):
         self.assertEqual(stage1_schedule, schedule.get_schedule_for_executor(0))
         self.assertEqual(stage2_schedule, schedule.get_schedule_for_executor(1))
 
+    def test_invalid_stage_count(self):
+        cases = [
+            [StagedTask("a", [1, 1]), StagedTask("b", [1])],
+            [StagedTask("a", [1, 1]), StagedTask("b", [1, 2, 3])],
+        ]
+        for tasks in cases:
+            with self.subTest(tasks=tasks):
+                with self.assertRaises(ScheduleArgumentError) as error:
+                    ConveyorSchedule(tasks)
+                self.assertEqual(
+                    ErrorTemplates.INVALID_STAGE_CNT.format(1), str(error.exception)
+                )
+
+    def test_tasks_contains_simple_task(self):
+        with self.assertRaises(ScheduleArgumentError) as error:
+            ConveyorSchedule([StagedTask("a", [1, 1]), Task("b", 2)])
+        self.assertEqual(ErrorTemplates.INVALID_TASK.format(1), str(error.exception))
+
+    def test_johnson_order(self):
+        tasks = [
+            StagedTask("a", [7, 2]),
+            StagedTask("b", [3, 4]),
+            StagedTask("c", [2, 5]),
+            StagedTask("d", [4, 1]),
+            StagedTask("e", [6, 6]),
+            StagedTask("f", [5, 3]),
+            StagedTask("g", [4, 5]),
+        ]
+        schedule = ConveyorSchedule(tasks)
+        names = [
+            item.task_name
+            for item in schedule.get_schedule_for_executor(0)
+            if not item.is_downtime
+        ]
+        self.assertEqual(["c", "b", "g", "e", "f", "a", "d"], names)
+        self.assertEqual(32, schedule.duration)
+        self.assertEqual(tuple(tasks), schedule.tasks)
+
+    def test_full_schedule(self):
+        task_a = StagedTask("a", [3, 6])
+        task_b = StagedTask("b", [5, 2])
+        task_c = StagedTask("c", [1, 2])
+        task_d = StagedTask("d", [6, 6])
+        task_e = StagedTask("e", [7, 5])
+        schedule = ConveyorSchedule([task_a, task_b, task_c, task_d, task_e])
+        stage1_schedule = (
+            ScheduleItem(task_c, 0, 1),
+            ScheduleItem(task_a, 1, 3),
+            ScheduleItem(task_d, 4, 6),
+            ScheduleItem(task_e, 10, 7),
+            ScheduleItem(task_b, 17, 5),
+            ScheduleItem(None, 22, 2),
+        )
+        stage2_schedule = (
+            ScheduleItem(None, 0, 1),
+            ScheduleItem(task_c, 1, 2),
+            ScheduleItem(None, 3, 1),
+            ScheduleItem(task_a, 4, 6),
+            ScheduleItem(task_d, 10, 6),
+            ScheduleItem(None, 16, 1),
+            ScheduleItem(task_e, 17, 5),
+            ScheduleItem(task_b, 22, 2),
+        )
+        self.assertEqual(24, schedule.duration)
+        self.assertEqual(stage1_schedule, schedule.get_schedule_for_executor(0))
+        self.assertEqual(stage2_schedule, schedule.get_schedule_for_executor(1))
+
+    def test_second_group_only(self):
+        task_a = StagedTask("a", [4, 1])
+        task_b = StagedTask("b", [5, 3])
+        task_c = StagedTask("c", [3, 2])
+        schedule = ConveyorSchedule([task_a, task_b, task_c])
+        stage1_schedule = (
+            ScheduleItem(task_b, 0, 5),
+            ScheduleItem(task_c, 5, 3),
+            ScheduleItem(task_a, 8, 4),
+            ScheduleItem(None, 12, 1),
+        )
+        stage2_schedule = (
+            ScheduleItem(None, 0, 5),
+            ScheduleItem(task_b, 5, 3),
+            ScheduleItem(task_c, 8, 2),
+            ScheduleItem(None, 10, 2),
+            ScheduleItem(task_a, 12, 1),
+        )
+        self.assertEqual(13, schedule.duration)
+        self.assertEqual(stage1_schedule, schedule.get_schedule_for_executor(0))
+        self.assertEqual(stage2_schedule, schedule.get_schedule_for_executor(1))
+
+    def test_no_downtime_in_middle(self):
+        tasks = [StagedTask("a", [1, 5]), StagedTask("b", [2, 4])]
+        schedule = ConveyorSchedule(tasks)
+        second = schedule.get_schedule_for_executor(1)
+        downtimes = [item for item in second if item.is_downtime]
+        self.assertEqual([ScheduleItem(None, 0, 1)], downtimes)
+        self.assertEqual(10, schedule.duration)
+
+    def test_equal_keys_keep_order(self):
+        task_a = StagedTask("a", [2, 5])
+        task_b = StagedTask("b", [2, 3])
+        task_c = StagedTask("c", [6, 1])
+        task_d = StagedTask("d", [4, 1])
+        schedule = ConveyorSchedule([task_a, task_b, task_c, task_d])
+        names = [
+            item.task_name
+            for item in schedule.get_schedule_for_executor(0)
+            if not item.is_downtime
+        ]
+        self.assertEqual(["a", "b", "c", "d"], names)
+
+    def test_float_durations(self):
+        task_a = StagedTask("a", [0.5, 1.5])
+        task_b = StagedTask("b", [2.5, 0.5])
+        schedule = ConveyorSchedule([task_b, task_a])
+        stage1_schedule = (
+            ScheduleItem(task_a, 0, 0.5),
+            ScheduleItem(task_b, 0.5, 2.5),
+            ScheduleItem(None, 3.0, 0.5),
+        )
+        stage2_schedule = (
+            ScheduleItem(None, 0, 0.5),
+            ScheduleItem(task_a, 0.5, 1.5),
+            ScheduleItem(None, 2.0, 1.0),
+            ScheduleItem(task_b, 3.0, 0.5),
+        )
+        self.assertEqual(3.5, schedule.duration)
+        self.assertEqual(stage1_schedule, schedule.get_schedule_for_executor(0))
+        self.assertEqual(stage2_schedule, schedule.get_schedule_for_executor(1))
+
+    def test_schedule_is_correct(self):
+        tasks = [
+            StagedTask("a", [3, 3]),
+            StagedTask("b", [8, 2]),
+            StagedTask("c", [1, 9]),
+            StagedTask("d", [5, 4]),
+            StagedTask("e", [2, 2]),
+            StagedTask("f", [6, 7]),
+        ]
+        schedule = ConveyorSchedule(tasks)
+        first = schedule.get_schedule_for_executor(0)
+        second = schedule.get_schedule_for_executor(1)
+        for row in (first, second):
+            self.assertEqual(0, row[0].start)
+            for prev, cur in zip(row, row[1:]):
+                self.assertEqual(prev.end, cur.start)
+            self.assertEqual(schedule.duration, row[-1].end)
+            tasks_in_row = [item.task_name for item in row if not item.is_downtime]
+            self.assertEqual(len(tasks), len(tasks_in_row))
+
+        stage1_end = {item.task_name: item.end for item in first}
+        for item in second:
+            if not item.is_downtime:
+                self.assertGreaterEqual(item.start, stage1_end[item.task_name])
+
+    def test_optimal_duration(self):
+        tasks = [
+            StagedTask("a", [3, 3]),
+            StagedTask("b", [8, 2]),
+            StagedTask("c", [1, 9]),
+            StagedTask("d", [5, 4]),
+            StagedTask("e", [2, 2]),
+            StagedTask("f", [6, 7]),
+        ]
+        best = min(conveyor_duration(order) for order in permutations(tasks))
+        self.assertEqual(best, ConveyorSchedule(tasks).duration)
+
+
+def conveyor_duration(tasks: list[StagedTask]) -> int | float:
+    first_end = 0
+    second_end = 0
+    for task in tasks:
+        first_end += task.stage_duration(0)
+        second_end = max(first_end, second_end) + task.stage_duration(1)
+    return second_end
+
 
 class TestTask(unittest.TestCase):
     name = "a"
@@ -151,7 +312,6 @@ class TestTask(unittest.TestCase):
     task = Task(name, duration)
 
     def test_init_incorrect_name(self):
-        """Проверяет выброс исключения при некорректном названии задачи"""
         incorrect_name_values = [None, 1, 1.1, True, []]
         for value in incorrect_name_values:
             with self.assertRaises(TaskArgumentError) as error:
@@ -159,15 +319,11 @@ class TestTask(unittest.TestCase):
             self.assertEqual(ErrorMessages.NOT_STR_NAME, str(error.exception))
 
     def test_init_empty_name(self):
-        """Проверяет выброс исключения если название задачи является пустой
-        строкой"""
         with self.assertRaises(TaskArgumentError) as error:
             Task("", self.duration)
         self.assertEqual(ErrorMessages.EMPTY_NAME, str(error.exception))
 
     def test_init_incorrect_duration(self):
-        """Проверяет выброс исключения при некорректной продолжительности
-        задачи"""
         incorrect_duration_values = [None, "1", []]
         for value in incorrect_duration_values:
             with self.assertRaises(TaskArgumentError) as error:
@@ -175,8 +331,6 @@ class TestTask(unittest.TestCase):
             self.assertEqual(ErrorMessages.NOT_NUMBER_DUR, str(error.exception))
 
     def test_init_non_positive_duration(self):
-        """Проверяет выброс исключения если продолжительность задачи меньше или
-        равна нулю"""
         incorrect_name_values = [0, -1, -0.1]
         for value in incorrect_name_values:
             with self.assertRaises(TaskArgumentError) as error:
@@ -184,28 +338,23 @@ class TestTask(unittest.TestCase):
             self.assertEqual(ErrorMessages.NEG_NUMBER_DUR, str(error.exception))
 
     def test_str(self):
-        """Проверка приведения задачи к строковому типу"""
         self.assertEqual(
             TASK_STR_TEMPL.format(self.name, self.duration), str(self.task)
         )
 
     def test_name_property(self):
-        """Проверка свойства name"""
         self.assertEqual(self.task.name, self.name)
 
     def test_duration_property(self):
-        """Проверка свойства duration"""
         self.assertEqual(self.task.duration, self.duration)
 
     def test_eq(self):
-        """Проверка операции эквивалентности заданий"""
         task1 = Task("a", 1)
         task2 = Task("a", 1)
         self.assertTrue(task1 == task2)
         self.assertTrue(hash(task1) == hash(task2))
 
     def test_not_eq(self):
-        """Проверка операции неэквивалентности заданий"""
         task1 = Task("a", 1)
         task2 = Task("a", 1.1)
         self.assertTrue(task1 != task2)
@@ -221,11 +370,9 @@ class TestStagedTask(unittest.TestCase):
     task = StagedTask(name, stage_durations)
 
     def test_class_inheritance(self):
-        """Проверяет наследование от класса Task"""
         self.assertIsInstance(self.task, Task)
 
     def test_init_incorrect_name(self):
-        """Проверяет выброс исключения при некорректном названии задачи"""
         incorrect_name_values = [None, 1, 1.1, True, []]
         for value in incorrect_name_values:
             with (
@@ -236,15 +383,11 @@ class TestStagedTask(unittest.TestCase):
             self.assertEqual(ErrorMessages.NOT_STR_NAME, str(error.exception))
 
     def test_init_empty_name(self):
-        """Проверяет выброс исключения если название задачи является пустой
-        строкой"""
         with self.assertRaises(TaskArgumentError) as error:
             StagedTask("", self.stage_durations)
         self.assertEqual(ErrorMessages.EMPTY_NAME, str(error.exception))
 
     def test_init_not_list_duration(self):
-        """Проверяет выброс исключения при некорректном типе данных списка
-        этапов задачи"""
         incorrect_durations_values = [None, "1", {}]
         for value in incorrect_durations_values:
             with (
@@ -255,15 +398,12 @@ class TestStagedTask(unittest.TestCase):
             self.assertEqual(ErrorMessages.NOT_LIST_DUR, str(error.exception))
 
     def test_init_empty_list_duration(self):
-        """Проверяет выброс исключения при передаче пустого списка этапов
-        задачи"""
+
         with self.assertRaises(TaskArgumentError) as error:
             StagedTask(self.name, [])
         self.assertEqual(ErrorMessages.EMPTY_LIST_DUR, str(error.exception))
 
     def test_init_incorrect_duration(self):
-        """Проверяет выброс исключения при некорректной продолжительности
-        этапа задачи"""
         incorrect_duration_values = [None, "1", []]
         for value in incorrect_duration_values:
             with (
@@ -277,8 +417,6 @@ class TestStagedTask(unittest.TestCase):
             )
 
     def test_init_non_positive_duration(self):
-        """Проверяет выброс исключения если продолжительность этапа задачи
-        меньше или равна нулю"""
         incorrect_duration_values = [0, -1, -0.1]
         for value in incorrect_duration_values:
             with (
@@ -292,34 +430,27 @@ class TestStagedTask(unittest.TestCase):
             )
 
     def test_str(self):
-        """Проверка приведения задачи к строковому типу"""
         task_str = STAGED_TASK_STR_TEMPL.format(
             self.name, sum(self.stage_durations), len(self.stage_durations)
         )
         self.assertEqual(task_str, str(self.task))
 
     def test_name_property(self):
-        """Проверка свойства name"""
         self.assertEqual(self.task.name, self.name)
 
     def test_duration_property(self):
-        """Проверка свойства duration"""
         self.assertEqual(self.task.duration, sum(self.stage_durations))
 
     def test_stage_count_property(self):
-        """Проверка свойства stage_count"""
         self.assertEqual(self.task.stage_count, len(self.stage_durations))
 
     def test_stage_durations_property(self):
-        """Проверка свойства stage_count"""
         self.assertEqual(self.task.stage_durations, tuple(self.stage_durations))
 
     def test_stage_duration(self):
-        """Проверка метода получения длительности этапа"""
         self.assertEqual(self.task.stage_duration(1), self.stage_1_duration)
 
     def test_stage_duration_not_int_idx(self):
-        """Проверка выброса исключения при нечисловом индексе этапа"""
         incorrect_idx_values = [None, "1", -1, 1.1, {}]
         for value in incorrect_idx_values:
             with (
@@ -330,20 +461,17 @@ class TestStagedTask(unittest.TestCase):
             self.assertEqual(ErrorMessages.STAGE_NOT_INT, str(error.exception))
 
     def test_stage_duration_incorrect_idx(self):
-        """Проверка выброса исключения при некорректном индексе этапа"""
         with self.assertRaises(TaskArgumentError) as error:
             self.task.stage_duration(len(self.stage_durations) + 1)
         self.assertEqual(ErrorMessages.STAGE_OUT_OF_RANGE, str(error.exception))
 
     def test_eq(self):
-        """Проверка операции эквивалентности заданий"""
         task1 = StagedTask("a", [1, 1, 1])
         task2 = StagedTask("a", [1, 1, 1])
         self.assertTrue(task1 == task2)
         self.assertTrue(hash(task1) == hash(task2))
 
     def test_not_eq(self):
-        """Проверка операции неэквивалентности заданий"""
         task1 = StagedTask("a", [1.1, 1, 1])
         task2 = StagedTask("a", [1, 1, 1])
         self.assertTrue(task1 != task2)
@@ -351,10 +479,7 @@ class TestStagedTask(unittest.TestCase):
 
 
 class TestScheduleItem(unittest.TestCase):
-
     def test_init_not_number_start(self):
-        """Проверяет выброс исключения при некорректном указании времени
-        начала выполнения задачи - передано не число"""
         incorrect_values = [None, "str", []]
         for value in incorrect_values:
             with self.assertRaises(ScheduleItemError) as error:
@@ -362,15 +487,11 @@ class TestScheduleItem(unittest.TestCase):
             self.assertEqual(ErrorMessages.START_NOT_NUMBER, str(error.exception))
 
     def test_init_negative_start(self):
-        """Проверяет выброс исключения при указании времени
-        начала выполнения задачи меньше нуля"""
         with self.assertRaises(ScheduleItemError) as error:
             ScheduleItem(None, -1, 1)
         self.assertEqual(ErrorMessages.START_NEG_NUMBER, str(error.exception))
 
     def test_init_not_number_duration(self):
-        """Проверяет выброс исключения при некорректном указании
-        продолжительности выполнения задачи - передано не число"""
         incorrect_values = [None, "str", []]
         for value in incorrect_values:
             with self.assertRaises(ScheduleItemError) as error:
@@ -378,8 +499,6 @@ class TestScheduleItem(unittest.TestCase):
             self.assertEqual(ErrorMessages.DUR_NOT_NUMBER, str(error.exception))
 
     def test_init_not_pos_duration(self):
-        """Проверяет выброс исключения при указании продолжительности
-        выполнения задачи меньше или равной нулю"""
         incorrect_values = [0, -1, -0.1]
         for value in incorrect_values:
             with self.assertRaises(ScheduleItemError) as error:
@@ -387,7 +506,6 @@ class TestScheduleItem(unittest.TestCase):
             self.assertEqual(ErrorMessages.DUR_NOT_POS_NUMBER, str(error.exception))
 
     def test_init_integers(self):
-        """Проверяет инициализацию объекта класса с целочисленными значениями"""
         task_name = "task"
         start = 0
         duration = 1
@@ -399,8 +517,6 @@ class TestScheduleItem(unittest.TestCase):
         self.assertFalse(row.is_downtime)
 
     def test_init_floats_downtime(self):
-        """Проверяет инициализацию объекта класса с вещественными значениями
-        и признаком простоя"""
         start = 1.1
         duration = 0.25
         item = ScheduleItem(None, start, duration)
@@ -413,7 +529,6 @@ class TestScheduleItem(unittest.TestCase):
         self.assertEqual(err, str(item))
 
     def test_str(self):
-        """Проверка приведения объекта класса без простоя к строковому типу"""
         task_name = "task"
         start = 0
         duration = 1
@@ -422,7 +537,6 @@ class TestScheduleItem(unittest.TestCase):
         self.assertEqual(str_item, str(item))
 
     def test_str_downtime(self):
-        """Проверка приведения объекта класса с простоем к строковому типу"""
         start = 1.1
         duration = 10
         item = ScheduleItem(None, start, duration)
