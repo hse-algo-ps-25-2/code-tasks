@@ -21,28 +21,31 @@ class ErrorMessages(StrEnum):
     VERTEX_TYPE_ERROR = "Номер вершины должен быть целым числом"
 
 
-def validate_graph(graph: list[list[int]]):
+def _validate_graph(graph: list[list[int]], start: int, goal: int):
     if not isinstance(graph, list):
         raise TypeError(ErrorMessages.GRAPH_TYPE_ERROR)
     if len(graph) == 0:
         raise TypeError(ErrorMessages.GRAPH_EMPTY_ERROR)
+
     vertex_count = len(graph)
+
     for edge in graph:
-        validate_edge(edge, vertex_count)
+        _validate_edge(edge, vertex_count)
+    
+    _validate_vertex(start, vertex_count, ErrorMessages.VERTEX_TYPE_ERROR)
+    _validate_vertex(goal, vertex_count, ErrorMessages.VERTEX_TYPE_ERROR)
 
-
-def validate_edge(edge: list[int], vertex_count: int):
+def _validate_edge(edge: list[int], vertex_count: int):
     if not isinstance(edge, list):
         raise TypeError(ErrorMessages.GRAPH_TYPE_ERROR)
 
     for vertex in edge:
-        validate_vertex(vertex, vertex_count)
+        _validate_vertex(vertex, vertex_count, ErrorMessages.GRAPH_TYPE_ERROR)
 
 
-def validate_vertex(vertex: int, vertex_count: int):
+def _validate_vertex(vertex: int, vertex_count: int, type_error_message: ErrorMessages):
     if not isinstance(vertex, int) or isinstance(vertex, bool):
-        raise TypeError(ErrorMessages.VERTEX_TYPE_ERROR)
-
+        raise TypeError(type_error_message)
     if not (vertex >= 0 and vertex < vertex_count):
         raise ValueError(ErrorMessages.VERTEX_VALUE_ERROR)
 
@@ -64,17 +67,15 @@ def shortest_path(graph: list[list[int]], start: int, goal: int) -> list[int]:
     :raises UnreachableVertexError: Вершина недостижима
     :return: вершины кратчайшего пути
     """
-    validate_graph(graph)
+    _validate_graph(graph, start, goal)
     vertex_count = len(graph)
-    validate_vertex(start, vertex_count)
-    validate_vertex(goal, vertex_count)
 
     queue = Queue()
     queue.enqueue(start)
 
     parent: list[int | None] = [None] * vertex_count
-    visited = [False] * vertex_count
-    visited[start] = True
+    vertex_states = [VertexState.UNOPENED] * vertex_count
+    vertex_states[start] = VertexState.OPEN
 
     while not queue.is_empty():
         vertex = queue.dequeue()
@@ -83,12 +84,14 @@ def shortest_path(graph: list[list[int]], start: int, goal: int) -> list[int]:
             break
 
         for sibling_vertex in graph[vertex]:
-            if not visited[sibling_vertex]:
-                visited[sibling_vertex] = True
+            if vertex_states[sibling_vertex] == VertexState.UNOPENED:
+                vertex_states[sibling_vertex] = VertexState.OPEN
                 parent[sibling_vertex] = vertex
                 queue.enqueue(sibling_vertex)
 
-    if not visited[goal]:
+        vertex_states[vertex] = VertexState.PROCESSED
+
+    if vertex_states[goal] == VertexState.UNOPENED:
         raise UnreachableVertexError()
 
     result = []
