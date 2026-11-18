@@ -1,8 +1,8 @@
 from abstract_schedule import AbstractSchedule
 from errors import (
-    ScheduleArgumentError,
     ErrorMessages,
     ErrorTemplates,
+    ScheduleArgumentError,
 )
 from schedule_item import ScheduleItem
 from staged_task import StagedTask
@@ -69,14 +69,12 @@ class ConveyorSchedule(AbstractSchedule):
             first_row.append(ScheduleItem(task, first_end, stage1))
             first_end += stage1
 
-  
             start = max(first_end, second_end)
             if start > second_end:
                 second_row.append(ScheduleItem(None, second_end, start - second_end))
             second_row.append(ScheduleItem(task, start, stage2))
             second_end = start + stage2
 
- 
         if second_end > first_end:
             first_row.append(ScheduleItem(None, first_end, second_end - first_end))
 
