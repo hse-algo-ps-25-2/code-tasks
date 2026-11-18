@@ -88,7 +88,7 @@ def topological_sort(graph: list[list[int]]) -> list[int]:
     :return: номера вершин в топологическом порядке
     """
     validate_graph(graph)
-    vertex_states = [VertexState.UNOPENED for i in range(len(graph))]
+    vertex_states = [VertexState.UNOPENED for _ in range(len(graph))]
     reversed_order = []
 
     for vertex in range(len(graph)):
