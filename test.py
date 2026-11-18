@@ -1,4 +1,5 @@
 import unittest
+from itertools import permutations
 
 from abstract_schedule import AbstractSchedule
 from constants import (
@@ -143,6 +144,181 @@ class TestConveyorSchedule(unittest.TestCase):
         self.assertEqual(6, schedule.duration)
         self.assertEqual(stage1_schedule, schedule.get_schedule_for_executor(0))
         self.assertEqual(stage2_schedule, schedule.get_schedule_for_executor(1))
+
+    def test_invalid_stage_count(self):
+        cases = [
+            [StagedTask("a", [1, 1]), StagedTask("b", [1])],
+            [StagedTask("a", [1, 1]), StagedTask("b", [1, 2, 3])],
+        ]
+        for tasks in cases:
+            with self.subTest(tasks=tasks):
+                with self.assertRaises(ScheduleArgumentError) as error:
+                    ConveyorSchedule(tasks)
+                self.assertEqual(
+                    ErrorTemplates.INVALID_STAGE_CNT.format(1), str(error.exception)
+                )
+
+    def test_tasks_contains_simple_task(self):
+        with self.assertRaises(ScheduleArgumentError) as error:
+            ConveyorSchedule([StagedTask("a", [1, 1]), Task("b", 2)])
+        self.assertEqual(ErrorTemplates.INVALID_TASK.format(1), str(error.exception))
+
+    def test_johnson_order(self):
+        tasks = [
+            StagedTask("a", [7, 2]),
+            StagedTask("b", [3, 4]),
+            StagedTask("c", [2, 5]),
+            StagedTask("d", [4, 1]),
+            StagedTask("e", [6, 6]),
+            StagedTask("f", [5, 3]),
+            StagedTask("g", [4, 5]),
+        ]
+        schedule = ConveyorSchedule(tasks)
+        names = [
+            item.task_name
+            for item in schedule.get_schedule_for_executor(0)
+            if not item.is_downtime
+        ]
+        self.assertEqual(["c", "b", "g", "e", "f", "a", "d"], names)
+        self.assertEqual(32, schedule.duration)
+        self.assertEqual(tuple(tasks), schedule.tasks)
+
+    def test_full_schedule(self):
+        task_a = StagedTask("a", [3, 6])
+        task_b = StagedTask("b", [5, 2])
+        task_c = StagedTask("c", [1, 2])
+        task_d = StagedTask("d", [6, 6])
+        task_e = StagedTask("e", [7, 5])
+        schedule = ConveyorSchedule([task_a, task_b, task_c, task_d, task_e])
+        stage1_schedule = (
+            ScheduleItem(task_c, 0, 1),
+            ScheduleItem(task_a, 1, 3),
+            ScheduleItem(task_d, 4, 6),
+            ScheduleItem(task_e, 10, 7),
+            ScheduleItem(task_b, 17, 5),
+            ScheduleItem(None, 22, 2),
+        )
+        stage2_schedule = (
+            ScheduleItem(None, 0, 1),
+            ScheduleItem(task_c, 1, 2),
+            ScheduleItem(None, 3, 1),
+            ScheduleItem(task_a, 4, 6),
+            ScheduleItem(task_d, 10, 6),
+            ScheduleItem(None, 16, 1),
+            ScheduleItem(task_e, 17, 5),
+            ScheduleItem(task_b, 22, 2),
+        )
+        self.assertEqual(24, schedule.duration)
+        self.assertEqual(stage1_schedule, schedule.get_schedule_for_executor(0))
+        self.assertEqual(stage2_schedule, schedule.get_schedule_for_executor(1))
+
+    def test_second_group_only(self):
+        task_a = StagedTask("a", [4, 1])
+        task_b = StagedTask("b", [5, 3])
+        task_c = StagedTask("c", [3, 2])
+        schedule = ConveyorSchedule([task_a, task_b, task_c])
+        stage1_schedule = (
+            ScheduleItem(task_b, 0, 5),
+            ScheduleItem(task_c, 5, 3),
+            ScheduleItem(task_a, 8, 4),
+            ScheduleItem(None, 12, 1),
+        )
+        stage2_schedule = (
+            ScheduleItem(None, 0, 5),
+            ScheduleItem(task_b, 5, 3),
+            ScheduleItem(task_c, 8, 2),
+            ScheduleItem(None, 10, 2),
+            ScheduleItem(task_a, 12, 1),
+        )
+        self.assertEqual(13, schedule.duration)
+        self.assertEqual(stage1_schedule, schedule.get_schedule_for_executor(0))
+        self.assertEqual(stage2_schedule, schedule.get_schedule_for_executor(1))
+
+    def test_no_downtime_in_middle(self):
+        tasks = [StagedTask("a", [1, 5]), StagedTask("b", [2, 4])]
+        schedule = ConveyorSchedule(tasks)
+        second = schedule.get_schedule_for_executor(1)
+        downtimes = [item for item in second if item.is_downtime]
+        self.assertEqual([ScheduleItem(None, 0, 1)], downtimes)
+        self.assertEqual(10, schedule.duration)
+
+    def test_equal_keys_keep_order(self):
+        task_a = StagedTask("a", [2, 5])
+        task_b = StagedTask("b", [2, 3])
+        task_c = StagedTask("c", [6, 1])
+        task_d = StagedTask("d", [4, 1])
+        schedule = ConveyorSchedule([task_a, task_b, task_c, task_d])
+        names = [
+            item.task_name
+            for item in schedule.get_schedule_for_executor(0)
+            if not item.is_downtime
+        ]
+        self.assertEqual(["a", "b", "c", "d"], names)
+
+    def test_float_durations(self):
+        task_a = StagedTask("a", [0.5, 1.5])
+        task_b = StagedTask("b", [2.5, 0.5])
+        schedule = ConveyorSchedule([task_b, task_a])
+        stage1_schedule = (
+            ScheduleItem(task_a, 0, 0.5),
+            ScheduleItem(task_b, 0.5, 2.5),
+            ScheduleItem(None, 3.0, 0.5),
+        )
+        stage2_schedule = (
+            ScheduleItem(None, 0, 0.5),
+            ScheduleItem(task_a, 0.5, 1.5),
+            ScheduleItem(None, 2.0, 1.0),
+            ScheduleItem(task_b, 3.0, 0.5),
+        )
+        self.assertEqual(3.5, schedule.duration)
+        self.assertEqual(stage1_schedule, schedule.get_schedule_for_executor(0))
+        self.assertEqual(stage2_schedule, schedule.get_schedule_for_executor(1))
+
+    def test_schedule_is_correct(self):
+        tasks = [
+            StagedTask("a", [3, 3]),
+            StagedTask("b", [8, 2]),
+            StagedTask("c", [1, 9]),
+            StagedTask("d", [5, 4]),
+            StagedTask("e", [2, 2]),
+            StagedTask("f", [6, 7]),
+        ]
+        schedule = ConveyorSchedule(tasks)
+        first = schedule.get_schedule_for_executor(0)
+        second = schedule.get_schedule_for_executor(1)
+        for row in (first, second):
+            self.assertEqual(0, row[0].start)
+            for prev, cur in zip(row, row[1:]):
+                self.assertEqual(prev.end, cur.start)
+            self.assertEqual(schedule.duration, row[-1].end)
+            tasks_in_row = [item.task_name for item in row if not item.is_downtime]
+            self.assertEqual(len(tasks), len(tasks_in_row))
+
+        stage1_end = {item.task_name: item.end for item in first}
+        for item in second:
+            if not item.is_downtime:
+                self.assertGreaterEqual(item.start, stage1_end[item.task_name])
+
+    def test_optimal_duration(self):
+        tasks = [
+            StagedTask("a", [3, 3]),
+            StagedTask("b", [8, 2]),
+            StagedTask("c", [1, 9]),
+            StagedTask("d", [5, 4]),
+            StagedTask("e", [2, 2]),
+            StagedTask("f", [6, 7]),
+        ]
+        best = min(conveyor_duration(order) for order in permutations(tasks))
+        self.assertEqual(best, ConveyorSchedule(tasks).duration)
+
+
+def conveyor_duration(tasks: list[StagedTask]) -> int | float:
+    first_end = 0
+    second_end = 0
+    for task in tasks:
+        first_end += task.stage_duration(0)
+        second_end = max(first_end, second_end) + task.stage_duration(1)
+    return second_end
 
 
 class TestTask(unittest.TestCase):

@@ -4,6 +4,7 @@ from errors import (
     ErrorMessages,
     ErrorTemplates,
 )
+from schedule_item import ScheduleItem
 from staged_task import StagedTask
 
 
@@ -55,13 +56,47 @@ class ConveyorSchedule(AbstractSchedule):
     def __fill_schedule(self, tasks: list[StagedTask]) -> None:
         """Процедура составляет расписание из элементов ScheduleItem для каждого
         исполнителя, согласно алгоритму Джонсона."""
-        pass
+        first_row = self._executor_schedule[0]
+        second_row = self._executor_schedule[1]
+
+        first_end = 0
+        second_end = 0
+
+        for task in tasks:
+            stage1 = task.stage_duration(0)
+            stage2 = task.stage_duration(1)
+
+            first_row.append(ScheduleItem(task, first_end, stage1))
+            first_end += stage1
+
+  
+            start = max(first_end, second_end)
+            if start > second_end:
+                second_row.append(ScheduleItem(None, second_end, start - second_end))
+            second_row.append(ScheduleItem(task, start, stage2))
+            second_end = start + stage2
+
+ 
+        if second_end > first_end:
+            first_row.append(ScheduleItem(None, first_end, second_end - first_end))
 
     @staticmethod
     def __sort_tasks(tasks: list[StagedTask]) -> list[StagedTask]:
         """Возвращает отсортированный список задач для применения
         алгоритма Джонсона."""
-        pass
+
+        first_group = [
+            task for task in tasks if task.stage_duration(0) <= task.stage_duration(1)
+        ]
+        second_group = [
+            task for task in tasks if task.stage_duration(0) > task.stage_duration(1)
+        ]
+
+        first_group = sorted(first_group, key=lambda task: task.stage_duration(0))
+        second_group = sorted(
+            second_group, key=lambda task: task.stage_duration(1), reverse=True
+        )
+        return first_group + second_group
 
     @staticmethod
     def __validate_params(tasks: list[StagedTask]) -> None:
