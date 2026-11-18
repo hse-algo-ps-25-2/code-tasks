@@ -1,4 +1,7 @@
+from fractions import Fraction
+
 from abstract_schedule import AbstractSchedule
+from schedule_item import ScheduleItem
 from task import Task
 
 
@@ -51,10 +54,58 @@ class Schedule(AbstractSchedule):
 
     def __calculate_duration(self) -> float:
         """Вычисляет и возвращает минимальную продолжительность расписания"""
-        pass
+        durations = [Fraction(str(task.duration)) for task in self.tasks]
+        max_task_duration = max(durations)
+        total_duration = sum(durations)
+        average_duration = total_duration / self.executor_count
+
+        self._exact_duration = max(max_task_duration, average_duration)
+        return float(self._exact_duration)
 
     def __fill_schedule_for_each_executor(self) -> None:
         """Процедура составляет расписание из элементов ScheduleItem для каждого
         исполнителя, на основе исходного списка задач и общей продолжительности
         расписания."""
-        pass
+        executor_idx = 0
+        current_time = Fraction(0)
+        duration = self._exact_duration
+
+        for task in self.tasks:
+            remaining_duration = Fraction(str(task.duration))
+
+            while remaining_duration > 0:
+                available_time = duration - current_time
+
+                if available_time == 0:
+                    executor_idx += 1
+                    current_time = Fraction(0)
+                    available_time = duration
+
+                execution_duration = min(remaining_duration, available_time)
+
+                self._executor_schedule[executor_idx].append(
+                    ScheduleItem(
+                        task,
+                        float(current_time),
+                        float(execution_duration),
+                    )
+                )
+
+                remaining_duration -= execution_duration
+                current_time += execution_duration
+
+        for idx, executor_schedule in enumerate(self._executor_schedule):
+            if idx < executor_idx:
+                continue
+
+            last_end = current_time if idx == executor_idx else Fraction(0)
+            downtime_duration = duration - last_end
+
+            if downtime_duration > 0:
+                executor_schedule.append(
+                    ScheduleItem(
+                        None,
+                        float(last_end),
+                        float(downtime_duration),
+                    )
+                )
