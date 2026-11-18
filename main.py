@@ -12,8 +12,30 @@ class VertexState(IntEnum):
     PROCESSED = 2
 
 
-def validate_graph(graph: list[list[int]]):
-    pass
+def validate_graph(graph: list[list[int]]) -> None:
+    """Проверяет, что граф — список списков целых номеров вершин,
+    а номера вершин лежат в диапазоне от 0 до n-1.
+
+    :param graph: проверяемый объект
+    :raises TypeError: аргумент не является списком списков целых номеров
+    :raises ValueError: номер вершины вне диапазона от 0 до n-1
+    :return: ничего не возвращает
+    """
+    type_error = TypeError("Граф задают списком списков целых номеров вершин")
+
+    if not isinstance(graph, list):
+        raise type_error
+
+    n = len(graph)
+
+    for row in graph:
+        if not isinstance(row, list):
+            raise type_error
+        for vertex in row:
+            if isinstance(vertex, bool) or not isinstance(vertex, int):
+                raise type_error
+            if vertex < 0 or vertex >= n:
+                raise ValueError("Номер вершины вне диапазона")
 
 
 def visit_depth_first(
