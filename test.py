@@ -144,6 +144,78 @@ class TestConveyorSchedule(unittest.TestCase):
         self.assertEqual(stage1_schedule, schedule.get_schedule_for_executor(0))
         self.assertEqual(stage2_schedule, schedule.get_schedule_for_executor(1))
 
+    def test_johnson_order_for_main_tasks(self):
+        """Проверяет полный порядок Джонсона для задач из main.py."""
+        tasks = [
+            StagedTask("a", [7, 2]),
+            StagedTask("b", [3, 4]),
+            StagedTask("c", [2, 5]),
+            StagedTask("d", [4, 1]),
+            StagedTask("e", [6, 6]),
+            StagedTask("f", [5, 3]),
+            StagedTask("g", [4, 5]),
+        ]
+        schedule = ConveyorSchedule(tasks)
+        task_names = []
+        for item in schedule.get_schedule_for_executor(0):
+            if not item.is_downtime:
+                task_names.append(item.task_name)
+        self.assertEqual(["c", "b", "g", "e", "f", "a", "d"], task_names)
+
+    def test_stable_order_for_equal_johnson_keys(self):
+        """Проверяет устойчивость порядка при равных ключах обеих групп."""
+        second_a = StagedTask("second_a", [5, 1])
+        first_a = StagedTask("first_a", [2, 4])
+        second_b = StagedTask("second_b", [4, 1])
+        first_b = StagedTask("first_b", [2, 3])
+        schedule = ConveyorSchedule([second_a, first_a, second_b, first_b])
+        task_names = []
+        for item in schedule.get_schedule_for_executor(0):
+            if not item.is_downtime:
+                task_names.append(item.task_name)
+        expected = ["first_a", "first_b", "second_a", "second_b"]
+        self.assertEqual(expected, task_names)
+
+    def test_fractional_durations_and_intervals(self):
+        """Проверяет интервалы и длительность для дробных этапов."""
+        task_a = StagedTask("a", [0.5, 1.5])
+        task_b = StagedTask("b", [1.0, 0.5])
+        schedule = ConveyorSchedule([task_a, task_b])
+        first_executor = (
+            ScheduleItem(task_a, 0, 0.5),
+            ScheduleItem(task_b, 0.5, 1.0),
+            ScheduleItem(None, 1.5, 1.0),
+        )
+        second_executor = (
+            ScheduleItem(None, 0, 0.5),
+            ScheduleItem(task_a, 0.5, 1.5),
+            ScheduleItem(task_b, 2.0, 0.5),
+        )
+        self.assertEqual(2.5, schedule.duration)
+        self.assertEqual(first_executor, schedule.get_schedule_for_executor(0))
+        self.assertEqual(second_executor, schedule.get_schedule_for_executor(1))
+
+    def test_invalid_stage_count(self):
+        """Проверяет позиции задач с одним и тремя этапами."""
+        valid_task = StagedTask("valid", [1, 1])
+        cases = [
+            ([StagedTask("one", [1]), valid_task], 0),
+            ([valid_task, StagedTask("three", [1, 1, 1])], 1),
+        ]
+        for tasks, position in cases:
+            with self.subTest(position=position):
+                with self.assertRaises(ScheduleArgumentError) as error:
+                    ConveyorSchedule(tasks)
+                expected = ErrorTemplates.INVALID_STAGE_CNT.format(position)
+                self.assertEqual(expected, str(error.exception))
+
+    def test_tasks_tuple(self):
+        """Проверяет ошибку при передаче tuple вместо списка задач."""
+        tasks = (StagedTask("a", [1, 1]),)
+        with self.assertRaises(ScheduleArgumentError) as error:
+            ConveyorSchedule(tasks)
+        self.assertEqual(ErrorMessages.TASKS_NOT_LIST, str(error.exception))
+
 
 class TestTask(unittest.TestCase):
     name = "a"
@@ -351,7 +423,6 @@ class TestStagedTask(unittest.TestCase):
 
 
 class TestScheduleItem(unittest.TestCase):
-
     def test_init_not_number_start(self):
         """Проверяет выброс исключения при некорректном указании времени
         начала выполнения задачи - передано не число"""

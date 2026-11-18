@@ -1,9 +1,10 @@
 from abstract_schedule import AbstractSchedule
 from errors import (
-    ScheduleArgumentError,
     ErrorMessages,
     ErrorTemplates,
+    ScheduleArgumentError,
 )
+from schedule_item import ScheduleItem
 from staged_task import StagedTask
 
 
@@ -55,13 +56,81 @@ class ConveyorSchedule(AbstractSchedule):
     def __fill_schedule(self, tasks: list[StagedTask]) -> None:
         """Процедура составляет расписание из элементов ScheduleItem для каждого
         исполнителя, согласно алгоритму Джонсона."""
-        pass
+        first_executor_end = 0
+        second_executor_end = 0
+
+        for task in tasks:
+            first_stage_duration = task.stage_duration(0)
+            self._executor_schedule[0].append(
+                ScheduleItem(task, first_executor_end, first_stage_duration)
+            )
+            first_executor_end += first_stage_duration
+
+            second_stage_start = first_executor_end
+            if second_executor_end > second_stage_start:
+                second_stage_start = second_executor_end
+            self.__append_idle(
+                self._executor_schedule[1],
+                second_executor_end,
+                second_stage_start,
+            )
+
+            second_stage_duration = task.stage_duration(1)
+            self._executor_schedule[1].append(
+                ScheduleItem(task, second_stage_start, second_stage_duration)
+            )
+            second_executor_end = second_stage_start + second_stage_duration
+
+        self.__append_idle(
+            self._executor_schedule[0],
+            first_executor_end,
+            second_executor_end,
+        )
+
+    @staticmethod
+    def __append_idle(schedule: list[ScheduleItem], start: float, end: float) -> None:
+        if start < end:
+            schedule.append(ScheduleItem(None, start, end - start))
 
     @staticmethod
     def __sort_tasks(tasks: list[StagedTask]) -> list[StagedTask]:
         """Возвращает отсортированный список задач для применения
         алгоритма Джонсона."""
-        pass
+        first_group = []
+        second_group = []
+
+        for task in tasks:
+            if task.stage_duration(0) <= task.stage_duration(1):
+                first_group.append(task)
+            else:
+                second_group.append(task)
+
+        ConveyorSchedule.__insertion_sort(first_group, 0, True)
+        ConveyorSchedule.__insertion_sort(second_group, 1, False)
+
+        return first_group + second_group
+
+    @staticmethod
+    def __insertion_sort(
+        tasks: list[StagedTask], stage_idx: int, ascending: bool
+    ) -> None:
+        for index in range(1, len(tasks)):
+            current_task = tasks[index]
+            current_duration = current_task.stage_duration(stage_idx)
+            previous_index = index - 1
+
+            while previous_index >= 0:
+                previous_duration = tasks[previous_index].stage_duration(stage_idx)
+                should_shift = ascending and previous_duration > current_duration
+                should_shift = should_shift or (
+                    not ascending and previous_duration < current_duration
+                )
+                if not should_shift:
+                    break
+                tasks[previous_index + 1] = tasks[previous_index]
+                previous_index -= 1
+
+            tasks[previous_index + 1] = current_task
 
     @staticmethod
     def __validate_params(tasks: list[StagedTask]) -> None:
