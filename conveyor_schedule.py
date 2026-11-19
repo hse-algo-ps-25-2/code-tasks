@@ -1,9 +1,6 @@
 from abstract_schedule import AbstractSchedule
-from errors import (
-    ScheduleArgumentError,
-    ErrorMessages,
-    ErrorTemplates,
-)
+from errors import ErrorMessages, ErrorTemplates, ScheduleArgumentError
+from schedule_item import ScheduleItem
 from staged_task import StagedTask
 
 
@@ -43,8 +40,6 @@ class ConveyorSchedule(AbstractSchedule):
         ConveyorSchedule.__validate_params(tasks)
         super().__init__(tasks, 2)
 
-        # Процедура заполняет пустую заготовку расписания для каждого
-        # исполнителя объектами ScheduleItem.
         self.__fill_schedule(ConveyorSchedule.__sort_tasks(tasks))
 
     @property
@@ -53,15 +48,45 @@ class ConveyorSchedule(AbstractSchedule):
         return self._executor_schedule[0][-1].end
 
     def __fill_schedule(self, tasks: list[StagedTask]) -> None:
-        """Процедура составляет расписание из элементов ScheduleItem для каждого
-        исполнителя, согласно алгоритму Джонсона."""
-        pass
+        """Заполняет расписания двух исполнитедей с учётом простоев"""
+        first_end = 0
+        second_end = 0
+
+        for task in tasks:
+            self._executor_schedule[0].append(
+                ScheduleItem(task, first_end, task.stage_duration(0))
+            )
+            first_end = self._executor_schedule[0][-1].end
+
+            second_stage_start = max(first_end, second_end)
+            if second_stage_start > second_end:
+                self._executor_schedule[1].append(
+                    ScheduleItem(None, second_end, second_stage_start - second_end)
+                )
+            self._executor_schedule[1].append(
+                ScheduleItem(task, second_stage_start, task.stage_duration(1))
+            )
+            second_end = self._executor_schedule[1][-1].end
+
+        if second_end > first_end:
+            self._executor_schedule[0].append(
+                ScheduleItem(None, first_end, second_end - first_end)
+            )
 
     @staticmethod
     def __sort_tasks(tasks: list[StagedTask]) -> list[StagedTask]:
-        """Возвращает отсортированный список задач для применения
-        алгоритма Джонсона."""
-        pass
+        """Возврашает задачи в порядке алгоритма Джонсона"""
+        first_group = []
+        second_group = []
+        for task in tasks:
+            if task.stage_duration(0) <= task.stage_duration(1):
+                first_group.append(task)
+            else:
+                second_group.append(task)
+
+        first_group.sort(key=lambda task: task.stage_duration(0))
+        second_group.sort(key=lambda task: task.stage_duration(1), reverse=True)
+        return first_group + second_group
 
     @staticmethod
     def __validate_params(tasks: list[StagedTask]) -> None:

@@ -1,10 +1,6 @@
-from task import Task
 from constants import STAGED_TASK_STR_TEMPL
-from errors import (
-    TaskArgumentError,
-    ErrorMessages,
-    ErrorTemplates,
-)
+from errors import ErrorMessages, ErrorTemplates, TaskArgumentError
+from task import Task
 
 
 class StagedTask(Task):
