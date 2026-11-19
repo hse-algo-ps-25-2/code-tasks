@@ -1,5 +1,9 @@
 from abstract_schedule import AbstractSchedule
-from errors import ErrorMessages, ErrorTemplates, ScheduleArgumentError
+from errors import (
+    ScheduleArgumentError,
+    ErrorMessages,
+    ErrorTemplates,
+)
 from schedule_item import ScheduleItem
 from staged_task import StagedTask
 
@@ -40,6 +44,8 @@ class ConveyorSchedule(AbstractSchedule):
         ConveyorSchedule.__validate_params(tasks)
         super().__init__(tasks, 2)
 
+        # Процедура заполняет пустую заготовку расписания для каждого
+        # исполнителя объектами ScheduleItem.
         self.__fill_schedule(ConveyorSchedule.__sort_tasks(tasks))
 
     @property
@@ -48,7 +54,8 @@ class ConveyorSchedule(AbstractSchedule):
         return self._executor_schedule[0][-1].end
 
     def __fill_schedule(self, tasks: list[StagedTask]) -> None:
-        """Заполняет расписания двух исполнитедей с учётом простоев"""
+        """Процедура составляет расписание из элементов ScheduleItem для каждого
+        исполнителя, согласно алгоритму Джонсона."""
         first_end = 0
         second_end = 0
 
@@ -75,7 +82,8 @@ class ConveyorSchedule(AbstractSchedule):
 
     @staticmethod
     def __sort_tasks(tasks: list[StagedTask]) -> list[StagedTask]:
-        """Возврашает задачи в порядке алгоритма Джонсона"""
+        """Возвращает отсортированный список задач для применения
+        алгоритма Джонсона."""
         first_group = []
         second_group = []
         for task in tasks:
