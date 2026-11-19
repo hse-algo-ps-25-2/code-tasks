@@ -606,6 +606,7 @@ class TestStagedTask(unittest.TestCase):
 
 
 class TestScheduleItem(unittest.TestCase):
+
     def test_init_not_number_start(self):
         """Проверяет выброс исключения при некорректном указании времени
         начала выполнения задачи - передано не число"""
